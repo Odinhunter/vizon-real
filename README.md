@@ -1,36 +1,30 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Vizon
 
-## Getting Started
+Vizon is a career diagnostic engine that assesses skills and capabilities through structured, adaptive question flows. It provides deterministic career track recommendations based on skill proficiency scores.
 
-First, run the development server:
+## Core Principles
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+- **Diagnostic-first**: Built as an assessment engine, not a quiz or content platform
+- **Deterministic logic**: All branching, scoring, and recommendations follow explicit rules—no AI-based evaluation
+- **AI as support**: AI may assist with explanations or guidance, but never decides diagnostic outcomes
+- **Extensible architecture**: Designed to support multiple career tracks and adaptive flows
+
+## Folder Structure
+
+```
+/engine         - Diagnostic engine logic (state management, branching, scoring)
+/config         - Configuration data (skills, career tracks)
+/data           - Question definitions (data only, no logic)
+/components     - UI components (diagnostic flow, question display)
+/lib            - Shared types and utilities
+/app            - Next.js application routes
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Key Separations
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- **Engine logic** (`/engine`): Implements state, branching, and scoring algorithms
+- **Configuration** (`/config`): Defines skills and career tracks as structured data
+- **Questions** (`/data`): Pure data—no logic, consumed by the engine
+- **UI** (`/components`): Presentation layer—renders diagnostic flow and questions
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+This structure ensures that business logic, configuration, and presentation remain cleanly separated and independently maintainable.
