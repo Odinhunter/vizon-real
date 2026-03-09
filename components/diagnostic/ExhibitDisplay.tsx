@@ -33,8 +33,8 @@ function formatTick(value: number, format?: string): string {
 
 function PanelHeader({ exhibit }: { exhibit: ProbeExhibit }) {
   return (
-    <div className="px-5 pt-5 pb-3 border-b border-neutral-100">
-      <div className="flex items-center justify-between mb-3">
+    <div className="px-5 pt-4 pb-2 border-b border-neutral-100">
+      <div className="flex items-center justify-between mb-2">
         <span className="text-[10px] font-mono text-neutral-400 tracking-widest uppercase">
           Case Reference Data
         </span>
@@ -42,7 +42,7 @@ function PanelHeader({ exhibit }: { exhibit: ProbeExhibit }) {
           {exhibit.type === 'table' ? 'TABLE' : 'CHART'}
         </span>
       </div>
-      <p className="font-mono text-sm font-semibold text-neutral-900">{exhibit.title}</p>
+      <p className="font-mono text-base font-semibold text-neutral-900">{exhibit.title}</p>
       {'subtitle' in exhibit && exhibit.subtitle && (
         <p className="text-xs text-neutral-500 mt-1 leading-relaxed">{exhibit.subtitle}</p>
       )}
@@ -139,22 +139,22 @@ function BarDisplay({ exhibit, mode }: { exhibit: ChartExhibit; mode: 'inline' |
         </div>
       )}
       <div className="px-5 py-4">
-        <ResponsiveContainer width="100%" height={220}>
+        <ResponsiveContainer width="100%" height={260}>
           <BarChart data={data} barCategoryGap={isGrouped ? '20%' : '30%'}>
-            <XAxis dataKey="name" tick={{ fontSize: 11 }} axisLine={false} tickLine={false} />
+            <XAxis dataKey="name" tick={{ fontSize: 11, fontFamily: 'var(--font-geist-mono), monospace' }} axisLine={false} tickLine={false} />
             <YAxis
-              tick={{ fontSize: 11 }}
+              tick={{ fontSize: 11, fontFamily: 'var(--font-geist-mono), monospace' }}
               axisLine={false}
               tickLine={false}
               tickFormatter={(v) => formatTick(v, exhibit.yAxisFormat)}
             />
             <Tooltip
               formatter={(value) => formatTick(Number(value), exhibit.yAxisFormat)}
-              contentStyle={{ fontSize: 11, borderRadius: 0, border: '1px solid #e5e5e5' }}
+              contentStyle={{ fontSize: 11, borderRadius: 0, border: '1px solid #003A70' }}
             />
             <Legend wrapperStyle={{ fontSize: 11, paddingTop: 8 }} />
             {exhibit.series.map((s) => (
-              <Bar key={s.name} dataKey={s.name} fill={s.highlight ? '#1A56DB' : '#D4D4D4'} radius={[2, 2, 0, 0]} />
+              <Bar key={s.name} dataKey={s.name} fill={s.highlight ? '#003A70' : '#C8D7E8'} radius={[2, 2, 0, 0]} />
             ))}
           </BarChart>
         </ResponsiveContainer>
@@ -190,25 +190,25 @@ function LineDisplay({ exhibit, mode }: { exhibit: ChartExhibit; mode: 'inline' 
         </div>
       )}
       <div className="px-5 py-4">
-        <ResponsiveContainer width="100%" height={220}>
+        <ResponsiveContainer width="100%" height={260}>
           <LineChart data={data}>
-            <XAxis dataKey="name" tick={{ fontSize: 11 }} axisLine={false} tickLine={false} />
+            <XAxis dataKey="name" tick={{ fontSize: 11, fontFamily: 'var(--font-geist-mono), monospace' }} axisLine={false} tickLine={false} />
             <YAxis
-              tick={{ fontSize: 11 }}
+              tick={{ fontSize: 11, fontFamily: 'var(--font-geist-mono), monospace' }}
               axisLine={false}
               tickLine={false}
               tickFormatter={(v) => formatTick(v, exhibit.yAxisFormat)}
             />
             <Tooltip
               formatter={(value) => formatTick(Number(value), exhibit.yAxisFormat)}
-              contentStyle={{ fontSize: 11, borderRadius: 0, border: '1px solid #e5e5e5' }}
+              contentStyle={{ fontSize: 11, borderRadius: 0, border: '1px solid #003A70' }}
             />
             <Legend wrapperStyle={{ fontSize: 11, paddingTop: 8 }} />
             {exhibit.series.map((s) => (
               <Line
                 key={s.name}
                 dataKey={s.name}
-                stroke={s.highlight ? '#1A56DB' : '#D4D4D4'}
+                stroke={s.highlight ? '#003A70' : '#C8D7E8'}
                 strokeWidth={s.highlight ? 2.5 : 1.5}
                 dot={false}
               />
@@ -254,11 +254,11 @@ function WaterfallDisplay({ exhibit, mode }: { exhibit: WaterfallExhibit; mode: 
         </div>
       )}
       <div className="px-5 py-4">
-        <ResponsiveContainer width="100%" height={220}>
+        <ResponsiveContainer width="100%" height={260}>
           <ComposedChart data={data} barCategoryGap="20%">
-            <XAxis dataKey="name" tick={{ fontSize: 11 }} axisLine={false} tickLine={false} />
+            <XAxis dataKey="name" tick={{ fontSize: 11, fontFamily: 'var(--font-geist-mono), monospace' }} axisLine={false} tickLine={false} />
             <YAxis
-              tick={{ fontSize: 11 }}
+              tick={{ fontSize: 11, fontFamily: 'var(--font-geist-mono), monospace' }}
               axisLine={false}
               tickLine={false}
               tickFormatter={(v) => formatTick(v, exhibit.yAxisFormat)}
@@ -267,7 +267,7 @@ function WaterfallDisplay({ exhibit, mode }: { exhibit: WaterfallExhibit; mode: 
               formatter={(value, name) =>
                 name === 'base' ? null : formatTick(Number(value), exhibit.yAxisFormat)
               }
-              contentStyle={{ fontSize: 11, borderRadius: 0, border: '1px solid #e5e5e5' }}
+              contentStyle={{ fontSize: 11, borderRadius: 0, border: '1px solid #003A70' }}
             />
             {/* Invisible base bar */}
             <Bar dataKey="base" stackId="wf" fill="transparent" />
@@ -276,7 +276,7 @@ function WaterfallDisplay({ exhibit, mode }: { exhibit: WaterfallExhibit; mode: 
               {data.map((entry, index) => (
                 <Cell
                   key={index}
-                  fill={entry.isTotal ? '#404040' : entry.isPositive ? '#1A56DB' : '#EF4444'}
+                  fill={entry.isTotal ? '#404040' : entry.isPositive ? '#003A70' : '#EF4444'}
                 />
               ))}
             </Bar>

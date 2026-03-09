@@ -94,15 +94,24 @@ export default function ProbeDisplay({
   return (
     <div className="h-screen flex flex-col bg-white">
       {/* Dark nav bar */}
-      <nav className="bg-[#0A0A0A] border-b border-[#1F1F1F] px-6 py-3 flex items-center gap-6 shrink-0">
+      <nav className="bg-[#0A0A0A] border-b border-[#1F1F1F] px-4 md:px-6 py-3 flex items-center gap-4 md:gap-6 shrink-0">
         {/* Left: brand + track */}
         <div className="flex items-center gap-2 shrink-0">
           <span className="text-white text-xs font-mono font-semibold tracking-widest uppercase">VIZON</span>
-          <span className="text-[#404040] text-xs">|</span>
-          <span className="text-[#A3A3A3] text-xs font-mono tracking-wider uppercase">{trackName}</span>
+          <span className="text-[#404040] text-xs hidden md:inline">|</span>
+          <span className="text-[#A3A3A3] text-xs font-mono tracking-wider uppercase hidden md:inline">{trackName}</span>
         </div>
-        {/* Center: progress */}
-        <div className="flex-1 flex items-center gap-4">
+        {/* Mobile compact progress */}
+        <div className="flex-1 flex items-center justify-end gap-3 md:hidden">
+          <span className="text-[#737373] text-xs font-mono tracking-wide">
+            Q{probeNumber}/{totalProbes}
+          </span>
+          <span className="text-[#A3A3A3] text-xs font-mono tracking-wider">
+            C{caseNumber}/3
+          </span>
+        </div>
+        {/* Center: progress (desktop) */}
+        <div className="flex-1 hidden md:flex items-center gap-4">
           <span className="text-[#737373] text-xs font-mono tracking-wide whitespace-nowrap">
             QUESTION {probeNumber} OF {totalProbes}
           </span>
@@ -116,8 +125,8 @@ export default function ProbeDisplay({
             {progressPct}% COMPLETE
           </span>
         </div>
-        {/* Right: case stage */}
-        <div className="shrink-0">
+        {/* Right: case stage (desktop) */}
+        <div className="shrink-0 hidden md:block">
           <span className="text-[#A3A3A3] text-xs font-mono tracking-wider uppercase">
             CASE {caseNumber} OF 3
           </span>
@@ -125,11 +134,24 @@ export default function ProbeDisplay({
       </nav>
 
       {/* Body */}
-      <div className="flex-1 flex overflow-hidden">
+      <div className="flex-1 flex flex-col md:flex-row overflow-hidden">
         {/* Left question panel */}
         <div
-          className={`${hasExhibit ? 'flex-1' : 'max-w-2xl w-full mx-auto'} overflow-y-auto px-8 py-8`}
+          className={`${hasExhibit ? 'flex-1' : 'max-w-2xl w-full mx-auto'} overflow-y-auto px-5 md:px-8 py-6 md:py-8`}
         >
+          {/* Case context reminder */}
+          <div className="mb-5 pb-5 border-b border-neutral-100 flex gap-2.5">
+            <div className="w-0.5 rounded-full bg-[#1A56DB] shrink-0 mt-0.5 self-stretch" />
+            <div>
+              <p className="text-[10px] font-mono text-neutral-400 uppercase tracking-widest mb-0.5">
+                {caseContent.company}
+              </p>
+              <p className="text-xs text-neutral-500 leading-relaxed line-clamp-2 font-mono">
+                {caseContent.problemStatement}
+              </p>
+            </div>
+          </div>
+
           {/* Skill tag + level badge */}
           <div className="flex items-center gap-2 mb-4">
             <span className="text-[10px] font-mono text-neutral-400 tracking-widest">
@@ -149,18 +171,12 @@ export default function ProbeDisplay({
             {question}
           </h2>
 
-          {/* Case context reminder */}
-          <div className="mb-5 pb-5 border-b border-neutral-100 flex gap-2.5">
-            <div className="w-0.5 rounded-full bg-[#1A56DB] shrink-0 mt-0.5 self-stretch" />
-            <div>
-              <p className="text-[10px] font-mono text-neutral-400 uppercase tracking-widest mb-0.5">
-                {caseContent.company}
-              </p>
-              <p className="text-xs text-neutral-500 leading-relaxed line-clamp-2 font-mono">
-                {caseContent.problemStatement}
-              </p>
+          {/* Mobile inline exhibit */}
+          {hasExhibit && (
+            <div className="md:hidden mb-6 border border-neutral-200 bg-[#FAFAFA]">
+              <ExhibitDisplay exhibit={step.exhibit!} mode="panel" />
             </div>
-          </div>
+          )}
 
           {/* Instruction box */}
           <div className="flex gap-2.5 p-4 border border-[#BFDBFE] bg-[#EEF4FF] mb-5">
@@ -298,9 +314,9 @@ export default function ProbeDisplay({
           </div>
         </div>
 
-        {/* Right exhibit panel */}
+        {/* Right exhibit panel (desktop only) */}
         {hasExhibit && (
-          <div className="w-[360px] shrink-0 border-l border-neutral-100 bg-[#FAFAFA] overflow-y-auto">
+          <div className="hidden md:block md:w-[440px] md:shrink-0 border-l border-neutral-100 bg-[#FAFAFA] overflow-y-auto">
             <ExhibitDisplay exhibit={step.exhibit!} mode="panel" />
           </div>
         )}
