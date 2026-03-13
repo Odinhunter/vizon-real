@@ -20,20 +20,20 @@ export const consultingProbeContent: Record<string, ProbeVariantContent> = {
     format: 'multi_select_plus_reasoning',
     maxSelections: 3,
     question:
-      'To begin diagnosing the profit decline, select the THREE areas you would investigate first.',
+      'To diagnose the decline in profits, you want to identify the most important areas to investigate first. Select the THREE areas you would investigate first.',
     instruction:
-      'Choose exactly three areas. Then explain in 3–5 bullet points how you structured the problem and why you prioritised these areas. Max 120 words.',
+      'Choose exactly three areas. Then explain how you structured the profit problem and why you selected these areas. Use 3–5 bullet points. Max 120 words.',
     options: [
-      { id: 'A', text: 'Membership trends — how membership volumes have changed over time' },
-      { id: 'B', text: 'Pricing changes — whether membership fees or ancillary prices have shifted' },
-      { id: 'C', text: 'Operating costs — whether fixed or variable costs have increased per gym' },
-      { id: 'D', text: 'Competitor activity — whether new gyms or lower-price alternatives have entered the market' },
-      { id: 'E', text: 'Customer experience — whether member satisfaction or complaints have changed' },
-      { id: 'F', text: 'Marketing spend — whether acquisition spend has increased without proportionate returns' },
-      { id: 'G', text: 'Gym equipment quality — whether equipment age or failures are affecting the experience' },
+      { id: 'A', text: 'Membership trends' },
+      { id: 'B', text: 'Historical pricing strategy' },
+      { id: 'C', text: 'Operating costs' },
+      { id: 'D', text: 'Competitor pricing and membership promotions' },
+      { id: 'E', text: 'Customer experience and satisfaction' },
+      { id: 'F', text: 'Marketing spend' },
+      { id: 'G', text: 'Gym equipment maintenance schedules' },
     ],
     scoringGuidance:
-      'Strong: selects options that cover both revenue and cost dimensions (e.g. A+C+D or A+C+E), and the reasoning shows structured decomposition — separating top-line from cost drivers and justifying the prioritisation order. Weak: random selection, generic reasoning not tied to the specific case, or all choices from one dimension (e.g. three customer experience factors with no cost perspective).',
+      'Strong answers typically structure the problem around Profit = Revenue − Costs. Revenue drivers: number of members, pricing, retention. Cost drivers: facility operating costs, staffing, equipment. Strong: selects options that cover both revenue and cost dimensions (e.g. A+C+D or A+C+E), and the reasoning shows structured decomposition — separating top-line from cost drivers and justifying the prioritisation order. Weak: lists unrelated factors, fails to link drivers to profitability, or all choices from one dimension.',
   },
 
   problem_structuring_medium_context: {
@@ -41,20 +41,20 @@ export const consultingProbeContent: Record<string, ProbeVariantContent> = {
     format: 'multi_select_plus_reasoning',
     maxSelections: 3,
     question:
-      'Before deciding whether VoltCharge should expand into Germany, select the THREE most important areas to investigate first.',
+      'To diagnose the delivery delay problem, you want to identify the most important areas to investigate first. Select the THREE areas you would investigate first.',
     instruction:
-      'Choose exactly three areas. Then explain in 3–5 bullet points how you structured the growth decision and why you selected these three areas. Max 120 words.',
+      'Choose exactly three areas. Then explain how you structured the delivery delay problem and why you selected these areas. Use 3–5 bullet points. Max 120 words.',
     options: [
-      { id: 'A', text: 'Size and growth of the EV market in Germany' },
-      { id: 'B', text: 'Historical electricity pricing trends in Europe' },
-      { id: 'C', text: 'Competitive landscape of EV charging networks in Germany' },
-      { id: 'D', text: 'Customer preferences for EV brands' },
-      { id: 'E', text: 'Economics of operating charging stations (unit economics and payback)' },
-      { id: 'F', text: 'Long-term EV emissions policy targets' },
-      { id: 'G', text: 'Marketing strategy for EV drivers' },
+      { id: 'A', text: 'Customer order demand levels' },
+      { id: 'B', text: 'Delivery driver availability' },
+      { id: 'C', text: 'Fulfillment hub processing efficiency' },
+      { id: 'D', text: 'Marketing campaign performance' },
+      { id: 'E', text: 'Delivery route efficiency and distance' },
+      { id: 'F', text: 'Mobile app interface design' },
+      { id: 'G', text: 'Supplier pricing' },
     ],
     scoringGuidance:
-      'Strong: selects A (market attractiveness), C (competitive landscape), and E (unit economics) — the three core pillars of any market entry decision. Reasoning shows a structured approach: is the market big enough, can we win share, and does the economics work? Weak: prioritises unrelated operational topics (D, G) or policy factors (B, F) that are secondary to the go/no-go decision, or fails to link the three areas to the specific entry question.',
+      'Strong answers usually structure the system around: Delivery performance = Order demand vs. Delivery capacity. Capacity drivers: number of drivers, deliveries per driver, routing efficiency, hub processing time. Strong: selects options covering both demand and capacity dimensions (e.g. A+B+C or A+B+E), and the reasoning shows structured decomposition of the delivery pipeline. Weak: selects unrelated factors (D, F, G) that do not directly affect delivery timing, or fails to link selections to the delivery delay problem.',
   },
 
   problem_structuring_high_context: {
@@ -62,20 +62,20 @@ export const consultingProbeContent: Record<string, ProbeVariantContent> = {
     format: 'multi_select_plus_reasoning',
     maxSelections: 3,
     question:
-      'Before deciding whether to acquire QuickCart or enter Singapore organically, select the THREE most important areas to investigate first.',
+      'Before deciding whether to acquire QuickCart or enter Singapore organically, you want to structure the key areas to evaluate. Select the THREE most important areas to investigate first.',
     instruction:
-      'Choose exactly three areas. Then explain in 3–5 bullet points how you structured the acquisition decision and why you selected these three areas. Max 120 words.',
+      'Choose exactly three areas. Then explain how you structured the acquisition decision and why you selected these areas. Use 3–5 bullet points. Max 120 words.',
     options: [
       { id: 'A', text: 'Size and growth of the food delivery market in Singapore' },
-      { id: 'B', text: 'Historical restaurant pricing trends in Singapore' },
-      { id: 'C', text: 'Competitive landscape of delivery platforms currently operating in Singapore' },
-      { id: 'D', text: 'Economics of operating a delivery platform at scale' },
-      { id: 'E', text: 'QuickCart\'s financial performance, user base, and operational assets' },
-      { id: 'F', text: 'Long-term restaurant licensing and food safety regulations' },
-      { id: 'G', text: 'Marketing campaign effectiveness for food delivery apps' },
+      { id: 'B', text: 'Historical restaurant pricing trends' },
+      { id: 'C', text: 'Competitive landscape of delivery platforms' },
+      { id: 'D', text: 'Long-term profitability dynamics of delivery platforms in Singapore' },
+      { id: 'E', text: 'QuickCart\'s financial performance and user base' },
+      { id: 'F', text: 'Long-term restaurant licensing regulations' },
+      { id: 'G', text: 'Marketing campaign effectiveness' },
     ],
     scoringGuidance:
-      'Strong: selects A (market attractiveness), C (competitive dynamics), and E (target company assessment) — the three pillars of an acquisition entry decision. Reasoning shows a structured framing: is the market worth entering, can SwiftEats compete, and is QuickCart a good vehicle to do so? D is also defensible as a substitute for C or E. Weak: selects unrelated operational areas (B, F, G) or fails to include the target company assessment (E), which is essential for an M&A decision.',
+      'Strong: typically structures the decision around market attractiveness, competitive concentration, target company economics, and long-term profitability of the platform model. Best selections cover A (market size), C (competitive landscape), and E (target company assessment) — or substitute D for one of these. Reasoning shows a structured framing: is the market worth entering, can SwiftEats compete, and is QuickCart a good vehicle? Weak: focuses on unrelated operational topics (B, F, G) or fails to connect drivers to the acquisition decision.',
   },
 
   // ── Hypothesis-Driven Thinking ──────────────────────────────────────────────
@@ -84,51 +84,51 @@ export const consultingProbeContent: Record<string, ProbeVariantContent> = {
     variantId: 'hypothesis_driven_thinking_low_context',
     format: 'mcq_plus_reasoning',
     question:
-      'The data shows total membership peaked in Q2 and fell sharply to Q4. What is your initial hypothesis for the profit decline?',
+      'The data shows total membership peaked in Q2 and fell sharply to Q4. Local market data shows that two new gym chains opened multiple locations in the same cities during Q3 and Q4, and member cancellations increased significantly during this period — particularly in locations where new gyms opened nearby. Based on this information, what is your initial hypothesis for the decline in profits?',
     instruction:
-      'Select the hypothesis you find most compelling, then explain what additional data you would request to test it. Max 100 words.',
+      'Select the hypothesis you find most compelling. Then explain what additional data you would request to test your hypothesis. Max 100 words.',
     options: [
-      { id: 'A', text: 'Membership decline is reducing revenue faster than costs can be cut, compressing profit' },
-      { id: 'B', text: 'Rising operating costs are the primary driver, independent of membership volumes' },
-      { id: 'C', text: 'Competitive pressure is forcing implicit discounting or higher acquisition spend' },
-      { id: 'D', text: 'Operational inefficiency has increased cost per member served' },
+      { id: 'A', text: 'Membership decline due to increased competition' },
+      { id: 'B', text: 'Rising operating costs per gym' },
+      { id: 'C', text: 'Poor marketing effectiveness' },
+      { id: 'D', text: 'Inefficient gym operations' },
     ],
     scoringGuidance:
-      'Correct answer: A. Strong: selects A (most defensible from the exhibit showing sharp membership decline), articulates how falling membership reduces revenue under largely fixed operating costs, and requests targeted follow-up data (e.g. revenue per gym, cost structure). Partial: selects A but reasoning is thin or the follow-up data request is generic. Weak: selects another option without engaging with the exhibit, or lists multiple hypotheses without a leading view.',
+      'Correct answer: A. Strong: selects A (membership decline correlates with competitor entry in Q3/Q4), articulates how falling membership reduces revenue under largely fixed operating costs, and requests targeted follow-up data such as cancellations by location, competitor pricing and promotions, churn rates per gym, or cost trends by location. Partial: selects A but reasoning is thin or the follow-up data request is generic. Weak: requests vague information or fails to link data requests to hypothesis.',
   },
 
   hypothesis_driven_thinking_medium_context: {
     variantId: 'hypothesis_driven_thinking_medium_context',
     format: 'mcq_plus_reasoning',
     question:
-      'Based on the market data shown, what is your initial hypothesis about VoltCharge entering Germany?',
+      'The data shows that daily orders have grown from 15,000 to 23,000 over four months. Delivery delays are most severe in New York, Los Angeles, and Chicago — these three cities account for 60% of total demand. Based on this information, what is your initial hypothesis for why delivery delays have increased?',
     instruction:
-      'Select the hypothesis you find most compelling. Then explain what additional information you would request to test it — be specific about the metrics or data you need. Max 100 words.',
+      'Select the hypothesis you find most compelling. Then explain what additional data you would request next to test your hypothesis. Max 100 words.',
     options: [
-      { id: 'A', text: 'The market is attractive due to strong EV growth — VoltCharge should prioritise speed of entry' },
-      { id: 'B', text: 'Competition from established operators may limit VoltCharge\'s ability to gain meaningful market share' },
-      { id: 'C', text: 'Electricity prices and input costs may make charging station economics unattractive' },
-      { id: 'D', text: 'Government licensing or permitting may restrict new operators from entering the market' },
+      { id: 'A', text: 'Demand growth is exceeding delivery capacity in major cities' },
+      { id: 'B', text: 'Driver productivity has declined across the network' },
+      { id: 'C', text: 'Fulfillment hubs are processing orders more slowly' },
+      { id: 'D', text: 'Competitors are attracting drivers away' },
     ],
     scoringGuidance:
-      'Both A and B are defensible given the data — A is supported by the 1.2M → 3M EV growth trajectory; B is supported by the presence of two large incumbents already operating. Strong: selects A or B, articulates the logic clearly, and requests specific metrics to test (e.g. competitor station count by region, utilization rates, geographic white-space mapping, charger payback periods). Weak: selects C or D without basis in the exhibit, or requests vague or unrelated information.',
+      'Correct answer: A. Strong: selects A (demand growth + geographic concentration clearly point to a capacity bottleneck in top cities), and requests targeted follow-up data such as driver counts by city, orders by city, deliveries per driver by city, or delivery distance by city. The key is segmenting the problem geographically. Partial: selects A but reasoning is thin or follow-up data is not city-level. Weak: fails to segment the problem geographically, or selects B/C/D without engaging with the demand growth and city concentration data.',
   },
 
   hypothesis_driven_thinking_high_context: {
     variantId: 'hypothesis_driven_thinking_high_context',
     format: 'mcq_plus_reasoning',
     question:
-      'Based on the market data shown, what is your initial hypothesis regarding SwiftEats\' entry strategy into Singapore?',
+      'The Singapore food delivery market generates approximately $2B in annual order value. Three major platforms control ~85% of the market, with the largest holding ~45% share. QuickCart holds 8% market share and has built 5,000 active drivers, 3,500 restaurant partnerships, and 1.2M active users. Building a delivery network from scratch would likely take 2–3 years. Based on this information, what is your initial hypothesis regarding SwiftEats\' entry strategy?',
     instruction:
-      'Select the hypothesis you find most compelling. Then explain what additional information you would request to test it — be specific about the metrics or data you need. Max 100 words.',
+      'Select the hypothesis you find most compelling. Then explain what additional data you would request to evaluate the acquisition decision. Max 100 words.',
     options: [
-      { id: 'A', text: 'Acquiring QuickCart may allow faster market entry and leverage an existing network and customer base' },
-      { id: 'B', text: 'Organic entry may lead to lower long-term costs and give SwiftEats full operational control' },
-      { id: 'C', text: 'SwiftEats should avoid entering Singapore given the dominance of the top three incumbents' },
-      { id: 'D', text: 'SwiftEats should focus on deepening market share in existing Southeast Asian markets first' },
+      { id: 'A', text: 'Acquiring QuickCart may allow faster market entry and scale' },
+      { id: 'B', text: 'Organic entry may lead to lower long-term costs' },
+      { id: 'C', text: 'SwiftEats should avoid entering Singapore entirely' },
+      { id: 'D', text: 'SwiftEats should focus only on expanding in existing markets' },
     ],
     scoringGuidance:
-      'Correct answer: A. The exhibit shows that top 3 incumbents control 85% of the market and that building organically takes 2–3 years — making QuickCart\'s existing driver network and restaurant base highly valuable. Strong: selects A, articulates how the network and speed advantage offset the acquisition premium, and requests specific data to test the thesis (QuickCart revenue, customer retention, driver utilisation, acquisition price). Weak: selects C or D without engaging with QuickCart\'s existing assets, or requests vague or unrelated metrics.',
+      'Correct answer: A. The data shows top 3 incumbents control 85% of the market and organic build takes 2–3 years — making QuickCart\'s existing driver network, restaurant partnerships, and user base highly valuable for immediate scale. Strong: selects A, articulates how the network and speed advantage offset the acquisition premium, and requests specific data such as QuickCart revenue and profitability, expected acquisition price, cost of building an organic network, and expected market share growth. Weak: selects C or D without engaging with QuickCart\'s existing assets, or requests unrelated metrics that fail to connect to the acquisition hypothesis.',
   },
 
   // ── Analytical Thinking ─────────────────────────────────────────────────────
@@ -137,51 +137,51 @@ export const consultingProbeContent: Record<string, ProbeVariantContent> = {
     variantId: 'analytical_thinking_low_context',
     format: 'mcq_plus_reasoning',
     question:
-      'Based on the exhibit, what is the approximate change in monthly profit per gym between 6 months ago and today?',
+      'Using the exhibit data, calculate the monthly profit per gym 6 months ago, the monthly profit per gym today, and the total monthly profit lost across all 20 gyms. What is the approximate total monthly profit the company has lost?',
     instruction:
-      'Select the closest answer, then show your calculation. Max 120 words.',
+      'Select the closest answer. Then show your full calculation in three steps: (1) monthly profit per gym 6 months ago, (2) monthly profit per gym today, (3) total monthly profit lost across all 20 gyms. Explain what appears to be the primary driver. Max 120 words.',
     options: [
-      { id: 'A', text: '~₹8L decline per gym per month' },
-      { id: 'B', text: '~₹10L decline per gym per month' },
-      { id: 'C', text: '~₹12L decline per gym per month' },
-      { id: 'D', text: '~₹15L decline per gym per month' },
+      { id: 'A', text: '~₹100L total monthly profit lost' },
+      { id: 'B', text: '~₹150L total monthly profit lost' },
+      { id: 'C', text: '~₹200L total monthly profit lost' },
+      { id: 'D', text: '~₹250L total monthly profit lost' },
     ],
     scoringGuidance:
-      'Correct answer: B. Calculation: Old revenue = 2,400 × ₹2,000 = ₹48L. New revenue = 1,950 × ₹2,000 = ₹39L. Revenue decline = ₹9L. Cost increase = ₹1L. Total profit decline = ₹10L per gym per month. Strong: selects B and shows full calculation with correct steps. Partial: selects B but has a minor arithmetic slip. Weak: selects the right answer without any calculation, or calculates incorrectly and selects the wrong option.',
+      'Correct answer: C. Calculation: (1) 6 months ago: Revenue = 2,400 × ₹2,000 = ₹48L. Profit = ₹48L − ₹35L = ₹13L per gym. (2) Today: Revenue = 1,950 × ₹2,000 = ₹39L. Profit = ₹39L − ₹36L = ₹3L per gym. (3) Profit drop per gym = ₹13L − ₹3L = ₹10L. Total across 20 gyms = ₹10L × 20 = ₹200L. Strong: selects C, shows all three calculation steps correctly, and identifies membership decline as the primary driver (with cost increase as secondary). Partial: selects C but misses one step. Weak: confuses revenue and profit, skips calculation steps, or selects the wrong option.',
   },
 
   analytical_thinking_medium_context: {
     variantId: 'analytical_thinking_medium_context',
     format: 'mcq_plus_reasoning',
     question:
-      'Based on the market assumptions in the exhibit, what is the approximate total annual revenue of the EV charging market in Germany today?',
+      'Using the exhibit data, work through the delivery capacity analysis step by step. Approximately how many additional drivers would FastDrop need in the top 3 cities to close the delivery gap?',
     instruction:
-      'Select the closest answer. Then show your full calculation — including how you estimated the total market size and, separately, what VoltCharge\'s annual revenue would be if it captured a 10% market share. Max 120 words.',
+      'Select the closest answer. Then show your full calculation through all the steps. Explain what operational issues appear to be driving the delivery delays. Max 120 words.',
     options: [
-      { id: 'A', text: '~€400M' },
-      { id: 'B', text: '~€800M' },
-      { id: 'C', text: '~€1.15B' },
-      { id: 'D', text: '~€2.5B' },
+      { id: 'A', text: '~150 additional drivers' },
+      { id: 'B', text: '~220 additional drivers' },
+      { id: 'C', text: '~290 additional drivers' },
+      { id: 'D', text: '~350 additional drivers' },
     ],
     scoringGuidance:
-      'Correct answer: C. Calculation: 1.2M EVs × 120 sessions = 144M sessions/year. 144M × €8 = €1.152B total market. VoltCharge at 10% share = ~€115M annual revenue. Strong: selects C, shows both the market size calculation and the VoltCharge share calculation with correct arithmetic. Partial: selects C but shows only one of the two calculations or has a minor arithmetic slip. Weak: guesses without calculation, confuses total market size with VoltCharge\'s revenue, or selects a different option.',
+      'Correct answer: C. Full calculation: (1) Old capacity: 800 × 22 = 17,600. (2) Current capacity: 800 × 20 = 16,000. (3) Top 3 city demand: 23,000 × 60% = 13,800. (4) Top 3 city capacity: 800 × 50% = 400 drivers × 20 = 8,000. (5) Gap: 13,800 − 8,000 = 5,800. (6) Additional drivers: 5,800 ÷ 20 ≈ 290. Strong: selects C, shows all six steps correctly, and identifies multiple drivers — demand growth, driver productivity decline, and driver allocation imbalance across cities. Partial: selects C but misses some steps. Weak: skips calculations or fails to identify the geographic allocation issue.',
   },
 
   analytical_thinking_high_context: {
     variantId: 'analytical_thinking_high_context',
     format: 'mcq_plus_reasoning',
     question:
-      'Based on the exhibit, approximately how much annual revenue does QuickCart generate today?',
+      'Using the exhibit data, work through the financial analysis step by step. Calculate QuickCart\'s current revenue and profit, then estimate revenue and profit at scale if market share grows to 12% with improved margins, and determine how long it would take to recover the acquisition cost. Approximately how many years would it take to recover the $60M acquisition cost through operating profit at scale?',
     instruction:
-      'Select the closest answer. Then show all three calculations: (1) QuickCart\'s annual revenue, (2) QuickCart\'s annual operating profit, and (3) the additional annual revenue SwiftEats could generate by growing market share from 8% to 12%. Max 120 words.',
+      'Select the closest answer. Then show your full calculation through all the steps: (1) QuickCart\'s current annual revenue, (2) current operating profit, (3) revenue at 12% market share, (4) profit at 15% margin, (5) acquisition payback period, and (6) organic entry revenue at 10% share. Explain how you evaluated the financial attractiveness of the acquisition. Max 120 words.',
     options: [
-      { id: 'A', text: '~$16M' },
-      { id: 'B', text: '~$24M' },
-      { id: 'C', text: '~$32M' },
-      { id: 'D', text: '~$80M' },
+      { id: 'A', text: '~4 years' },
+      { id: 'B', text: '~6 years' },
+      { id: 'C', text: '~8 years' },
+      { id: 'D', text: '~12 years' },
     ],
     scoringGuidance:
-      'Correct answer: C. Calculations: (1) Revenue: $2B × 8% = $160M order value × 20% commission = $32M. (2) Operating profit: $32M × 10% = $3.2M. (3) Incremental revenue from 8%→12% share: 4% × $2B = $80M order value × 20% = $16M additional revenue. Strong: selects C and shows all three calculations with correct arithmetic. Partial: selects C and shows one or two calculations correctly. Weak: selects D (confusing order value with platform revenue), skips calculations, or cannot distinguish between order value and platform commission revenue.',
+      'Correct answer: C. Full calculation: (1) Current revenue: $2B × 8% = $160M order value × 20% = $32M. (2) Current profit: $32M × 10% = $3.2M. (3) Revenue at 12% share: $2B × 12% = $240M × 20% = $48M. (4) Profit at 15% margin: $48M × 15% = $7.2M. (5) Payback: $60M ÷ $7.2M ≈ 8 years. (6) Organic revenue at 10%: $2B × 10% = $200M × 20% = $40M. Strong: selects C, shows all six steps correctly, and compares acquisition economics vs. organic revenue potential while referencing time-to-market advantages. Partial: selects C but misses some steps. Weak: confuses order value with platform revenue, skips calculation steps, or fails to compare the two entry paths.',
   },
 
   // ── Client Communication ────────────────────────────────────────────────────
@@ -190,33 +190,33 @@ export const consultingProbeContent: Record<string, ProbeVariantContent> = {
     variantId: 'client_communication_low_context',
     format: 'free_text',
     question:
-      'The CEO asks for a brief update on what you have learned. Write a short client update using this structure: Situation / Key Insight / Next Step.',
+      'The CEO asks: "What have we learned so far about the decline in FitLife\'s profits?" Provide a concise update using this structure: Situation / Key Insight / Next Step.',
     instruction:
       'Use the three-part structure above. Keep it concise and executive-friendly. Max 120 words.',
     scoringGuidance:
-      'Strong: uses the explicit Situation / Key Insight / Next Step structure, leads with the key insight (membership decline is driving the revenue shortfall), and closes with a concrete, specific next step the CEO can act on. Weak: ignores the structure and writes a generic paragraph, buries the key finding in the middle, or next step is too vague ("gather more data") or too operational for a CEO audience.',
+      'Strong: uses the explicit Situation / Key Insight / Next Step structure, summarizes profit decline clearly, highlights membership loss as the primary driver, links the decline to increased competition, and proposes concrete next investigation steps. Weak: repeats numbers without insight, ignores the structure, buries the key finding in the middle, lacks structure, or next step is too vague ("gather more data").',
   },
 
   client_communication_medium_context: {
     variantId: 'client_communication_medium_context',
     format: 'free_text',
     question:
-      'The CEO asks for a brief update on whether Germany appears to be an attractive expansion opportunity. Provide a concise executive update.',
+      'The CEO asks: "What have we learned so far about the cause of FastDrop\'s delivery delays?" Provide a concise update using this structure: Situation / Key Insight / Next Step.',
     instruction:
-      'Structure your answer using the three-part format: Situation / Key Insight / Next Step. Use clear, executive-level language. Max 120 words.',
+      'Use the three-part structure above. Keep it concise and executive-friendly. Max 120 words.',
     scoringGuidance:
-      'Strong: uses the explicit Situation / Key Insight / Next Step structure, leads with a clear market insight (e.g. strong EV growth + ~€1B+ market, but competitive dynamics need scrutiny), and closes with a specific next step (e.g. assess white-space vs. incumbents, or model entry economics for two strategies). Weak: repeats numbers from the exhibit without adding interpretive insight, lacks the three-part structure, or next step is vague ("do more research") without specifying what.',
+      'Strong: uses the explicit Situation / Key Insight / Next Step structure, identifies demand growth outpacing capacity, highlights the delivery capacity gap concentrated in the top 3 cities, explains the city-level driver shortage, and proposes concrete next steps. Weak: repeats numbers without insight, lacks the three-part structure, or next step is vague ("hire more drivers") without connecting to the geographic imbalance.',
   },
 
   client_communication_high_context: {
     variantId: 'client_communication_high_context',
     format: 'free_text',
     question:
-      'The CEO asks: "Does acquiring QuickCart appear to be an attractive entry strategy for SwiftEats?" Provide a concise executive update.',
+      'The CEO asks: "Does acquiring QuickCart appear to be a financially attractive entry strategy?" Provide a concise update using this structure: Situation / Key Insight / Next Step.',
     instruction:
-      'Structure your response using three parts: Situation / Key Insight / Next Step. Use clear, executive-level language. Max 120 words.',
+      'Use the three-part structure above. Keep it concise and executive-friendly. Max 120 words.',
     scoringGuidance:
-      'Strong: uses the explicit Situation / Key Insight / Next Step structure, leads with a clear insight (e.g. QuickCart provides an immediate foothold in a network-effects-driven market worth $2B+, with $32M in revenue and an existing driver and restaurant base), and closes with a specific next step (e.g. validate acquisition price vs. standalone value, assess QuickCart retention rates and driver utilisation). Weak: restates numbers from the exhibit without interpreting them, lacks the three-part structure, or next step is vague.',
+      'Strong: uses the explicit Situation / Key Insight / Next Step structure, highlights revenue potential ($32M current → $48M at scale), references profitability improvement (10% → 15% margin), discusses acquisition payback (~8 years) and strategic benefits (immediate scale, network effects), and closes with a concrete next step. Weak: restates numbers from the exhibit without interpreting them, lacks the three-part structure, or next step is vague.',
   },
 
   // ── Decision Recommendation ─────────────────────────────────────────────────
@@ -225,46 +225,48 @@ export const consultingProbeContent: Record<string, ProbeVariantContent> = {
     variantId: 'decision_recommendation_low_context',
     format: 'mcq_plus_reasoning',
     question:
-      'Based on the exit survey, what should FitLife prioritise first to address the profit decline?',
+      'Which action should FitLife prioritize first to address the profit decline?',
     instruction:
-      'Select one priority action, then explain why it should come first. Connect your reasoning to the survey data. Max 120 words.',
+      'Select one priority action, then explain why this action should be prioritised. Connect your reasoning to the survey data and operational insights. Max 120 words.',
     options: [
-      { id: 'A', text: 'Lower membership prices to win back churned members' },
-      { id: 'B', text: 'Expand capacity or reduce crowding across existing locations' },
-      { id: 'C', text: 'Upgrade equipment across locations' },
-      { id: 'D', text: 'Invest in customer service training' },
+      { id: 'A', text: 'Lower membership prices to compete with new gyms' },
+      { id: 'B', text: 'Expand gym floor space to increase capacity' },
+      { id: 'C', text: 'Introduce off-peak membership discounts to shift demand' },
+      { id: 'D', text: 'Invest in new gym equipment' },
     ],
     scoringGuidance:
-      'Correct answer: B. Strong: selects B, cites that 35% of exits — the largest single reason — are due to crowding, and explains why addressing the top driver is the highest-leverage first action. Partial: selects B but does not use the survey data to justify. Weak: selects A without noting that price cuts would further compress already-declining margins, or ignores the exhibit entirely and answers from general intuition.',
+      'Correct answer: C. Strong: selects C, recognizes that crowding is the #1 complaint (35%) but that building new space requires significant investment, notes that midday utilization is only ~55% while evenings are near full capacity, and concludes that off-peak discounts can redistribute demand to reduce crowding without heavy capex — addressing the root cause cost-effectively. Partial: selects C but does not connect the utilization split or capex constraint. Weak: selects A without noting that broad price cuts further compress margins, selects B without acknowledging the significant investment required, or ignores the operational insight about midday underutilization.',
   },
 
   decision_recommendation_medium_context: {
     variantId: 'decision_recommendation_medium_context',
     format: 'mcq_plus_reasoning',
     question:
-      'Based on the utilisation and revenue data in the exhibit, which entry strategy should VoltCharge prioritise for its initial expansion into Germany?',
+      'Considering operational impact, cost, and implementation time, which action should FastDrop prioritize first?',
     instruction:
-      'Select one strategy, then explain why it is the stronger choice. Use the exhibit data to justify your recommendation. Max 120 words.',
+      'Select one priority action, then explain why it should be prioritized. Use the exhibit data to justify your recommendation. Max 120 words.',
     options: [
-      { id: 'A', text: 'Highway charging network — install fast chargers along major motorways between cities' },
-      { id: 'B', text: 'Urban charging network — install chargers in city parking areas and residential zones' },
+      { id: 'A', text: 'Hire more drivers' },
+      { id: 'B', text: 'Improve routing software' },
+      { id: 'C', text: 'Open new fulfillment hubs' },
+      { id: 'D', text: 'Limit peak-hour orders' },
     ],
     scoringGuidance:
-      'Correct answer: B. Urban charging generates €140 per charger per day (20 sessions × €7) versus €96 for highway (8 sessions × €12), and requires lower upfront investment (€180M vs. €250M). Strong: selects B, calculates revenue per charger per day for both options, and notes the lower capital requirement — making urban the higher-return, lower-risk entry. Partial: selects B but does not use the exhibit numbers to justify. Weak: selects A without engaging with the per-charger economics, or recommends both strategies simultaneously without making a clear prioritisation call.',
+      'Correct answer: B. Routing improvement increases deliveries per driver from 20 to ~23, giving new capacity of 800 × 23 = 18,400 vs. 23,000 demand. Remaining gap ≈ 4,600. Routing does not solve the entire problem but it: significantly reduces the gap, costs less ($2M vs. $6M for hiring), and improves system efficiency structurally. Strong: selects B, cites the cost-effectiveness ($2M vs. $6M+), notes that routing improves per-driver productivity across all cities, and acknowledges it partially closes the gap while being the most efficient first move. Partial: selects B but does not use the exhibit numbers. Weak: selects A without considering cost-effectiveness, selects C without noting the 9-month implementation delay, or selects D without noting revenue impact.',
   },
 
   decision_recommendation_high_context: {
     variantId: 'decision_recommendation_high_context',
     format: 'mcq_plus_reasoning',
     question:
-      'Considering investment required, speed of entry, and the importance of early scale in delivery platforms, which strategy should SwiftEats pursue?',
+      'Considering financial return, time to market, and network effects, which strategy should SwiftEats pursue?',
     instruction:
-      'Select one strategy. Then explain why it should be prioritised — reference the exhibit data and the role of network effects in your reasoning. Max 120 words.',
+      'Select one strategy, then explain why this strategy should be prioritized. Max 120 words.',
     options: [
-      { id: 'A', text: 'Acquire QuickCart — pay $60M for immediate market entry with an existing driver and restaurant network' },
-      { id: 'B', text: 'Build organically — invest $40M over 2–3 years to develop a proprietary delivery network' },
+      { id: 'A', text: 'Acquire QuickCart' },
+      { id: 'B', text: 'Build network organically' },
     ],
     scoringGuidance:
-      'Correct answer: A. Acquisition advantages: immediate market entry, 5,000 drivers and 3,500 restaurant partners already in place, faster path to scale in a network-effects-driven market where early volume improves driver utilisation and margins. The $20M cost premium over organic entry is justified by 2–3 years of avoided build time and the compounding advantage of early scale. Strong: selects A, explicitly cites network effects and the time-to-market advantage, acknowledges the $20M premium and explains why it is justified. Partial: selects A without engaging with the network effects logic. Weak: selects B citing lower cost without addressing the structural disadvantage of entering 2–3 years later in a market where incumbents compound scale advantages.',
+      'Correct answer: A. Acquisition advantages: immediate market entry, 5,000 drivers and 3,500 restaurant partners already in place, 1.2M active users, faster path to 12% market share in a network-effects-driven market where early volume improves driver utilisation and margins. The $20M cost premium ($60M vs. $40M) is justified by ~3 years of avoided build time and the compounding advantage of early scale. Strong: selects A, explicitly cites network effects and time-to-market advantage, acknowledges the $20M premium and explains why it is justified, and references the higher expected market share (12% vs. 10%). Partial: selects A without engaging with network effects logic. Weak: selects B citing lower cost without addressing the structural disadvantage of entering 2–3 years later in a market where incumbents compound scale advantages.',
   },
 };

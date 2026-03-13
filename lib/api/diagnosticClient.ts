@@ -34,6 +34,7 @@ export interface CompleteStep {
 
 export type DiagnosticStep = ProbeStep | SkipStep | CompleteStep;
 
+// ── Legacy alias (kept for safety) ───────────────────────────────────────────
 export interface DiagnosticResultData {
   trackScore: number;
   skillScores: Record<string, number>;
@@ -46,6 +47,99 @@ export interface DiagnosticResultData {
     total: number;
     assessed: number;
   };
+}
+
+// ── Advanced analytics types ─────────────────────────────────────────────────
+
+/** Candidate archetype — classified from skill distribution pattern */
+export interface CandidateArchetype {
+  id: string;            // 'structured_analyst' | 'hypothesis_driver' | etc.
+  name: string;          // "The Structured Analyst"
+  description: string;   // one-sentence profile summary
+  topTraits: string[];   // top 2 skill labels driving this classification
+  tagline: string;       // "TOP 15% STRUCTURERS"
+  feedback?: string;     // AI-generated personalized coaching note based on actual responses
+}
+
+/** MBB Firm Fit — firm-specific skill weightings */
+export interface FirmFit {
+  firm: string;       // 'McKinsey' | 'BCG' | 'Bain'
+  fitPercent: number;  // 0-100, how well candidate's profile matches firm's values
+}
+
+/** Pressure resilience composite */
+export type ResiliencePattern = 'RESILIENT' | 'MODERATE_DROP' | 'DEGRADES' | 'COLLAPSES';
+
+export interface PressureResilience {
+  score: number;              // 0-100 composite resilience score
+  dropFromBaseline: number;   // net point drop L1 avg → L3 avg (negative = drop)
+  pattern: ResiliencePattern;
+  perCaseAverage: { stage: 1 | 2 | 3; score: number }[];  // overall avg per case
+  skillHeatmap: {             // skill × case matrix
+    skillId: string;
+    label: string;
+    scores: [number, number, number]; // [L1, L2, L3] as 0-100
+  }[];
+}
+
+// ── Rich report types ────────────────────────────────────────────────────────
+
+export type VerdictTier = 'STRONG_CANDIDATE' | 'ABOVE_THRESHOLD' | 'BORDERLINE' | 'BELOW_THRESHOLD' | 'SIGNIFICANT_GAP';
+export type SkillAssessment = 'ABOVE_THRESHOLD' | 'NEAR_THRESHOLD' | 'BELOW_THRESHOLD' | 'CRITICAL_GAP';
+export type TrajectoryPattern = 'IMPROVING' | 'CONSISTENT' | 'DECLINING' | 'INSUFFICIENT_DATA';
+
+export interface SkillDetail {
+  skillId: string;
+  label: string;
+  score: number;
+  benchmark: number;
+  gap: number;
+  weight: number;
+  assessment: SkillAssessment;
+  trajectory: TrajectoryPattern;
+  stageScores: { stage: 1 | 2 | 3; score: number }[];
+  narrative: string;
+}
+
+export interface BehavioralSignal {
+  dimension: string;
+  label: string;
+  score: number;
+  benchmark: number;
+  assessment: SkillAssessment;
+}
+
+export interface Recommendation {
+  priority: number;
+  title: string;
+  description: string;
+}
+
+export interface DiagnosticReport {
+  trackScore: number;
+  verdict: VerdictTier;
+  benchmark: number;
+  metadata: {
+    trackName: string;
+    questionsCount: number;
+    benchmark: number;
+    strongestSkill: { label: string; score: number };
+    weakestSkill: { label: string; score: number };
+  };
+  quickStats: {
+    skillsAboveBenchmark: number;
+    totalSkills: number;
+    trajectoryPattern: TrajectoryPattern;
+    consistencyScore: number;
+  };
+  skills: SkillDetail[];
+  behavioralSignals: BehavioralSignal[];
+  recommendations: Recommendation[];
+  coverage: { total: number; assessed: number };
+  archetype: CandidateArchetype;
+  firmFit: FirmFit[];
+  pressureResilience: PressureResilience;
+  percentile: number;  // estimated percentile ranking 0-99
 }
 
 export interface StartResponse {
@@ -62,7 +156,7 @@ export interface AnswerResponse {
   caseStage: 1 | 2 | 3;
   currentCaseId: string;
   status: 'IN_PROGRESS' | 'COMPLETE';
-  result?: DiagnosticResultData;
+  result?: DiagnosticReport;
 }
 
 // ── API calls ──────────────────────────────────────────────────────────────────

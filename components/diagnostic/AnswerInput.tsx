@@ -46,7 +46,7 @@ export default function AnswerInput({
         ) : (
           <span />
         )}
-        <span className="text-[10px] font-mono text-neutral-400 ml-auto">
+        <span className="text-[10px] font-mono text-neutral-500 ml-auto">
           {charCount} {charCount === 1 ? 'char' : 'chars'}
         </span>
       </div>

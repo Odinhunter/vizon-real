@@ -26,6 +26,7 @@ export type ModelProvider = "openai" | "anthropic";
  */
 export interface ModelRequest {
   prompt: string;
+  system?: string;
   model?: string;
   provider?: ModelProvider;
   temperature?: number;
@@ -42,7 +43,7 @@ export interface ModelResponse {
 /**
  * Sends a prompt to the specified model provider and returns raw text.
  *
- * Defaults: provider="openai", model="gpt-4o-mini", temperature=0.
+ * Defaults: provider="openai", model="gpt-4o", temperature=0.
  */
 export async function callModel(
   request: ModelRequest
@@ -52,9 +53,9 @@ export async function callModel(
 
   switch (provider) {
     case "openai":
-      return callOpenAI(request.prompt, request.model ?? "gpt-4o-mini", temperature);
+      return callOpenAI(request.prompt, request.model ?? "gpt-4o", temperature, request.system);
     case "anthropic":
-      return callAnthropic(request.prompt, request.model ?? "claude-3-5-sonnet-20241022", temperature);
+      return callAnthropic(request.prompt, request.model ?? "claude-sonnet-4-20250514", temperature, request.system);
     default:
       throw new Error(`Unsupported model provider: ${provider}`);
   }
@@ -65,7 +66,8 @@ export async function callModel(
 async function callOpenAI(
   prompt: string,
   model: string,
-  temperature: number
+  temperature: number,
+  system?: string
 ): Promise<ModelResponse> {
   // Fail fast if the key is missing rather than sending an unauthorized request.
   if (!process.env.OPENAI_API_KEY) {
@@ -74,10 +76,16 @@ async function callOpenAI(
 
   const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
+  const messages: OpenAI.Chat.Completions.ChatCompletionMessageParam[] = [];
+  if (system) {
+    messages.push({ role: "system", content: system });
+  }
+  messages.push({ role: "user", content: prompt });
+
   const response = await client.chat.completions.create({
     model,
     temperature,
-    messages: [{ role: "user", content: prompt }],
+    messages,
   });
 
   const rawText = response.choices[0]?.message?.content;
@@ -91,7 +99,8 @@ async function callOpenAI(
 async function callAnthropic(
   prompt: string,
   model: string,
-  temperature: number
+  temperature: number,
+  system?: string
 ): Promise<ModelResponse> {
   // Fail fast if the key is missing rather than sending an unauthorized request.
   if (!process.env.ANTHROPIC_API_KEY) {
@@ -102,8 +111,9 @@ async function callAnthropic(
 
   const response = await client.messages.create({
     model,
-    max_tokens: 4096,
+    max_tokens: 8192,
     temperature,
+    ...(system ? { system } : {}),
     messages: [{ role: "user", content: prompt }],
   });
 

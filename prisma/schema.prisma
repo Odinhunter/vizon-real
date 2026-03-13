@@ -1,0 +1,141 @@
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String?   @unique
+  emailVerified DateTime?
+  image         String?
+  password      String?
+
+  accounts       Account[]
+  sessions       Session[]
+  profile        UserProfile?
+  diagnosticRuns DiagnosticRun[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model VerificationToken {
+  identifier String
+  token      String
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+model UserProfile {
+  id             String    @id @default(cuid())
+  userId         String    @unique
+  user           User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  university     String?
+  graduationYear Int?
+  targetRole     String?
+  prepBackground String?
+  completedAt    DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+}
+
+model DiagnosticRun {
+  id          String    @id @default(cuid())
+  userId      String
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  trackId     String
+  sessionId   String    @unique
+  status      String    @default("IN_PROGRESS")
+
+  // Full engine session state — replaces in-memory Map.
+  // Serialized DiagnosticSession JSON, updated on every step.
+  sessionStateJson String?
+  // Current pending step awaiting user answer. Serialized DiagnosticStep JSON.
+  pendingStepJson  String?
+
+  // Final report
+  resultJson  String?
+  // Denormalized for querying without parsing resultJson
+  trackScore  Int?
+  verdict     String?
+
+  startedAt   DateTime  @default(now())
+  completedAt DateTime?
+
+  responses   ProbeResponse[]
+}
+
+model ProbeResponse {
+  id                String    @id @default(cuid())
+  diagnosticRunId   String
+  diagnosticRun     DiagnosticRun @relation(fields: [diagnosticRunId], references: [id], onDelete: Cascade)
+
+  // Probe identification
+  probeId           String
+  skillId           String
+  variantId         String
+  sequenceNumber    Int
+
+  // Context at time of response
+  caseId            String
+  caseStage         Int
+  contextLevel      String
+  format            String
+
+  // User's answer
+  rawResponse       String?
+  selectedOptionId  String?
+  selectedOptionIds String?
+
+  // AI extraction results — populated after batch extraction on completion
+  signalStrength        Float?
+  responseQuality       Float?
+  framingQuality        Float?
+  reasoningConfidence   Float?
+  communicationClarity  Float?
+  probeScore            Float?
+
+  answeredAt      DateTime  @default(now())
+
+  @@index([diagnosticRunId])
+  @@index([skillId])
+}
+

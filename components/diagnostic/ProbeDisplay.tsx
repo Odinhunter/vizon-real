@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import type { ProbeStep } from '@/lib/api/diagnosticClient';
 import type { CaseContent, ProbeVariantContent } from '@/content/types';
 import AnswerInput from './AnswerInput';
@@ -56,6 +57,9 @@ export default function ProbeDisplay({
   onSubmit,
   isSubmitting,
 }: ProbeDisplayProps) {
+  const [contextOpen, setContextOpen] = useState(false);
+  const [rightTab, setRightTab] = useState<'exhibit' | 'context'>('exhibit');
+
   const format = step.format ?? 'free_text';
   const options = step.options ?? [];
 
@@ -78,7 +82,6 @@ export default function ProbeDisplay({
   const totalSessionProbes = TOTAL_CASES * totalProbes;
   const progressPct = Math.round((completedProbes / totalSessionProbes) * 100);
 
-  // Track name derived from caseContent or fallback
   const trackName = 'CONSULTING TRACK';
 
   const hasExhibit = !!step.exhibit;
@@ -99,14 +102,14 @@ export default function ProbeDisplay({
         <div className="flex items-center gap-2 shrink-0">
           <span className="text-white text-xs font-mono font-semibold tracking-widest uppercase">VIZON</span>
           <span className="text-[#404040] text-xs hidden md:inline">|</span>
-          <span className="text-[#A3A3A3] text-xs font-mono tracking-wider uppercase hidden md:inline">{trackName}</span>
+          <span className="text-neutral-500 text-xs font-mono tracking-wider uppercase hidden md:inline">{trackName}</span>
         </div>
         {/* Mobile compact progress */}
         <div className="flex-1 flex items-center justify-end gap-3 md:hidden">
           <span className="text-[#737373] text-xs font-mono tracking-wide">
             Q{probeNumber}/{totalProbes}
           </span>
-          <span className="text-[#A3A3A3] text-xs font-mono tracking-wider">
+          <span className="text-neutral-500 text-xs font-mono tracking-wider">
             C{caseNumber}/3
           </span>
         </div>
@@ -127,7 +130,7 @@ export default function ProbeDisplay({
         </div>
         {/* Right: case stage (desktop) */}
         <div className="shrink-0 hidden md:block">
-          <span className="text-[#A3A3A3] text-xs font-mono tracking-wider uppercase">
+          <span className="text-neutral-500 text-xs font-mono tracking-wider uppercase">
             CASE {caseNumber} OF 3
           </span>
         </div>
@@ -136,28 +139,13 @@ export default function ProbeDisplay({
       {/* Body */}
       <div className="flex-1 flex flex-col md:flex-row overflow-hidden">
         {/* Left question panel */}
-        <div
-          className={`${hasExhibit ? 'flex-1' : 'max-w-2xl w-full mx-auto'} overflow-y-auto px-5 md:px-8 py-6 md:py-8`}
-        >
-          {/* Case context reminder */}
-          <div className="mb-5 pb-5 border-b border-neutral-100 flex gap-2.5">
-            <div className="w-0.5 rounded-full bg-[#1A56DB] shrink-0 mt-0.5 self-stretch" />
-            <div>
-              <p className="text-[10px] font-mono text-neutral-400 uppercase tracking-widest mb-0.5">
-                {caseContent.company}
-              </p>
-              <p className="text-xs text-neutral-500 leading-relaxed line-clamp-2 font-mono">
-                {caseContent.problemStatement}
-              </p>
-            </div>
-          </div>
-
+        <div className="flex-1 overflow-y-auto px-5 md:px-8 py-6 md:py-8">
           {/* Skill tag + level badge */}
           <div className="flex items-center gap-2 mb-4">
-            <span className="text-[10px] font-mono text-neutral-400 tracking-widest">
+            <span className="text-[10px] font-mono text-neutral-500 tracking-widest">
               Q{probeNumber}
             </span>
-            <span className="text-neutral-300">·</span>
+            <span className="text-neutral-400">·</span>
             <span className="text-[10px] font-mono text-neutral-500 tracking-wider uppercase">
               {SKILL_LABELS[step.skillId] ?? step.skillId.replace(/_/g, ' ').toUpperCase()}
             </span>
@@ -170,6 +158,33 @@ export default function ProbeDisplay({
           <h2 className="font-mono text-[1.15rem] font-normal text-neutral-900 leading-relaxed mb-6">
             {question}
           </h2>
+
+          {/* Mobile: collapsible case context */}
+          <div className="md:hidden mb-5">
+            <button
+              onClick={() => setContextOpen(o => !o)}
+              className="w-full flex items-center justify-between px-4 py-2.5 border border-neutral-200 bg-[#FAFAFA] font-mono text-[10px] tracking-widest text-neutral-500 uppercase"
+            >
+              <span>Case Context</span>
+              <span>{contextOpen ? '−' : '+'}</span>
+            </button>
+            {contextOpen && (
+              <div className="border border-t-0 border-neutral-200 px-4 py-4 bg-white space-y-4">
+                <div>
+                  <p className="text-[9px] font-mono text-neutral-500 uppercase tracking-widest mb-1">Your Role</p>
+                  <p className="text-xs font-mono text-neutral-700 leading-relaxed">{caseContent.role}</p>
+                </div>
+                <div>
+                  <p className="text-[9px] font-mono text-neutral-500 uppercase tracking-widest mb-1">Situation</p>
+                  <p className="text-xs font-mono text-neutral-600 leading-relaxed">{caseContent.situation}</p>
+                </div>
+                <div>
+                  <p className="text-[9px] font-mono text-neutral-500 uppercase tracking-widest mb-1">Engagement Question</p>
+                  <p className="text-xs font-mono text-neutral-800 font-semibold leading-relaxed">{caseContent.problemStatement}</p>
+                </div>
+              </div>
+            )}
+          </div>
 
           {/* Mobile inline exhibit */}
           {hasExhibit && (
@@ -187,7 +202,7 @@ export default function ProbeDisplay({
           {/* MCQ options */}
           {format === 'mcq_plus_reasoning' && options.length > 0 && (
             <div className="mb-5">
-              <p className="text-[10px] font-mono text-neutral-400 uppercase tracking-widest mb-3">
+              <p className="text-[10px] font-mono text-neutral-500 uppercase tracking-widest mb-3">
                 Select one
               </p>
               <div className="space-y-2">
@@ -226,7 +241,7 @@ export default function ProbeDisplay({
           {/* Multi-select options */}
           {format === 'multi_select_plus_reasoning' && options.length > 0 && (
             <div className="mb-5">
-              <p className="text-[10px] font-mono text-neutral-400 uppercase tracking-widest mb-3">
+              <p className="text-[10px] font-mono text-neutral-500 uppercase tracking-widest mb-3">
                 {probeContent?.maxSelections
                   ? `Select ${probeContent.maxSelections} · ${selectedOptionIds.length}/${probeContent.maxSelections} chosen`
                   : 'Select all that apply'}
@@ -281,10 +296,10 @@ export default function ProbeDisplay({
 
           {/* Reasoning label */}
           <div className="flex items-center justify-between mb-2">
-            <span className="text-[10px] font-mono text-neutral-400 tracking-widest uppercase">
+            <span className="text-[10px] font-mono text-neutral-500 tracking-widest uppercase">
               {format === 'free_text' ? 'Your response' : 'Walk through your reasoning'}
             </span>
-            <span className="text-[10px] font-mono text-neutral-400">
+            <span className="text-[10px] font-mono text-neutral-500">
               {answer.length} / 280
             </span>
           </div>
@@ -307,19 +322,85 @@ export default function ProbeDisplay({
               {buttonLabel} →
             </button>
             {!canSubmit && !isSubmitting && answer.trim().length > 0 && (
-              <p className="text-[10px] font-mono text-neutral-400 text-center mt-2 tracking-wide">
+              <p className="text-[10px] font-mono text-neutral-500 text-center mt-2 tracking-wide">
                 Add more detail before submitting.
               </p>
             )}
           </div>
         </div>
 
-        {/* Right exhibit panel (desktop only) */}
-        {hasExhibit && (
-          <div className="hidden md:block md:w-[440px] md:shrink-0 border-l border-neutral-100 bg-[#FAFAFA] overflow-y-auto">
-            <ExhibitDisplay exhibit={step.exhibit!} mode="panel" />
-          </div>
-        )}
+        {/* Right panel — always visible on desktop */}
+        <div className="hidden md:flex md:w-[440px] md:shrink-0 border-l border-neutral-100 bg-[#FAFAFA] flex-col overflow-hidden">
+          {/* Tab pills — only shown when exhibit present */}
+          {hasExhibit && (
+            <div className="px-4 pt-4 pb-0 shrink-0">
+              <div className="flex gap-1.5">
+                <button
+                  onClick={() => setRightTab('exhibit')}
+                  className={`flex-1 py-2 font-mono text-[10px] tracking-widest uppercase transition-colors border
+                    ${rightTab === 'exhibit'
+                      ? 'bg-[#0A0A0A] text-white border-[#0A0A0A]'
+                      : 'bg-white text-neutral-500 border-neutral-200 hover:border-neutral-400'
+                    }`}
+                >
+                  Case Exhibit
+                </button>
+                <button
+                  onClick={() => setRightTab('context')}
+                  className={`flex-1 py-2 font-mono text-[10px] tracking-widest uppercase transition-colors border
+                    ${rightTab === 'context'
+                      ? 'bg-[#0A0A0A] text-white border-[#0A0A0A]'
+                      : 'bg-white text-neutral-500 border-neutral-200 hover:border-neutral-400'
+                    }`}
+                >
+                  Case Context
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* Exhibit tab */}
+          {hasExhibit && rightTab === 'exhibit' && (
+            <div className="flex-1 overflow-y-auto mt-4">
+              <ExhibitDisplay exhibit={step.exhibit!} mode="panel" />
+            </div>
+          )}
+
+          {/* Context tab (or full panel when no exhibit) */}
+          {(!hasExhibit || rightTab === 'context') && (
+            <div className="flex-1 overflow-y-auto px-6 pt-6 pb-5">
+              <div className="flex items-center justify-between mb-4">
+                <span className="text-[10px] font-mono text-neutral-500 tracking-widest uppercase">Case Briefing</span>
+                <span className="px-2 py-0.5 text-[10px] font-mono border border-neutral-200 text-neutral-500 uppercase tracking-wider">
+                  Case {caseNumber} of 3
+                </span>
+              </div>
+              <h3 className="font-mono text-base font-semibold text-neutral-900 mb-1">{caseContent.title}</h3>
+
+              <div className="mt-4 space-y-4">
+                <div>
+                  <p className="text-[9px] font-mono text-neutral-500 uppercase tracking-widest mb-1">Your Role</p>
+                  <p className="text-xs font-mono text-neutral-700 leading-relaxed">{caseContent.role}</p>
+                </div>
+                <div>
+                  <p className="text-[9px] font-mono text-neutral-500 uppercase tracking-widest mb-1">Background</p>
+                  <p className="text-xs font-mono text-neutral-600 leading-relaxed">{caseContent.narrative}</p>
+                </div>
+                <div className="flex gap-2.5">
+                  <div className="w-0.5 bg-[#003A70] rounded-full shrink-0 mt-0.5" />
+                  <div>
+                    <p className="text-[9px] font-mono text-neutral-500 uppercase tracking-widest mb-1">Situation</p>
+                    <p className="text-xs font-mono text-neutral-700 leading-relaxed">{caseContent.situation}</p>
+                  </div>
+                </div>
+                <div className="pt-1 border-t border-neutral-100">
+                  <p className="text-[9px] font-mono text-neutral-500 uppercase tracking-widest mb-1.5">Engagement Question</p>
+                  <p className="text-sm font-mono text-neutral-900 font-semibold leading-relaxed">{caseContent.problemStatement}</p>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

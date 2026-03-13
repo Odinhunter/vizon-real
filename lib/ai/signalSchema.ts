@@ -65,22 +65,24 @@ export const BehavioralSignalsSchema = z
     reasoning_confidence: z.number().min(0).max(1).finite(),
     communication_clarity: z.number().min(0).max(1).finite(),
   })
-  .strict();
+  .strip();
 
 /**
  * Probe-level extraction output used by the scoring pipeline.
  *
  * signal_strength — how clearly the target skill signal is present (0–1)
  * response_quality — how coherent and complete the response is (0–1)
+ * key_observations — chain-of-thought reasoning the model produces before scoring
  * behavioral_signals — behavioral dimensions observed, aggregated separately from scores
  */
 export const ProbeExtractionResultSchema = z
   .object({
+    key_observations: z.array(z.string()).min(1).max(5),
     signal_strength: z.number().min(0).max(1).finite(),
     response_quality: z.number().min(0).max(1).finite(),
     behavioral_signals: BehavioralSignalsSchema,
   })
-  .strict();
+  .strip();
 
 export type BehavioralSignals = z.infer<typeof BehavioralSignalsSchema>;
 export type ProbeExtractionResult = z.infer<typeof ProbeExtractionResultSchema>;

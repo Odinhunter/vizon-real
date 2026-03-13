@@ -1,12 +1,14 @@
 /**
- * Diagnostic API route (MVP).
+ * Diagnostic API route.
  *
- * This is MVP in-memory session storage.
- * Sessions are lost on server restart.
- * Replace with a database in production.
+ * Session state is persisted to the database (DiagnosticRun.sessionStateJson)
+ * so sessions survive server restarts.
+ * Individual probe responses are stored in the ProbeResponse table.
  */
 
 import { NextRequest, NextResponse } from 'next/server';
+import { auth } from '@/auth';
+import { prisma } from '@/lib/db';
 import { DiagnosticSession } from '@/engine/diagnosticSession';
 import { initializeDiagnosticSession } from '@/engine/initializeSession';
 import { runDiagnosticSessionStep } from '@/engine/runDiagnosticSessionStep';
@@ -16,23 +18,24 @@ import { getTrackEntry, supportedTrackIds } from '@/config/registry';
 import { getCaseContent, getProbeContent, getProbeExhibit, serializeExhibitForAI } from '@/content/index';
 import { DiagnosticStep } from '@/engine/DiagnosticFlow';
 import { applyDiagnosticStepResult } from '@/engine/applyDiagnosticStepResult';
-import { generateDiagnosticResult, calculateProbeScore, type Difficulty } from '@/engine/scoring';
+import { calculateProbeScore, type Difficulty } from '@/engine/scoring';
+import { analyzeResults } from '@/engine/analyzeResults';
 import { DiagnosticStatus } from '@/engine/diagnosticSession';
 import { batchExtractSignals } from '@/lib/ai/batchExtractSignals';
-
-// MVP: in-memory session store. Replace with database in production.
-const sessions = new Map<string, DiagnosticSession>();
-
-// Track the last step per session so we can pass it to handleDiagnosticStepCompletion
-const pendingSteps = new Map<string, DiagnosticStep>();
+import { generatePersonalizedFeedback } from '@/lib/ai/generatePersonalizedFeedback';
 
 export async function POST(req: NextRequest) {
+  const session = await auth();
+  if (!session?.user?.id) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
   try {
     const body = await req.json();
     const { action } = body;
 
     if (action === 'start') {
-      return handleStart(body);
+      return handleStart(body, session.user.id);
     }
 
     if (action === 'answer') {
@@ -49,7 +52,7 @@ export async function POST(req: NextRequest) {
   }
 }
 
-async function handleStart(body: { trackId?: string }) {
+async function handleStart(body: { trackId?: string }, userId: string) {
   const { trackId } = body;
 
   if (!trackId) {
@@ -75,16 +78,22 @@ async function handleStart(body: { trackId?: string }) {
   }
 
   const initialCase = getRandomCaseForLevel(trackId, 1);
-  const session = initializeDiagnosticSession(trackId, initialCase.caseId);
+  const diagSession = initializeDiagnosticSession(trackId, initialCase.caseId);
 
   // Get the first step
-  const result = await runDiagnosticSessionStep(session, trackEntry.probes);
+  const result = await runDiagnosticSessionStep(diagSession, trackEntry.probes);
 
-  sessions.set(result.session.sessionId, result.session);
-
-  if (result.step.type === 'probe') {
-    pendingSteps.set(result.session.sessionId, result.step);
-  }
+  // Persist full session state + pending step to DB
+  await prisma.diagnosticRun.create({
+    data: {
+      userId,
+      trackId,
+      sessionId: result.session.sessionId,
+      status: 'IN_PROGRESS',
+      sessionStateJson: JSON.stringify(result.session),
+      pendingStepJson: result.step.type === 'probe' ? JSON.stringify(result.step) : null,
+    },
+  });
 
   return NextResponse.json({
     sessionId: result.session.sessionId,
@@ -107,32 +116,39 @@ async function handleAnswer(body: {
     return NextResponse.json({ error: 'Missing sessionId' }, { status: 400 });
   }
 
-  const session = sessions.get(sessionId);
-  if (!session) {
+  // Load session state from DB
+  const run = await prisma.diagnosticRun.findUnique({
+    where: { sessionId },
+    include: { _count: { select: { responses: true } } },
+  });
+
+  if (!run || !run.sessionStateJson) {
     return NextResponse.json({ error: 'Session not found' }, { status: 404 });
   }
 
-  const lastStep = pendingSteps.get(sessionId);
-  if (!lastStep) {
+  if (!run.pendingStepJson) {
     return NextResponse.json(
       { error: 'No pending step to answer' },
       { status: 400 }
     );
   }
 
-  const trackEntry = getTrackEntry(session.careerTrackId);
+  const diagSession: DiagnosticSession = JSON.parse(run.sessionStateJson);
+  const lastStep: DiagnosticStep = JSON.parse(run.pendingStepJson);
+
+  const trackEntry = getTrackEntry(diagSession.careerTrackId);
   if (!trackEntry) {
     return NextResponse.json(
-      { error: `No probes configured for trackId: ${session.careerTrackId}` },
+      { error: `No probes configured for trackId: ${diagSession.careerTrackId}` },
       { status: 500 }
     );
   }
 
   // Build context strings to store alongside the response for batch extraction
-  const caseContent = getCaseContent(session.currentCaseId);
+  const caseContent = getCaseContent(diagSession.currentCaseId);
   const probeContent = lastStep.type === 'probe' ? getProbeContent(lastStep.variant?.variantId ?? '') : null;
   const variantId = lastStep.type === 'probe' ? lastStep.variant?.variantId ?? '' : '';
-  const exhibit = variantId ? getProbeExhibit(session.currentCaseId, variantId) : null;
+  const exhibit = variantId ? getProbeExhibit(diagSession.currentCaseId, variantId) : null;
   const caseContext = caseContent
     ? `Company: ${caseContent.company}\nRole: ${caseContent.role}\nSituation: ${caseContent.situation}\nTask: ${caseContent.problemStatement}`
     : '';
@@ -146,25 +162,50 @@ async function handleAnswer(body: {
   let updatedSession: DiagnosticSession;
   try {
     updatedSession = await handleDiagnosticStepCompletion(
-      session,
+      diagSession,
       lastStep,
       { rawResponse, selectedOptionId, selectedOptionIds },
       { caseContext, probeQuestion, scoringGuidance, exhibitContext, format: probeFormat, options: probeOptions }
     );
   } catch (err) {
     console.error('Step completion failed, falling back to deterministic mutation:', err);
-    updatedSession = applyDiagnosticStepResult(session, lastStep, { rawResponse });
+    updatedSession = applyDiagnosticStepResult(diagSession, lastStep, { rawResponse });
   }
-
-  pendingSteps.delete(sessionId);
 
   const result = await runDiagnosticSessionStep(updatedSession, trackEntry.probes);
 
-  sessions.set(sessionId, result.session);
+  // Persist individual probe response to DB
+  if (lastStep.type === 'probe') {
+    const responseText = typeof rawResponse === 'string'
+      ? rawResponse
+      : rawResponse != null ? JSON.stringify(rawResponse) : null;
 
-  if (result.step.type === 'probe') {
-    pendingSteps.set(sessionId, result.step);
+    await prisma.probeResponse.create({
+      data: {
+        diagnosticRunId: run.id,
+        probeId: lastStep.probe.probeId,
+        skillId: lastStep.probe.skillId,
+        variantId: lastStep.variant.variantId,
+        sequenceNumber: run._count.responses + 1,
+        caseId: diagSession.currentCaseId,
+        caseStage: diagSession.caseStage,
+        contextLevel: lastStep.variant.contextLevel,
+        format: probeFormat,
+        rawResponse: responseText,
+        selectedOptionId: selectedOptionId ?? null,
+        selectedOptionIds: selectedOptionIds ? JSON.stringify(selectedOptionIds) : null,
+      },
+    });
   }
+
+  // Update session state + pending step in DB
+  await prisma.diagnosticRun.update({
+    where: { sessionId },
+    data: {
+      sessionStateJson: JSON.stringify(result.session),
+      pendingStepJson: result.step.type === 'probe' ? JSON.stringify(result.step) : null,
+    },
+  });
 
   // On completion: run the single batch AI extraction call, apply scores, generate result
   let diagnosticResult = undefined;
@@ -172,15 +213,28 @@ async function handleAnswer(body: {
     let finalSession = result.session;
     const pendingResponses = result.session.pendingResponses ?? [];
 
+    let extractions: Awaited<ReturnType<typeof batchExtractSignals>> | null = null;
+
     if (pendingResponses.length > 0) {
       try {
-        const extractions = await batchExtractSignals(pendingResponses);
+        extractions = await batchExtractSignals(pendingResponses);
 
         // Apply each extraction to skillEvidence and behavioralEvidence
         let skillEvidence = { ...finalSession.skillEvidence };
         let framing = [...finalSession.behavioralEvidence.framing_quality];
         let confidence = [...finalSession.behavioralEvidence.reasoning_confidence];
         let clarity = [...finalSession.behavioralEvidence.communication_clarity];
+
+        // Collect extraction data to update ProbeResponse records
+        const extractionUpdates: {
+          sequenceNumber: number;
+          signalStrength: number;
+          responseQuality: number;
+          framingQuality: number;
+          reasoningConfidence: number;
+          communicationClarity: number;
+          probeScore: number;
+        }[] = [];
 
         for (let i = 0; i < extractions.length; i++) {
           const extraction = extractions[i];
@@ -198,7 +252,37 @@ async function handleAnswer(body: {
           framing.push(extraction.behavioral_signals.framing_quality);
           confidence.push(extraction.behavioral_signals.reasoning_confidence);
           clarity.push(extraction.behavioral_signals.communication_clarity);
+
+          extractionUpdates.push({
+            sequenceNumber: i + 1,
+            signalStrength: extraction.signal_strength,
+            responseQuality: extraction.response_quality,
+            framingQuality: extraction.behavioral_signals.framing_quality,
+            reasoningConfidence: extraction.behavioral_signals.reasoning_confidence,
+            communicationClarity: extraction.behavioral_signals.communication_clarity,
+            probeScore,
+          });
         }
+
+        // Backfill AI extraction results onto ProbeResponse records
+        await Promise.all(
+          extractionUpdates.map((update) =>
+            prisma.probeResponse.updateMany({
+              where: {
+                diagnosticRunId: run.id,
+                sequenceNumber: update.sequenceNumber,
+              },
+              data: {
+                signalStrength: update.signalStrength,
+                responseQuality: update.responseQuality,
+                framingQuality: update.framingQuality,
+                reasoningConfidence: update.reasoningConfidence,
+                communicationClarity: update.communicationClarity,
+                probeScore: update.probeScore,
+              },
+            })
+          )
+        );
 
         finalSession = {
           ...finalSession,
@@ -210,15 +294,69 @@ async function handleAnswer(body: {
           },
         };
       } catch (err) {
-        console.error('Batch extraction failed — returning zero scores:', err);
+        console.error('Batch extraction failed:', err);
+        throw new Error(
+          `AI analysis failed: ${err instanceof Error ? err.message : 'unknown error'} — please retry`
+        );
       }
     }
 
-    diagnosticResult = generateDiagnosticResult(
+    diagnosticResult = analyzeResults(
       finalSession.skillEvidence,
       finalSession.behavioralEvidence,
-      trackEntry.engineTrack.skills
+      trackEntry.engineTrack.skills,
+      trackEntry.engineTrack.name,
+      pendingResponses.length
     );
+
+    // Generate personalized feedback using AI (second call)
+    if (extractions && pendingResponses.length > 0) {
+      try {
+        const personalized = await generatePersonalizedFeedback(
+          diagnosticResult.skills,
+          pendingResponses,
+          extractions,
+          diagnosticResult.trackScore,
+          diagnosticResult.benchmark,
+          diagnosticResult.archetype.name,
+          diagnosticResult.archetype.topTraits
+        );
+
+        if (personalized) {
+          // Patch skill narratives + archetype feedback
+          diagnosticResult = {
+            ...diagnosticResult,
+            skills: diagnosticResult.skills.map((skill) => ({
+              ...skill,
+              narrative: personalized.skillNarratives[skill.skillId] ?? skill.narrative,
+            })),
+            recommendations: personalized.recommendations.length > 0
+              ? personalized.recommendations
+              : diagnosticResult.recommendations,
+            archetype: {
+              ...diagnosticResult.archetype,
+              feedback: personalized.archetypeFeedback || undefined,
+            },
+          };
+        }
+      } catch (err) {
+        console.error('Personalized feedback generation failed, using templates:', err);
+      }
+    }
+
+    // Persist completed run to DB with denormalized fields
+    await prisma.diagnosticRun.update({
+      where: { sessionId },
+      data: {
+        status: 'COMPLETE',
+        resultJson: JSON.stringify(diagnosticResult),
+        trackScore: diagnosticResult.trackScore,
+        verdict: diagnosticResult.verdict,
+        sessionStateJson: JSON.stringify(finalSession),
+        pendingStepJson: null,
+        completedAt: new Date(),
+      },
+    });
   }
 
   return NextResponse.json({

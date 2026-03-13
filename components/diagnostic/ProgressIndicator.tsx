@@ -23,10 +23,10 @@ export default function ProgressIndicator({
       <div className="flex items-center justify-between mb-2">
         <span className="text-sm font-medium text-neutral-600">
           Case {caseNumber} of {TOTAL_CASES}
-          <span className="mx-2 text-neutral-300">·</span>
+          <span className="mx-2 text-neutral-400">·</span>
           Question {probeNumber} of {totalProbes}
         </span>
-        <span className="text-sm text-neutral-400">{progressPct}%</span>
+        <span className="text-sm text-neutral-500">{progressPct}%</span>
       </div>
 
       {/* Progress bar */}

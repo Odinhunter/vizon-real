@@ -1,10 +1,11 @@
 'use client';
 
 import { useState, useCallback } from 'react';
-import type { ProbeStep, DiagnosticResultData } from '@/lib/api/diagnosticClient';
+import type { ProbeStep, DiagnosticReport } from '@/lib/api/diagnosticClient';
 import { startSession, submitAnswer } from '@/lib/api/diagnosticClient';
 import { getCaseContent, getProbeContent, getTrackIntro } from '@/content/index';
 import DiagnosticIntro from './DiagnosticIntro';
+import UserSetup from './UserSetup';
 import CaseIntro from './CaseIntro';
 import ProbeDisplay from './ProbeDisplay';
 import DiagnosticResults from './DiagnosticResults';
@@ -13,7 +14,7 @@ interface DiagnosticControllerProps {
   trackId: string;
 }
 
-type Phase = 'intro' | 'case_intro' | 'probe' | 'results';
+type Phase = 'intro' | 'user_setup' | 'case_intro' | 'probe' | 'results';
 
 const TOTAL_PROBES = 5;
 
@@ -39,7 +40,7 @@ export default function DiagnosticController({ trackId }: DiagnosticControllerPr
   const [selectedOptionIds, setSelectedOptionIds] = useState<string[]>([]);
 
   // Results
-  const [result, setResult] = useState<DiagnosticResultData | null>(null);
+  const [result, setResult] = useState<DiagnosticReport | null>(null);
 
   // ── Content lookups ────────────────────────────────────────────────────────
 
@@ -50,7 +51,7 @@ export default function DiagnosticController({ trackId }: DiagnosticControllerPr
 
   // ── Transitions ────────────────────────────────────────────────────────────
 
-  const handleStart = useCallback(async () => {
+  const beginSession = useCallback(async () => {
     setIsStarting(true);
     setError(null);
     try {
@@ -70,6 +71,32 @@ export default function DiagnosticController({ trackId }: DiagnosticControllerPr
       setIsStarting(false);
     }
   }, [trackId]);
+
+  const handleStart = useCallback(async () => {
+    setIsStarting(true);
+    setError(null);
+    try {
+      const res = await fetch('/api/profile');
+      const { profile } = await res.json();
+      if (profile?.completedAt) {
+        await beginSession();
+      } else {
+        setPhase('user_setup');
+        setIsStarting(false);
+      }
+    } catch {
+      // If profile check fails, still let them proceed
+      await beginSession();
+    }
+  }, [beginSession]);
+
+  const handleUserSetupComplete = useCallback(async () => {
+    await beginSession();
+  }, [beginSession]);
+
+  const handleUserSetupSkip = useCallback(async () => {
+    await beginSession();
+  }, [beginSession]);
 
   const handleBeginCase = useCallback(() => {
     if (!pendingStep) return;
@@ -170,6 +197,12 @@ export default function DiagnosticController({ trackId }: DiagnosticControllerPr
     );
   }
 
+  if (phase === 'user_setup') {
+    return (
+      <UserSetup onComplete={handleUserSetupComplete} onSkip={handleUserSetupSkip} />
+    );
+  }
+
   if (phase === 'case_intro') {
     if (!caseContent) {
       return (
@@ -216,7 +249,7 @@ export default function DiagnosticController({ trackId }: DiagnosticControllerPr
               <p className="font-mono text-sm text-neutral-900 tracking-wider uppercase">
                 Analysing your diagnostic
               </p>
-              <p className="font-mono text-xs text-neutral-400">
+              <p className="font-mono text-xs text-neutral-500">
                 Reviewing 15 responses · 30–60 seconds
               </p>
             </div>

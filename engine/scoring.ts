@@ -114,12 +114,15 @@ const STAGE_WEIGHTS: Record<1 | 2 | 3, number> = {
  *
  * Formula:
  *   base  = 0.65 × signal_strength + 0.35 × response_quality
- *   score = clamp(base + difficulty_bonus, 0, 1)
+ *   curved = base^1.3 (power curve that compresses middling scores downward)
+ *   score = clamp(curved + difficulty_bonus, 0, 1)
  *
- * Rationale for weighted-sum over multiplication:
- * Multiplying two sub-1 values compounds their uncertainty and systematically
- * depresses scores for solid-but-not-exceptional responses. A weighted sum
- * keeps the contribution of each AI measurement independent and linear.
+ * The power curve (exponent 1.3) makes scoring tougher:
+ * - 0.5 base → 0.41 curved (mediocre stays clearly below midpoint)
+ * - 0.7 base → 0.63 curved (good but not inflated)
+ * - 0.9 base → 0.87 curved (excellent stays near the top)
+ * This prevents middling AI extractions from producing passing scores.
+ *
  * signal_strength is primary (0.65); response_quality acts as an expression modifier (0.35).
  */
 export function calculateProbeScore(
@@ -128,7 +131,8 @@ export function calculateProbeScore(
   difficulty: Difficulty
 ): number {
   const base = SIGNAL_WEIGHT * signalStrength + QUALITY_WEIGHT * responseQuality;
-  return clamp(base + DIFFICULTY_BONUS[difficulty], 0, 1);
+  const curved = Math.pow(base, 1.3);
+  return clamp(curved + DIFFICULTY_BONUS[difficulty], 0, 1);
 }
 
 // ─── Skill scoring ────────────────────────────────────────────────────────────

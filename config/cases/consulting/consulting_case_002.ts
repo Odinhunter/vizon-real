@@ -3,11 +3,11 @@ import { CaseMetadata } from '../types';
 export const consultingCase002: CaseMetadata = {
   caseId: 'consulting_case_002',
   trackId: 'consulting',
-  title: 'Market Entry Evaluation for a European EV Charging Operator',
+  title: 'FastDrop Delivery Delays',
   description:
-    'VoltCharge, a European EV charging operator, is evaluating whether to enter the German market. Assess market attractiveness, size the opportunity, and recommend an entry strategy.',
-  scenarioType: 'market_entry',
-  tags: ['market-entry', 'market-sizing', 'infrastructure', 'ev'],
+    'FastDrop is a same-day grocery delivery company operating in 7 major US cities. Over the past 4 months, delivery delays have increased significantly and repeat order rates have declined. Diagnose the operational issue and recommend a priority action.',
+  scenarioType: 'business_performance',
+  tags: ['operations', 'delivery', 'capacity-planning', 'logistics'],
   probeSlotIds: [
     'ps_problem_structuring',
     'ps_hypothesis_driven_thinking',

@@ -30,7 +30,7 @@ export default function CaseIntro({ content, caseNumber, onBegin }: CaseIntroPro
 
         {/* Title */}
         <div>
-          <p className="text-[10px] font-mono text-neutral-400 uppercase tracking-widest mb-1.5">
+          <p className="text-[10px] font-mono text-neutral-500 uppercase tracking-widest mb-1.5">
             {content.company}
           </p>
           <h1 className="font-mono text-2xl font-normal text-neutral-900 leading-snug">
@@ -46,7 +46,7 @@ export default function CaseIntro({ content, caseNumber, onBegin }: CaseIntroPro
 
         {/* Narrative */}
         <div>
-          <h2 className="text-[10px] font-mono text-neutral-400 uppercase tracking-widest mb-2">
+          <h2 className="text-[10px] font-mono text-neutral-500 uppercase tracking-widest mb-2">
             Context
           </h2>
           <p className="text-sm text-neutral-700 leading-relaxed">{content.narrative}</p>
@@ -54,7 +54,7 @@ export default function CaseIntro({ content, caseNumber, onBegin }: CaseIntroPro
 
         {/* Situation */}
         <div>
-          <h2 className="text-[10px] font-mono text-neutral-400 uppercase tracking-widest mb-2">
+          <h2 className="text-[10px] font-mono text-neutral-500 uppercase tracking-widest mb-2">
             Situation
           </h2>
           <p className="text-sm text-neutral-700 leading-relaxed">{content.situation}</p>
@@ -65,7 +65,7 @@ export default function CaseIntro({ content, caseNumber, onBegin }: CaseIntroPro
 
         {/* Problem statement */}
         <div className="bg-neutral-900 text-white p-5 border-l-4 border-[#1A56DB]">
-          <div className="text-[10px] font-mono uppercase tracking-widest text-neutral-400 mb-2">
+          <div className="text-[10px] font-mono uppercase tracking-widest text-neutral-500 mb-2">
             Your task
           </div>
           <p className="text-sm leading-relaxed font-mono">{content.problemStatement}</p>
@@ -79,7 +79,7 @@ export default function CaseIntro({ content, caseNumber, onBegin }: CaseIntroPro
           >
             Begin Case →
           </button>
-          <p className="text-[10px] font-mono text-neutral-400 text-center mt-3 tracking-wide">
+          <p className="text-[10px] font-mono text-neutral-500 text-center mt-3 tracking-wide">
             5 questions · no time limit
           </p>
         </div>
