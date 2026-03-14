@@ -8,11 +8,11 @@ import { useScrollReveal } from '@/hooks/useScrollReveal';
 
 const trackDescriptions: Record<string, string> = {
   consulting:
-    'MBB and Tier 1 strategy firms. Tests structured thinking, problem decomposition, and clarity under ambiguity.',
+    'The MBB bar is high and getting higher. This track tests structured thinking, problem decomposition, and performance under ambiguity across three progressively harder cases.',
   finance:
-    'Investment banking, PE, and asset management. Tests quantitative reasoning and decision-making under pressure.',
+    'IB and PE don\'t reward effort. They reward judgment. This track tests quantitative reasoning, thesis formation, and decision-making under real pressure.',
   analytics:
-    'Product, strategy, and growth analytics. Tests data interpretation, statistical reasoning, and insight synthesis.',
+    'Product and growth teams want people who can turn noise into insight. This track tests data interpretation, statistical reasoning, and communication of findings.',
 };
 
 const trackStatus: Record<string, { label: string; open: boolean }> = {
@@ -40,10 +40,10 @@ export default function TracksSection() {
         <SectionLabel label="AVAILABLE TRACKS" />
 
         <h2 className="font-extrabold text-[#051c2c] leading-[1.1] tracking-[-0.02em] mb-4" style={{ fontSize: 'clamp(28px, 3.5vw, 44px)' }}>
-          Choose your career track.
+          Your career. Your diagnostic.
         </h2>
         <p className="text-[16px] text-[#6b7a87] leading-relaxed mb-12 max-w-xl">
-          Each track tests the specific capabilities that define performance in that career.
+          Every track is built around the real skills that separate hires from rejections — not what&apos;s on your CV, but what&apos;s in your head when it matters.
         </p>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -104,7 +104,7 @@ export default function TracksSection() {
                     </Link>
                   ) : (
                     <span className="inline-block text-[13px] font-medium text-[#b8c4ce]">
-                      Coming soon
+                      Join the waitlist — launching Q2
                     </span>
                   )}
                 </div>

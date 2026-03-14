@@ -29,6 +29,7 @@ import {
   Tooltip,
 } from 'recharts';
 import { useScrollReveal } from '@/hooks/useScrollReveal';
+import ShareButton from './ShareButton';
 
 // ─── Animated counter hook ────────────────────────────────────────────────────
 
@@ -155,7 +156,13 @@ const STAT_ACCENT_COLORS = ['var(--accent)', 'var(--blue)', '#10b981', '#051c2c'
 interface DiagnosticResultsProps {
   result: DiagnosticReport;
   trackId: string;
-  onRestart: () => void;
+  onRestart?: () => void;
+  readOnly?: boolean;
+  sessionId?: string;
+}
+
+function ShareButtonCTA({ sessionId }: { sessionId: string }) {
+  return <ShareButton sessionId={sessionId} />;
 }
 
 function AssessmentBadge({ assessment }: { assessment: SkillAssessment }) {
@@ -205,6 +212,8 @@ export default function DiagnosticResults({
   result,
   trackId,
   onRestart,
+  readOnly = false,
+  sessionId,
 }: DiagnosticResultsProps) {
   const {
     trackScore,
@@ -841,20 +850,38 @@ export default function DiagnosticResults({
 
         {/* ── CTAs ──────────────────────────────────────────────────────── */}
         <div ref={ctaRef} className="reveal pb-6 flex flex-col sm:flex-row gap-4 max-w-xl mx-auto w-full">
-          <button
-            onClick={onRestart}
-            className="flex-1 py-4 text-white font-mono text-[11px] tracking-[0.15em] uppercase rounded-xl shadow-lg hover:-translate-y-0.5 hover:shadow-xl transition-all duration-200"
-            style={{ backgroundColor: NAVY }}
-          >
-            Retake Diagnostic
-          </button>
-          <a
-            href="/"
-            className="flex-1 py-4 bg-white font-mono text-[11px] text-center tracking-[0.15em] uppercase rounded-xl shadow-lg border border-[#e2e6ea] hover:-translate-y-0.5 hover:shadow-xl transition-all duration-200"
-            style={{ color: NAVY }}
-          >
-            View All Tracks
-          </a>
+          {readOnly ? (
+            <>
+              <a
+                href="/signup?callbackUrl=/diagnostic?track=consulting"
+                className="flex-1 py-4 text-white font-mono text-[11px] text-center tracking-[0.15em] uppercase rounded-xl shadow-lg hover:-translate-y-0.5 hover:shadow-xl transition-all duration-200"
+                style={{ backgroundColor: NAVY }}
+              >
+                Run your own diagnostic →
+              </a>
+              {sessionId && <ShareButtonCTA sessionId={sessionId} />}
+            </>
+          ) : (
+            <>
+              {onRestart && (
+                <button
+                  onClick={onRestart}
+                  className="flex-1 py-4 text-white font-mono text-[11px] tracking-[0.15em] uppercase rounded-xl shadow-lg hover:-translate-y-0.5 hover:shadow-xl transition-all duration-200"
+                  style={{ backgroundColor: NAVY }}
+                >
+                  Retake Diagnostic
+                </button>
+              )}
+              {sessionId && <ShareButtonCTA sessionId={sessionId} />}
+              <a
+                href="/"
+                className="flex-1 py-4 bg-white font-mono text-[11px] text-center tracking-[0.15em] uppercase rounded-xl shadow-lg border border-[#e2e6ea] hover:-translate-y-0.5 hover:shadow-xl transition-all duration-200"
+                style={{ color: NAVY }}
+              >
+                View All Tracks
+              </a>
+            </>
+          )}
         </div>
       </div>
     </div>

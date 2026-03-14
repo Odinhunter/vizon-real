@@ -6,23 +6,23 @@ import { useScrollReveal } from '@/hooks/useScrollReveal';
 const steps = [
   {
     num: '01',
-    title: 'Choose Your Track',
+    title: 'Pick your battlefield.',
     description:
-      'Consulting, Finance, or Data Analytics. Each track tests the specific capabilities that define performance in that career.',
+      'Consulting, Finance, or Data Analytics. Each track is calibrated against what firms in that space actually test for — not generic case prep.',
     accent: 'bg-[#e8f0fe] text-[#1A56DB]',
   },
   {
     num: '02',
-    title: 'Solve Real Cases',
+    title: 'Work through real cases.',
     description:
-      'Problems that surface how you think — not what you know. Progressive difficulty. Real ambiguity. No multiple choice.',
+      'Three progressively harder problems. No multiple choice. No hints. Just you, the problem, and how you think under pressure.',
     accent: 'bg-[#fff3ee] text-[#e8521a]',
   },
   {
     num: '03',
-    title: 'Get Your Signal',
+    title: 'Get the truth about your readiness.',
     description:
-      'A full capability map — scores, benchmarks, behavioral signals, and priority recommendations. Not a pass/fail. A diagnostic.',
+      'Scores across 5 skills, benchmarked against real hiring thresholds. A capability map, not a score card. And a clear read on where to focus.',
     accent: 'bg-[#ecfdf5] text-[#059669]',
   },
 ];
@@ -39,10 +39,10 @@ export default function HowItWorksSection() {
         <SectionLabel label="HOW IT WORKS" />
 
         <h2 className="font-extrabold text-[#051c2c] leading-[1.1] tracking-[-0.02em] mb-4" style={{ fontSize: 'clamp(28px, 3.5vw, 44px)' }}>
-          Three steps to clarity.
+          Forty minutes. Real answers.
         </h2>
         <p className="text-[16px] text-[#6b7a87] leading-relaxed mb-12 max-w-xl">
-          No guesswork. No fluff. A structured diagnostic that tells you exactly where you stand.
+          No personality quiz. No self-reported scores. A structured test that surfaces exactly how you think — and exactly where you break.
         </p>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">

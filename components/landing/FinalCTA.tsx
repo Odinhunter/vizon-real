@@ -1,10 +1,15 @@
 'use client';
 
 import Link from 'next/link';
+import { useSession } from 'next-auth/react';
 import { useScrollReveal } from '@/hooks/useScrollReveal';
 
 export default function FinalCTA() {
   const ref = useScrollReveal();
+  const { data: session } = useSession();
+  const ctaHref = session
+    ? '/diagnostic?track=consulting'
+    : '/signup?callbackUrl=/diagnostic?track=consulting';
 
   return (
     <section
@@ -24,25 +29,24 @@ export default function FinalCTA() {
           className="font-extrabold text-white leading-[1.05] tracking-[-0.03em] mb-4"
           style={{ fontSize: 'clamp(32px, 4.5vw, 56px)' }}
         >
-          Find out now.
+          You&apos;ll find out eventually.
         </h2>
         <p
           className="font-light text-[#8db8e3] leading-[1.1] mb-6"
           style={{ fontSize: 'clamp(32px, 4.5vw, 56px)' }}
         >
-          Not in the room.
+          Better now.
         </p>
         <p className="text-[16px] text-white/45 leading-relaxed max-w-lg mx-auto mb-12">
-          The worst time to discover a gap is mid-interview. Get an objective read on your
-          capabilities before you&apos;re sitting across from someone who&apos;s evaluating them.
+          40 minutes. One clear signal. Find out exactly where you stand before you walk into a room where it counts.
         </p>
 
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
           <Link
-            href="/diagnostic?track=consulting"
+            href={ctaHref}
             className="bg-white text-[#051c2c] text-[15px] font-bold rounded-full px-10 py-4 hover:shadow-lg hover:shadow-white/20 transition-all"
           >
-            Run your diagnostic
+            Run your diagnostic →
           </Link>
           <a
             href="#tracks"

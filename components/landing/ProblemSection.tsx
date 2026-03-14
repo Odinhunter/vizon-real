@@ -6,23 +6,23 @@ import { useScrollReveal } from '@/hooks/useScrollReveal';
 const painPoints = [
   {
     num: '01',
-    headline: 'Joined the clubs. Built the resume.',
-    subline: "Nobody's told you objectively where you stand.",
+    headline: "You've done the prep.",
+    subline: 'Frameworks. Mock cases. YouTube videos. But none of it told you your actual score.',
   },
   {
     num: '02',
-    headline: 'Done all the prep.',
-    subline: 'Prep builds familiarity. Not signal.',
+    headline: 'You feel confident.',
+    subline: "Confidence built on repetition is the most dangerous kind. It doesn't transfer.",
   },
   {
     num: '03',
-    headline: 'You feel ready.',
-    subline: 'Feeling it and being it are two different things.',
+    headline: 'AI is changing what firms want.',
+    subline: "The bar isn't analysis anymore. It's judgment, speed, and mental clarity under fire.",
   },
   {
     num: '04',
-    headline: "About to walk into interviews.",
-    subline: 'Hoping, not knowing.',
+    headline: "You're about to find out the hard way.",
+    subline: 'Or you could find out now, while there\'s still time to act on it.',
   },
 ];
 
@@ -46,19 +46,16 @@ export default function ProblemSection() {
               You&apos;ve been preparing.
             </h2>
             <p className="font-light text-white/60 leading-[1.1] tracking-[-0.01em] mb-8" style={{ fontSize: 'clamp(28px, 3.5vw, 44px)' }}>
-              But have you been tested?
+              But preparation isn&apos;t proof.
             </p>
             <p className="text-[15px] text-white/70 leading-relaxed mb-4">
-              There&apos;s a gap between{' '}
-              <span className="font-semibold text-white">feeling ready</span> and{' '}
-              <span className="font-semibold text-white">being ready</span>. Most
-              candidates walk into MBB interviews with confidence built on repetition — not
-              evidence.
+              The consulting bar isn&apos;t what it was. AI handles the grunt work now. Firms want people who can{' '}
+              <span className="font-semibold text-white">really think</span> — under pressure, with ambiguity, at speed.
             </p>
             <p className="text-[15px] text-white/70 leading-relaxed">
-              Nobody has told them where they actually stand.{' '}
+              Most candidates never find out if they can until they&apos;re already in the room.{' '}
               <span className="font-semibold text-white">
-                Vizon gives you an objective signal before it matters.
+                Vizon is the test you should have taken before that.
               </span>
             </p>
           </div>

@@ -86,13 +86,11 @@ export default function ProbeDisplay({
 
   const hasExhibit = !!step.exhibit;
 
-  const buttonLabel = isSubmitting
-    ? 'Submitting…'
-    : probeNumber === totalProbes && caseNumber === 3
-      ? 'Finish Diagnostic'
-      : probeNumber === totalProbes
-        ? 'Next Case'
-        : 'Submit & Continue';
+  const buttonLabel = probeNumber === totalProbes && caseNumber === 3
+    ? 'Finish Diagnostic'
+    : probeNumber === totalProbes
+      ? 'Next Case'
+      : 'Submit & Continue';
 
   return (
     <div className="h-screen flex flex-col bg-white">
@@ -317,9 +315,19 @@ export default function ProbeDisplay({
             <button
               onClick={onSubmit}
               disabled={!canSubmit}
-              className="w-full py-4 bg-[#0A0A0A] text-white font-mono text-sm tracking-wider uppercase hover:bg-[#1F1F1F] active:bg-[#000] disabled:opacity-25 transition-colors"
+              className="w-full py-4 bg-[#0A0A0A] text-white font-mono text-sm tracking-wider uppercase hover:bg-[#1F1F1F] active:bg-[#000] disabled:opacity-50 transition-colors flex items-center justify-center gap-2"
             >
-              {buttonLabel} →
+              {isSubmitting ? (
+                <>
+                  <svg className="animate-spin w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                  </svg>
+                  Submitting...
+                </>
+              ) : (
+                <>{buttonLabel} →</>
+              )}
             </button>
             {!canSubmit && !isSubmitting && answer.trim().length > 0 && (
               <p className="text-[10px] font-mono text-neutral-500 text-center mt-2 tracking-wide">

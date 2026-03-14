@@ -2,7 +2,7 @@ const stats = [
   { value: '74', label: 'MBB THRESHOLD SCORE' },
   { value: '5', label: 'SKILLS ASSESSED' },
   { value: '40min', label: 'ASSESSMENT DURATION' },
-  { value: '3', label: 'CAREER TRACKS' },
+  { value: '61%', label: 'SCORE BELOW MBB THRESHOLD' },
 ];
 
 export default function StatsBar() {

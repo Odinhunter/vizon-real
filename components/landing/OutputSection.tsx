@@ -15,9 +15,9 @@ const skillBars = [
 
 const deliverables = [
   {
-    title: 'Overall Verdict + Score',
+    title: 'Overall Score + Verdict',
     description:
-      'A single composite score benchmarked against the MBB threshold, with a clear verdict on your readiness level.',
+      'Your composite score against the MBB threshold of 74. Clear, unambiguous, and benchmarked — not relative to other users, but to what firms actually expect.',
     icon: '01',
     accent: 'bg-[#e8f0fe] text-[#1A56DB]',
     borderColor: 'border-l-[#1A56DB]',
@@ -25,7 +25,7 @@ const deliverables = [
   {
     title: '5-Skill Capability Map',
     description:
-      'Individual scores for each core skill — with benchmarks, gap analysis, and trajectory across case stages.',
+      'Scores across Structuring, Pressure Handling, Clarity of Reasoning, Prioritisation, and Speed. With gap analysis and trajectory across case difficulty.',
     icon: '02',
     accent: 'bg-[#fff3ee] text-[#e8521a]',
     borderColor: 'border-l-[#e8521a]',
@@ -33,7 +33,7 @@ const deliverables = [
   {
     title: 'Candidate Archetype',
     description:
-      'Your consulting profile classified into one of six archetypes — from Structured Analyst to Pressure Performer — based on your skill distribution.',
+      'Your consulting profile across six archetypes — The Structured Analyst, The Pressure Performer, and more. Built on your actual skill distribution, not a quiz.',
     icon: '03',
     accent: 'bg-[#f0fdf4] text-[#16a34a]',
     borderColor: 'border-l-[#16a34a]',
@@ -41,15 +41,15 @@ const deliverables = [
   {
     title: 'MBB Firm Fit Scores',
     description:
-      'Weighted fit percentages for McKinsey, BCG, and Bain based on each firm\'s known skill emphasis — so you know where to focus your applications.',
+      'McKinsey, BCG, and Bain weight skills differently. Your fit percentages tell you where to focus your applications — and which firm plays to your strengths.',
     icon: '04',
     accent: 'bg-[#fdf4ff] text-[#9333ea]',
     borderColor: 'border-l-[#9333ea]',
   },
   {
-    title: 'Pressure Resilience',
+    title: 'Pressure Resilience Breakdown',
     description:
-      'How your performance holds up across increasing case complexity — a skill-by-case heatmap showing exactly where you degrade under pressure.',
+      'Your performance across baseline, escalation, and pressure cases. The pattern that emerges here is usually the most honest thing in the report.',
     icon: '05',
     accent: 'bg-[#fff7ed] text-[#ea580c]',
     borderColor: 'border-l-[#ea580c]',
@@ -266,10 +266,10 @@ export default function OutputSection() {
         <SectionLabel label="YOUR OUTPUT" />
 
         <h2 className="font-extrabold text-[#051c2c] leading-[1.1] tracking-[-0.02em] mb-4" style={{ fontSize: 'clamp(28px, 3.5vw, 44px)' }}>
-          A capability map.
+          This isn&apos;t feedback. It&apos;s a verdict.
         </h2>
         <p className="text-[16px] text-[#6b7a87] leading-relaxed mb-12 max-w-xl">
-          Not a personality quiz. Each skill scored, benchmarked, and mapped with actionable insights.
+          Every skill scored. Every gap exposed. Benchmarked against the actual MBB hiring threshold — so you know exactly what you&apos;re working with.
         </p>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">

@@ -1,14 +1,20 @@
 'use client';
 
 import Link from 'next/link';
+import { useSession } from 'next-auth/react';
 import MockResultsCard from './MockResultsCard';
 import MockFrameworkCard from './MockFrameworkCard';
 import MockTrajectoryCard from './MockTrajectoryCard';
 
 export default function HeroSection() {
+  const { data: session } = useSession();
+  const ctaHref = session
+    ? '/diagnostic?track=consulting'
+    : '/signup?callbackUrl=/diagnostic?track=consulting';
+
   return (
     <section className="relative overflow-hidden">
-      {/* Main hero gradient — stops before the cards end */}
+      {/* Main hero gradient */}
       <div
         className="absolute inset-0 gradient-animate"
         style={{
@@ -31,10 +37,10 @@ export default function HeroSection() {
           className="font-extrabold leading-[1.05] tracking-[-0.03em] mb-6"
           style={{ fontSize: 'clamp(40px, 6vw, 76px)', animation: 'fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.2s both' }}
         >
-          <span className="text-white">Think big. Prepare smart.</span>
+          <span className="text-white">Most candidates aren&apos;t ready.</span>
           <br />
           <span className="bg-gradient-to-r from-[#8db8e3] to-[#a5d0f5] bg-clip-text text-transparent">
-            Know where you stand.
+            Are you actually one of them?
           </span>
         </h1>
 
@@ -43,7 +49,7 @@ export default function HeroSection() {
           className="text-[17px] text-white/55 leading-relaxed max-w-2xl mb-12"
           style={{ animation: 'fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.35s both' }}
         >
-          A brutally honest capability assessment. 5 skills. 3 cases. 40 minutes. One clear signal of your readiness.
+          AI is raising the bar. Firms are getting pickier. And most candidates walking into MBB interviews have prep — not proof. Vizon gives you a 40-minute diagnostic across 5 skills and 3 real cases. One score. No flattery.
         </p>
 
         {/* CTA area */}
@@ -52,10 +58,10 @@ export default function HeroSection() {
           style={{ animation: 'fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.5s both' }}
         >
           <Link
-            href="/diagnostic?track=consulting"
+            href={ctaHref}
             className="bg-white text-[#051c2c] text-[15px] font-bold rounded-full px-10 py-4 hover:shadow-lg hover:shadow-white/20 transition-all"
           >
-            Run your diagnostic
+            Find out where you stand →
           </Link>
         </div>
 

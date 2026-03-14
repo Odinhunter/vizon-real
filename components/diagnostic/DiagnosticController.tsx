@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import type { ProbeStep, DiagnosticReport } from '@/lib/api/diagnosticClient';
 import { startSession, submitAnswer } from '@/lib/api/diagnosticClient';
 import { getCaseContent, getProbeContent, getTrackIntro } from '@/content/index';
@@ -9,6 +9,7 @@ import UserSetup from './UserSetup';
 import CaseIntro from './CaseIntro';
 import ProbeDisplay from './ProbeDisplay';
 import DiagnosticResults from './DiagnosticResults';
+import AnalysisLoadingScreen from './AnalysisLoadingScreen';
 
 interface DiagnosticControllerProps {
   trackId: string;
@@ -20,6 +21,7 @@ const TOTAL_PROBES = 5;
 
 export default function DiagnosticController({ trackId }: DiagnosticControllerProps) {
   const [phase, setPhase] = useState<Phase>('intro');
+  const [transitioning, setTransitioning] = useState(false);
   const [isStarting, setIsStarting] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -42,6 +44,20 @@ export default function DiagnosticController({ trackId }: DiagnosticControllerPr
   // Results
   const [result, setResult] = useState<DiagnosticReport | null>(null);
 
+  // ── Scroll to top on phase/probe change ──────────────────────────────────────
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, [phase, probeNumber]);
+
+  // ── Transition helper ────────────────────────────────────────────────────────
+  const transitionTo = useCallback((nextPhase: Phase) => {
+    setTransitioning(true);
+    setTimeout(() => {
+      setPhase(nextPhase);
+      setTransitioning(false);
+    }, 250);
+  }, []);
+
   // ── Content lookups ────────────────────────────────────────────────────────
 
   const trackIntro = getTrackIntro(trackId);
@@ -63,14 +79,14 @@ export default function DiagnosticController({ trackId }: DiagnosticControllerPr
 
       if (resp.step.type === 'probe') {
         setPendingStep(resp.step);
-        setPhase('case_intro');
+        transitionTo('case_intro');
       }
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : 'Failed to start session');
     } finally {
       setIsStarting(false);
     }
-  }, [trackId]);
+  }, [trackId, transitionTo]);
 
   const handleStart = useCallback(async () => {
     setIsStarting(true);
@@ -81,14 +97,14 @@ export default function DiagnosticController({ trackId }: DiagnosticControllerPr
       if (profile?.completedAt) {
         await beginSession();
       } else {
-        setPhase('user_setup');
+        transitionTo('user_setup');
         setIsStarting(false);
       }
     } catch {
       // If profile check fails, still let them proceed
       await beginSession();
     }
-  }, [beginSession]);
+  }, [beginSession, transitionTo]);
 
   const handleUserSetupComplete = useCallback(async () => {
     await beginSession();
@@ -103,8 +119,8 @@ export default function DiagnosticController({ trackId }: DiagnosticControllerPr
     setActiveStep(pendingStep);
     setPendingStep(null);
     setAnswer('');
-    setPhase('probe');
-  }, [pendingStep]);
+    transitionTo('probe');
+  }, [pendingStep, transitionTo]);
 
   const handleSubmit = useCallback(async () => {
     if (!sessionId || !activeStep) return;
@@ -119,7 +135,7 @@ export default function DiagnosticController({ trackId }: DiagnosticControllerPr
 
       if (resp.status === 'COMPLETE') {
         setResult(resp.result ?? null);
-        setPhase('results');
+        transitionTo('results');
         return;
       }
 
@@ -137,7 +153,7 @@ export default function DiagnosticController({ trackId }: DiagnosticControllerPr
           setAnswer('');
           setSelectedOptionId(undefined);
           setSelectedOptionIds([]);
-          setPhase('case_intro');
+          transitionTo('case_intro');
         } else {
           setActiveStep(resp.step);
           setProbeNumber((n) => n + 1);
@@ -151,10 +167,10 @@ export default function DiagnosticController({ trackId }: DiagnosticControllerPr
     } finally {
       setIsSubmitting(false);
     }
-  }, [sessionId, activeStep, answer, selectedOptionId, selectedOptionIds, caseNumber]);
+  }, [sessionId, activeStep, answer, selectedOptionId, selectedOptionIds, caseNumber, transitionTo]);
 
   const handleRestart = useCallback(() => {
-    setPhase('intro');
+    transitionTo('intro');
     setSessionId(null);
     setCaseNumber(1);
     setCurrentCaseId(null);
@@ -164,25 +180,39 @@ export default function DiagnosticController({ trackId }: DiagnosticControllerPr
     setAnswer('');
     setResult(null);
     setError(null);
-  }, []);
+  }, [transitionTo]);
 
   // ── Render ─────────────────────────────────────────────────────────────────
 
   if (error) {
     return (
       <div className="min-h-screen bg-white flex flex-col items-center justify-center px-5">
-        <div className="max-w-sm w-full text-center space-y-4">
-          <p className="text-sm text-red-600">{error}</p>
-          <button
-            onClick={handleRestart}
-            className="w-full py-3 rounded-xl bg-neutral-900 text-white font-medium text-sm hover:bg-neutral-800 transition-colors"
-          >
-            Try Again
-          </button>
+        <div className="max-w-sm w-full">
+          <div className="bg-white rounded-2xl shadow-lg p-8 text-center">
+            <div className="w-14 h-14 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-4">
+              <svg className="w-7 h-7 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                <circle cx="12" cy="12" r="10" />
+                <path d="M12 8v4m0 4h.01" strokeLinecap="round" />
+              </svg>
+            </div>
+            <h2 className="font-sans text-lg font-bold text-neutral-900 mb-2">Something went wrong</h2>
+            <p className="text-sm text-neutral-500 mb-6">{error}</p>
+            <button
+              onClick={handleRestart}
+              className="w-full py-3 rounded-xl bg-neutral-900 text-white font-medium text-sm hover:bg-neutral-800 transition-colors"
+            >
+              Try Again
+            </button>
+          </div>
         </div>
       </div>
     );
   }
+
+  // Wrap all phases in a transition container
+  const transitionClass = `transition-all duration-300 ease-out ${
+    transitioning ? 'opacity-0 translate-y-2' : 'opacity-100 translate-y-0'
+  }`;
 
   if (phase === 'intro') {
     if (!trackIntro) {
@@ -193,13 +223,17 @@ export default function DiagnosticController({ trackId }: DiagnosticControllerPr
       );
     }
     return (
-      <DiagnosticIntro intro={trackIntro} onStart={handleStart} isStarting={isStarting} />
+      <div className={transitionClass}>
+        <DiagnosticIntro intro={trackIntro} onStart={handleStart} isStarting={isStarting} />
+      </div>
     );
   }
 
   if (phase === 'user_setup') {
     return (
-      <UserSetup onComplete={handleUserSetupComplete} onSkip={handleUserSetupSkip} />
+      <div className={transitionClass}>
+        <UserSetup onComplete={handleUserSetupComplete} onSkip={handleUserSetupSkip} />
+      </div>
     );
   }
 
@@ -212,11 +246,13 @@ export default function DiagnosticController({ trackId }: DiagnosticControllerPr
       );
     }
     return (
-      <CaseIntro
-        content={caseContent}
-        caseNumber={caseNumber}
-        onBegin={handleBeginCase}
-      />
+      <div className={transitionClass}>
+        <CaseIntro
+          content={caseContent}
+          caseNumber={caseNumber}
+          onBegin={handleBeginCase}
+        />
+      </div>
     );
   }
 
@@ -229,33 +265,10 @@ export default function DiagnosticController({ trackId }: DiagnosticControllerPr
       );
     }
 
-    // Show a full-screen loading state when the final probe is being analysed —
-    // the batch AI extraction call takes ~30–60 seconds and the button spinner
-    // alone gives no feedback about what's happening.
+    // Show analysis loading screen for final probe
     const isFinalProbe = caseNumber === 3 && probeNumber === TOTAL_PROBES;
     if (isSubmitting && isFinalProbe) {
-      return (
-        <div className="h-screen bg-white flex flex-col">
-          {/* Thin top bar */}
-          <div className="h-12 bg-[#0A0A0A] flex items-center px-6 shrink-0">
-            <span className="text-white text-xs font-mono tracking-widest">VIZON</span>
-          </div>
-          <div className="flex-1 flex flex-col items-center justify-center gap-8 px-5">
-            {/* Sliding blue bar */}
-            <div className="w-48 h-px bg-neutral-100 relative overflow-hidden">
-              <div className="absolute inset-y-0 w-24 bg-[#1A56DB] animate-[slide_1.5s_ease-in-out_infinite]" />
-            </div>
-            <div className="text-center space-y-2">
-              <p className="font-mono text-sm text-neutral-900 tracking-wider uppercase">
-                Analysing your diagnostic
-              </p>
-              <p className="font-mono text-xs text-neutral-500">
-                Reviewing 15 responses · 30–60 seconds
-              </p>
-            </div>
-          </div>
-        </div>
-      );
+      return <AnalysisLoadingScreen />;
     }
 
     const handleToggleOptionId = (id: string) => {
@@ -265,22 +278,25 @@ export default function DiagnosticController({ trackId }: DiagnosticControllerPr
     };
 
     return (
-      <ProbeDisplay
-        step={activeStep}
-        caseContent={caseContent}
-        probeContent={probeContent}
-        caseNumber={caseNumber}
-        probeNumber={probeNumber}
-        totalProbes={TOTAL_PROBES}
-        answer={answer}
-        onAnswerChange={setAnswer}
-        selectedOptionId={selectedOptionId}
-        onSelectOption={setSelectedOptionId}
-        selectedOptionIds={selectedOptionIds}
-        onToggleOptionId={handleToggleOptionId}
-        onSubmit={handleSubmit}
-        isSubmitting={isSubmitting}
-      />
+      <div className={transitionClass}>
+        <ProbeDisplay
+          key={activeStep.probeId}
+          step={activeStep}
+          caseContent={caseContent}
+          probeContent={probeContent}
+          caseNumber={caseNumber}
+          probeNumber={probeNumber}
+          totalProbes={TOTAL_PROBES}
+          answer={answer}
+          onAnswerChange={setAnswer}
+          selectedOptionId={selectedOptionId}
+          onSelectOption={setSelectedOptionId}
+          selectedOptionIds={selectedOptionIds}
+          onToggleOptionId={handleToggleOptionId}
+          onSubmit={handleSubmit}
+          isSubmitting={isSubmitting}
+        />
+      </div>
     );
   }
 
@@ -293,7 +309,9 @@ export default function DiagnosticController({ trackId }: DiagnosticControllerPr
       );
     }
     return (
-      <DiagnosticResults result={result} trackId={trackId} onRestart={handleRestart} />
+      <div className={transitionClass}>
+        <DiagnosticResults result={result} trackId={trackId} onRestart={handleRestart} sessionId={sessionId ?? undefined} />
+      </div>
     );
   }
 

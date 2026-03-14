@@ -1,14 +1,14 @@
 import { auth } from '@/auth';
 import { NextResponse } from 'next/server';
 
-const protectedPaths = ['/diagnostic', '/api/diagnostic', '/api/profile'];
-const authPages = ['/login'];
+const protectedPaths = ['/diagnostic', '/api/diagnostic', '/api/profile', '/profile'];
+const authPages = ['/login', '/signup'];
 
 export default auth((req) => {
   const { pathname } = req.nextUrl;
   const isLoggedIn = !!req.auth;
 
-  // Redirect authenticated users away from login
+  // Redirect authenticated users away from auth pages
   if (isLoggedIn && authPages.some((p) => pathname.startsWith(p))) {
     return NextResponse.redirect(new URL('/', req.url));
   }
@@ -28,6 +28,8 @@ export const config = {
     '/diagnostic/:path*',
     '/api/diagnostic/:path*',
     '/api/profile/:path*',
+    '/profile/:path*',
     '/login',
+    '/signup',
   ],
 };

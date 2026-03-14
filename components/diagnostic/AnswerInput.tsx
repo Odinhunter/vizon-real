@@ -1,5 +1,7 @@
 'use client';
 
+import { useEffect, useRef } from 'react';
+
 interface AnswerInputProps {
   value: string;
   onChange: (value: string) => void;
@@ -20,10 +22,17 @@ export default function AnswerInput({
 }: AnswerInputProps) {
   const charCount = value.length;
   const isTooShort = charCount > 0 && charCount < minLength;
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  useEffect(() => {
+    const timer = setTimeout(() => textareaRef.current?.focus(), 350);
+    return () => clearTimeout(timer);
+  }, []);
 
   return (
     <div className="space-y-1.5">
       <textarea
+        ref={textareaRef}
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
