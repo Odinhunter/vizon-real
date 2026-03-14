@@ -1,3 +1,5 @@
+import Link from 'next/link';
+
 export default function Footer() {
   return (
     <footer className="bg-[#1A56DB]">
@@ -7,8 +9,9 @@ export default function Footer() {
           <span className="font-mono text-[12px] font-medium tracking-[0.2em] text-white">VIZON</span>
         </div>
         <div className="flex items-center gap-6">
-          <span className="text-[13px] text-white/60 hover:text-white transition-colors cursor-pointer">Privacy</span>
-          <span className="text-[13px] text-white/60 hover:text-white transition-colors cursor-pointer">Terms</span>
+          <Link href="/privacy" className="text-[13px] text-white/60 hover:text-white transition-colors">Privacy</Link>
+          <Link href="/terms" className="text-[13px] text-white/60 hover:text-white transition-colors">Terms</Link>
+          <Link href="/contact" className="text-[13px] text-white/60 hover:text-white transition-colors">Contact</Link>
         </div>
         <span className="text-[13px] text-white/40">&copy; 2026 Vizon</span>
       </div>
