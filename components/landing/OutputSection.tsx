@@ -266,7 +266,7 @@ export default function OutputSection() {
         <SectionLabel label="YOUR OUTPUT" />
 
         <h2 className="font-extrabold text-[#051c2c] leading-[1.1] tracking-[-0.02em] mb-3 md:mb-4" style={{ fontSize: 'clamp(24px, 3.5vw, 44px)' }}>
-          This isn&apos;t feedback. It&apos;s a verdict.
+          Clear Feedback. No Sugarcoating.
         </h2>
         <p className="text-[15px] md:text-[16px] text-[#6b7a87] leading-relaxed mb-8 md:mb-12 max-w-xl">
           Every skill scored. Every gap exposed. Benchmarked against the actual MBB hiring threshold — so you know exactly what you&apos;re working with.
