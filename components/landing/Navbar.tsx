@@ -32,7 +32,7 @@ export default function Navbar() {
   const userInitial = session?.user?.name?.[0]?.toUpperCase() || session?.user?.email?.[0]?.toUpperCase();
 
   return (
-    <div className="fixed top-0 left-0 right-0 z-50 flex justify-center px-4 pt-4">
+    <div className="fixed top-0 left-0 right-0 z-50 flex justify-center px-3 md:px-4 pt-3 md:pt-4">
       <nav
         className={`w-full max-w-[1400px] transition-all duration-500 rounded-full border ${
           scrolled
@@ -40,7 +40,7 @@ export default function Navbar() {
             : 'bg-white/[0.06] backdrop-blur-lg border-white/10 shadow-lg shadow-black/[0.08]'
         }`}
       >
-        <div className="relative px-6 lg:px-8 h-[52px] flex items-center justify-between">
+        <div className="relative px-4 md:px-6 lg:px-8 h-[48px] md:h-[52px] flex items-center justify-between">
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2">
             <span className="w-2 h-2 rounded-full bg-[#e8521a] inline-block" />
@@ -63,11 +63,11 @@ export default function Navbar() {
           </div>
 
           {/* Right side: auth-aware */}
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2 md:gap-4">
             {status === 'loading' ? (
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2 md:gap-3">
                 <div className="w-8 h-8 rounded-full bg-neutral-200 animate-pulse" />
-                <div className="w-24 h-8 rounded-xl bg-neutral-200 animate-pulse" />
+                <div className="w-20 md:w-24 h-8 rounded-xl bg-neutral-200 animate-pulse" />
               </div>
             ) : session ? (
               <>
@@ -99,22 +99,23 @@ export default function Navbar() {
                 </div>
                 <Link
                   href="/diagnostic?track=consulting"
-                  className="bg-[#1A56DB] text-white text-[13px] font-semibold px-6 py-2 rounded-xl hover:bg-[#1548b8] transition-colors"
+                  className="bg-[#1A56DB] text-white text-[12px] md:text-[13px] font-semibold px-4 md:px-6 py-2 rounded-xl hover:bg-[#1548b8] transition-colors"
                 >
-                  Run Diagnostic →
+                  <span className="hidden sm:inline">Run Diagnostic →</span>
+                  <span className="sm:hidden">Diagnostic →</span>
                 </Link>
               </>
             ) : (
               <>
                 <Link
                   href="/login"
-                  className={`text-[13px] font-medium transition-colors duration-300 ${scrolled ? 'text-[#4a5568] hover:text-[#051c2c]' : 'text-white/80 hover:text-white'}`}
+                  className={`text-[12px] md:text-[13px] font-medium transition-colors duration-300 ${scrolled ? 'text-[#4a5568] hover:text-[#051c2c]' : 'text-white/80 hover:text-white'}`}
                 >
                   Sign in
                 </Link>
                 <Link
                   href="/signup?callbackUrl=/diagnostic?track=consulting"
-                  className="bg-[#1A56DB] text-white text-[13px] font-semibold px-6 py-2 rounded-xl hover:bg-[#1548b8] transition-colors"
+                  className="bg-[#1A56DB] text-white text-[12px] md:text-[13px] font-semibold px-4 md:px-6 py-2 rounded-xl hover:bg-[#1548b8] transition-colors"
                 >
                   Get Started →
                 </Link>

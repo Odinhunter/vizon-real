@@ -35,18 +35,18 @@ export default function TracksSection() {
   const refs = [ref1, ref2, ref3];
 
   return (
-    <section id="tracks" className="bg-[#dce8f8] py-16 px-6 lg:px-12 scroll-mt-[64px]">
+    <section id="tracks" className="bg-[#dce8f8] py-10 md:py-16 px-5 md:px-6 lg:px-12 scroll-mt-[64px]">
       <div className="w-full max-w-[1400px] mx-auto">
         <SectionLabel label="AVAILABLE TRACKS" />
 
-        <h2 className="font-extrabold text-[#051c2c] leading-[1.1] tracking-[-0.02em] mb-4" style={{ fontSize: 'clamp(28px, 3.5vw, 44px)' }}>
+        <h2 className="font-extrabold text-[#051c2c] leading-[1.1] tracking-[-0.02em] mb-3 md:mb-4" style={{ fontSize: 'clamp(24px, 3.5vw, 44px)' }}>
           Your career. Your diagnostic.
         </h2>
-        <p className="text-[16px] text-[#6b7a87] leading-relaxed mb-12 max-w-xl">
+        <p className="text-[15px] md:text-[16px] text-[#6b7a87] leading-relaxed mb-8 md:mb-12 max-w-xl">
           Every track is built around the real skills that separate hires from rejections — not what&apos;s on your CV, but what&apos;s in your head when it matters.
         </p>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6">
           {trackCards.map((card, i) => {
             const status = trackStatus[card.trackId];
             const accent = trackAccent[card.trackId];
@@ -63,7 +63,7 @@ export default function TracksSection() {
                 {/* Top accent bar */}
                 <div className="h-1.5" style={{ backgroundColor: accent.bar }} />
 
-                <div className="p-8">
+                <div className="p-6 md:p-8">
                   <div className="flex items-start justify-between mb-5">
                     <h3 className="text-[22px] font-bold text-[#051c2c] leading-tight">
                       {card.displayName}

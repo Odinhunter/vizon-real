@@ -35,17 +35,17 @@ export default function ProblemSection() {
   const cardRefs = [card1Ref, card2Ref, card3Ref, card4Ref];
 
   return (
-    <section className="pt-24 pb-16 px-6 lg:px-12 bg-[#dce8f8]">
+    <section className="pt-12 md:pt-24 pb-10 md:pb-16 px-5 md:px-6 lg:px-12 bg-[#dce8f8]">
       <div className="w-full max-w-[1400px] mx-auto">
         <SectionLabel label="THE PROBLEM" />
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 md:gap-8">
           {/* Left — main copy in blue card */}
-          <div ref={sectionRef} className="reveal bg-[#1A56DB] backdrop-blur-xl rounded-3xl p-10 lg:p-12 flex flex-col justify-center shadow-xl shadow-[#1A56DB]/30 border border-white/10">
-            <h2 className="font-extrabold text-white leading-[1.1] tracking-[-0.02em] mb-4" style={{ fontSize: 'clamp(28px, 3.5vw, 44px)' }}>
+          <div ref={sectionRef} className="reveal bg-[#1A56DB] backdrop-blur-xl rounded-2xl md:rounded-3xl p-7 md:p-10 lg:p-12 flex flex-col justify-center shadow-xl shadow-[#1A56DB]/30 border border-white/10">
+            <h2 className="font-extrabold text-white leading-[1.1] tracking-[-0.02em] mb-3 md:mb-4" style={{ fontSize: 'clamp(24px, 3.5vw, 44px)' }}>
               You&apos;ve been preparing.
             </h2>
-            <p className="font-light text-white/60 leading-[1.1] tracking-[-0.01em] mb-8" style={{ fontSize: 'clamp(28px, 3.5vw, 44px)' }}>
+            <p className="font-light text-white/60 leading-[1.1] tracking-[-0.01em] mb-5 md:mb-8" style={{ fontSize: 'clamp(24px, 3.5vw, 44px)' }}>
               But preparation isn&apos;t proof.
             </p>
             <p className="text-[15px] text-white/70 leading-relaxed mb-4">
@@ -61,14 +61,14 @@ export default function ProblemSection() {
           </div>
 
           {/* Right — pain point cards */}
-          <div className="flex flex-col gap-4">
+          <div className="flex flex-col gap-3 md:gap-4">
             {painPoints.map((point, i) => (
               <div
                 key={point.num}
                 ref={cardRefs[i]}
-                className="reveal bg-white/70 backdrop-blur-sm border border-white/60 shadow-lg shadow-black/[0.04] rounded-2xl p-7 flex gap-5 hover:bg-white/90 hover:shadow-xl hover:shadow-black/[0.06] hover:-translate-y-0.5 transition-all"
+                className="reveal bg-white/70 backdrop-blur-sm border border-white/60 shadow-lg shadow-black/[0.04] rounded-xl md:rounded-2xl p-5 md:p-7 flex gap-4 md:gap-5 hover:bg-white/90 hover:shadow-xl hover:shadow-black/[0.06] hover:-translate-y-0.5 transition-all"
               >
-                <span className="text-[28px] font-extrabold text-[#e8521a]/60 tabular-nums shrink-0 leading-none">
+                <span className="text-[22px] md:text-[28px] font-extrabold text-[#e8521a]/60 tabular-nums shrink-0 leading-none">
                   {point.num}
                 </span>
                 <div>

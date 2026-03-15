@@ -187,7 +187,7 @@ export default function SignUpForm({ callbackUrl }: SignUpFormProps) {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
-                minLength={6}
+                minLength={8}
                 className="w-full px-4 py-3.5 bg-white/[0.06] border border-white/10 rounded-xl text-[15px] text-white placeholder:text-white/25 focus:outline-none focus:border-white/30 focus:bg-white/[0.08] transition-all"
               />
             </div>

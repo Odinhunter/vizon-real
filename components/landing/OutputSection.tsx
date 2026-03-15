@@ -261,21 +261,21 @@ export default function OutputSection() {
   const rightRef = useScrollReveal(0.15);
 
   return (
-    <section id="output" className="bg-[#dce8f8] py-16 px-6 lg:px-12 scroll-mt-[64px]">
+    <section id="output" className="bg-[#dce8f8] py-10 md:py-16 px-5 md:px-6 lg:px-12 scroll-mt-[64px]">
       <div className="w-full max-w-[1400px] mx-auto">
         <SectionLabel label="YOUR OUTPUT" />
 
-        <h2 className="font-extrabold text-[#051c2c] leading-[1.1] tracking-[-0.02em] mb-4" style={{ fontSize: 'clamp(28px, 3.5vw, 44px)' }}>
+        <h2 className="font-extrabold text-[#051c2c] leading-[1.1] tracking-[-0.02em] mb-3 md:mb-4" style={{ fontSize: 'clamp(24px, 3.5vw, 44px)' }}>
           This isn&apos;t feedback. It&apos;s a verdict.
         </h2>
-        <p className="text-[16px] text-[#6b7a87] leading-relaxed mb-12 max-w-xl">
+        <p className="text-[15px] md:text-[16px] text-[#6b7a87] leading-relaxed mb-8 md:mb-12 max-w-xl">
           Every skill scored. Every gap exposed. Benchmarked against the actual MBB hiring threshold — so you know exactly what you&apos;re working with.
         </p>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 md:gap-8">
           {/* Left — skill bars + radar */}
-          <div ref={leftRef} className="reveal bg-white/60 backdrop-blur-xl border border-white/70 shadow-md shadow-black/[0.05] rounded-3xl p-8 lg:p-10">
-            <div className="space-y-5 mb-8">
+          <div ref={leftRef} className="reveal bg-white/60 backdrop-blur-xl border border-white/70 shadow-md shadow-black/[0.05] rounded-2xl md:rounded-3xl p-6 md:p-8 lg:p-10">
+            <div className="space-y-4 md:space-y-5 mb-6 md:mb-8">
               {skillBars.map((skill) => (
                 <div key={skill.name}>
                   <div className="flex items-center justify-between mb-2">
@@ -297,7 +297,7 @@ export default function OutputSection() {
             </div>
 
             {/* Legend */}
-            <div className="flex items-center gap-6 text-[11px] text-[#8896a4] font-medium mb-6">
+            <div className="flex items-center gap-6 text-[11px] text-[#8896a4] font-medium mb-0 md:mb-6">
               <div className="flex items-center gap-2">
                 <div className="w-8 h-[4px] rounded-full" style={{ backgroundColor: BLUE }} />
                 <span>Your score</span>
@@ -308,19 +308,19 @@ export default function OutputSection() {
               </div>
             </div>
 
-            {/* Custom radar chart */}
-            <div className="w-[83%] mx-auto" style={{ aspectRatio: '480/390' }}>
+            {/* Custom radar chart — hidden on mobile to save vertical space */}
+            <div className="hidden md:block w-[83%] mx-auto" style={{ aspectRatio: '480/390' }}>
               <CustomRadar />
             </div>
           </div>
 
           {/* Right — deliverables */}
-          <div ref={rightRef} className="reveal flex flex-col gap-3">
+          <div ref={rightRef} className="reveal flex flex-col gap-2.5 md:gap-3">
             <p className="text-[13px] font-semibold text-[#051c2c] mb-1">What you receive after 40 minutes:</p>
             {deliverables.map((item) => (
-              <div key={item.title} className={`bg-white/60 backdrop-blur-xl border border-white/70 shadow-md shadow-black/[0.05] rounded-xl px-5 py-4 hover:bg-white/80 hover:shadow-xl hover:shadow-black/[0.08] hover:-translate-y-0.5 transition-all border-l-3 ${item.borderColor}`}>
-                <div className="flex gap-4 items-start">
-                  <div className={`w-9 h-9 rounded-lg ${item.accent} text-[11px] font-bold flex items-center justify-center shrink-0 mt-0.5`}>
+              <div key={item.title} className={`bg-white/60 backdrop-blur-xl border border-white/70 shadow-md shadow-black/[0.05] rounded-xl px-4 md:px-5 py-3.5 md:py-4 hover:bg-white/80 hover:shadow-xl hover:shadow-black/[0.08] hover:-translate-y-0.5 transition-all border-l-3 ${item.borderColor}`}>
+                <div className="flex gap-3 md:gap-4 items-start">
+                  <div className={`w-8 h-8 md:w-9 md:h-9 rounded-lg ${item.accent} text-[10px] md:text-[11px] font-bold flex items-center justify-center shrink-0 mt-0.5`}>
                     {item.icon}
                   </div>
                   <div>

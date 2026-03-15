@@ -23,8 +23,8 @@ export default function FinalCTA() {
       <div className="absolute bottom-[-150px] left-[-80px] w-[600px] h-[600px] rounded-full bg-white/[0.03]" />
       <div className="absolute top-[40%] left-[30%] w-[300px] h-[300px] rounded-full bg-[#1A56DB]/25 blur-3xl" />
 
-      <div ref={ref} className="reveal relative z-10 w-full max-w-[900px] mx-auto px-6 lg:px-12 py-20">
-        <div className="bg-white/[0.06] backdrop-blur-xl border border-white/[0.08] rounded-3xl p-12 lg:p-16 text-center">
+      <div ref={ref} className="reveal relative z-10 w-full max-w-[900px] mx-auto px-5 md:px-6 lg:px-12 py-12 md:py-20">
+        <div className="bg-white/[0.06] backdrop-blur-xl border border-white/[0.08] rounded-2xl md:rounded-3xl p-8 md:p-12 lg:p-16 text-center">
         <h2
           className="font-extrabold text-white leading-[1.05] tracking-[-0.03em] mb-4"
           style={{ fontSize: 'clamp(32px, 4.5vw, 56px)' }}
@@ -37,7 +37,7 @@ export default function FinalCTA() {
         >
           Better now.
         </p>
-        <p className="text-[16px] text-white/45 leading-relaxed max-w-lg mx-auto mb-12">
+        <p className="text-[15px] md:text-[16px] text-white/45 leading-relaxed max-w-lg mx-auto mb-8 md:mb-12">
           40 minutes. One clear signal. Find out exactly where you stand before you walk into a room where it counts.
         </p>
 
