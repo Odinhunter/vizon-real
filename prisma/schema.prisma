@@ -1,6 +1,5 @@
 datasource db {
   provider = "sqlite"
-  url      = env("DATABASE_URL")
 }
 
 generator client {
@@ -101,6 +100,13 @@ model DiagnosticRun {
   completedAt DateTime?
 
   responses   ProbeResponse[]
+
+  // Analytics: query runs by user, track, status, and time
+  @@index([userId])
+  @@index([trackId])
+  @@index([status])
+  @@index([completedAt])
+  @@index([userId, trackId])
 }
 
 model ProbeResponse {
@@ -135,7 +141,10 @@ model ProbeResponse {
 
   answeredAt      DateTime  @default(now())
 
+  // Analytics: query responses by run, skill, probe, case
   @@index([diagnosticRunId])
   @@index([skillId])
+  @@index([probeId])
+  @@index([caseId])
+  @@index([answeredAt])
 }
-
