@@ -62,18 +62,20 @@ MEASUREMENT DEFINITIONS WITH CALIBRATION ANCHORS:
 signal_strength (0.0 to 1.0) — How clearly the target skill signal is present, assessed against the scoring guidance:
   0.0–0.1: No signal at all. Response is gibberish, completely off-topic, or shows zero engagement with the question.
   0.1–0.3: Minimal signal. Response may touch on the topic but demonstrates no real understanding. Generic statements, restating the question, or surface-level platitudes without substance.
-  0.3–0.5: Weak signal. Some relevant concepts mentioned but analysis is shallow, misses key elements from the scoring guidance, or applies the wrong framework. A candidate with basic business knowledge but no consulting training.
-  0.5–0.7: Moderate signal. Engages with the case data and addresses some scoring guidance criteria, but has notable gaps in depth, specificity, or rigor. Competent but not impressive.
-  0.7–0.85: Strong signal. Demonstrates clear command of the skill, engages specifically with case data, and satisfies most scoring guidance criteria. Minor gaps in sophistication or completeness.
-  0.85–1.0: Exceptional signal. Reserved for responses that would impress a senior partner — precise framework application, novel insight, specific data engagement, and fully satisfies all scoring guidance criteria. Very few responses deserve this range.
+  0.3–0.5: Weak signal. Some relevant concepts mentioned but analysis is shallow, misses key elements from the scoring guidance, or applies the wrong framework.
+  0.5–0.65: Moderate signal. Engages with the case data and addresses some scoring guidance criteria, but has gaps in depth or specificity.
+  0.65–0.8: Good signal. Demonstrates solid command of the skill, engages with case data, and satisfies most scoring guidance criteria.
+  0.8–0.9: Strong signal. Thorough, specific, and well-reasoned. Addresses nearly all scoring guidance criteria with depth.
+  0.9–1.0: Exceptional signal. Would impress a senior partner — precise framework application, novel insight, specific data engagement, and fully satisfies all scoring guidance criteria.
 
 response_quality (0.0 to 1.0) — How coherent, complete, and structured the response is:
   0.0–0.1: No meaningful response. Gibberish, single word, or completely empty.
   0.1–0.3: Poor quality. Disorganized, hard to follow, major logical gaps, or far too brief to demonstrate competence.
-  0.3–0.5: Below average. Some structure visible but lacks logical flow, contains contradictions, or is notably incomplete. Would not pass a first-round screen.
-  0.5–0.7: Adequate. Organized with identifiable reasoning but lacks the crispness, depth, or polish expected in consulting. Missing key points or analysis steps.
-  0.7–0.85: Good quality. Well-structured with clear reasoning, covers main points, and communicates effectively. Minor improvements possible.
-  0.85–1.0: Exceptional. Client-ready quality — impeccable structure, thorough coverage, clear and concise. Very few responses deserve this range.
+  0.3–0.5: Below average. Some structure visible but lacks logical flow, contains contradictions, or is notably incomplete.
+  0.5–0.65: Adequate. Organized with identifiable reasoning but lacks crispness or depth. Missing some key points.
+  0.65–0.8: Good quality. Well-structured with clear reasoning, covers main points, and communicates effectively.
+  0.8–0.9: Very good. Clear, thorough, and well-organized. Minor improvements possible.
+  0.9–1.0: Exceptional. Client-ready quality — impeccable structure, thorough coverage, clear and concise.
 
 behavioral_signals — observe each independently (0.0 to 1.0):
   framing_quality: How well the candidate frames the problem or context before diving into analysis. 0.0 = no framing, dives straight in. 0.5 = basic framing present but generic. 1.0 = crisp, structured framing that sets up the analysis and shows understanding of the problem space.
@@ -81,14 +83,15 @@ behavioral_signals — observe each independently (0.0 to 1.0):
   communication_clarity: How clearly and concisely the candidate communicates ideas. 0.0 = muddled, hard to follow, verbose without substance. 0.5 = understandable but could be more concise or better organized. 1.0 = crystal clear, concise, every sentence adds value.
 
 SCORING PHILOSOPHY:
-- Be a TOUGH grader. You are evaluating against MBB consulting standards, not general competence.
-- The median response from an unprepared candidate should score 0.25–0.40 on signal_strength.
-- Scores above 0.7 should be reserved for genuinely strong consulting-quality responses.
-- Scores above 0.85 should be rare — only for responses that demonstrate real insight.
+- Be a FAIR but discerning grader. You are evaluating against professional consulting standards.
+- A candidate who demonstrates genuine understanding and engages with the case data should score in the 0.6–0.8 range.
+- Reserve scores below 0.3 for responses that show no real engagement or understanding.
+- Reserve scores above 0.9 for truly exceptional responses with novel insight.
 - Nonsense, irrelevant, or low-effort responses must score below 0.15.
-- Vary your scores. A batch of 15 responses will naturally range from poor to excellent.
+- Vary your scores. A batch of 15 responses will naturally range from weaker to stronger.
 - Ground every observation in the candidate's actual words. Do not fabricate.
-- For each probe, write 1–5 key_observations BEFORE assigning scores. This chain-of-thought ensures your scores are evidence-based.`;
+- For each probe, write 1–5 key_observations BEFORE assigning scores. This chain-of-thought ensures your scores are evidence-based.
+- Reward effort and directional correctness. A response that shows the right thinking but lacks polish should still score well on signal_strength.`;
 
   const probeBlocks = probes
     .map((p, i) => {

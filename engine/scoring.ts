@@ -84,27 +84,23 @@ const QUALITY_WEIGHT = 0.35;
  * Using an additive bonus (not a multiplier) keeps the formula linear and
  * avoids compounding two sub-1 AI estimates. The bonus is small enough that
  * it only matters at the margins — a mediocre response stays mediocre.
- *
- * Maximum possible probe_score = 1.0 base + 0.10 bonus = 1.10 → clamped to 1.0.
- * In practice this only clips truly perfect high-difficulty responses.
  */
 const DIFFICULTY_BONUS: Record<Difficulty, number> = {
   low: 0.00,
-  medium: 0.05,
-  high: 0.10,
+  medium: 0.07,
+  high: 0.12,
 } as const;
 
 /**
  * Stage weights for trajectory-aware skill aggregation.
  *
- * L3 (pressure scenario) carries twice the weight of L1 (baseline).
- * This rewards consistent performance under increasing ambiguity and
- * penalizes candidates who degrade as difficulty escalates.
+ * L3 (pressure scenario) carries moderately more weight than L1 (baseline).
+ * Flattened to avoid over-penalizing natural difficulty drop-off.
  */
 const STAGE_WEIGHTS: Record<1 | 2 | 3, number> = {
   1: 1.0,
-  2: 1.5,
-  3: 2.0,
+  2: 1.2,
+  3: 1.4,
 } as const;
 
 // ─── Probe scoring ────────────────────────────────────────────────────────────
@@ -114,14 +110,7 @@ const STAGE_WEIGHTS: Record<1 | 2 | 3, number> = {
  *
  * Formula:
  *   base  = 0.65 × signal_strength + 0.35 × response_quality
- *   curved = base^1.3 (power curve that compresses middling scores downward)
- *   score = clamp(curved + difficulty_bonus, 0, 1)
- *
- * The power curve (exponent 1.3) makes scoring tougher:
- * - 0.5 base → 0.41 curved (mediocre stays clearly below midpoint)
- * - 0.7 base → 0.63 curved (good but not inflated)
- * - 0.9 base → 0.87 curved (excellent stays near the top)
- * This prevents middling AI extractions from producing passing scores.
+ *   score = clamp(base + difficulty_bonus, 0, 1)
  *
  * signal_strength is primary (0.65); response_quality acts as an expression modifier (0.35).
  */
@@ -131,8 +120,7 @@ export function calculateProbeScore(
   difficulty: Difficulty
 ): number {
   const base = SIGNAL_WEIGHT * signalStrength + QUALITY_WEIGHT * responseQuality;
-  const curved = Math.pow(base, 1.3);
-  return clamp(curved + DIFFICULTY_BONUS[difficulty], 0, 1);
+  return clamp(base + DIFFICULTY_BONUS[difficulty], 0, 1);
 }
 
 // ─── Skill scoring ────────────────────────────────────────────────────────────
