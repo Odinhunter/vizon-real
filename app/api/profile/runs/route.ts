@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import { prisma } from '@/lib/db';
+import { applyRateLimit, profileLimiter } from '@/lib/rateLimit';
 import type { DiagnosticReport } from '@/lib/api/diagnosticClient';
 
 export async function GET() {
@@ -8,6 +9,9 @@ export async function GET() {
   if (!session?.user?.id) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
+
+  const blocked = applyRateLimit(profileLimiter, session.user.id);
+  if (blocked) return blocked;
 
   const runs = await prisma.diagnosticRun.findMany({
     where: { userId: session.user.id, status: 'COMPLETE' },

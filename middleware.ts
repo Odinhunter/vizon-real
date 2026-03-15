@@ -1,11 +1,33 @@
 import { auth } from '@/auth';
 import { NextResponse } from 'next/server';
+import type { NextRequest } from 'next/server';
+import {
+  getClientIp,
+  applyRateLimit,
+  registerLimiter,
+  loginLimiter,
+} from '@/lib/rateLimit';
 
 const protectedPaths = ['/diagnostic', '/api/diagnostic', '/api/profile', '/profile'];
 const authPages = ['/login', '/signup'];
 
-export default auth((req) => {
+export default auth((req: NextRequest & { auth?: unknown }) => {
   const { pathname } = req.nextUrl;
+
+  // --- Rate limiting for auth routes (IP-keyed, before auth logic) ---
+  if (req.method === 'POST') {
+    const ip = getClientIp(req);
+
+    if (pathname === '/api/auth/register') {
+      const blocked = applyRateLimit(registerLimiter, ip);
+      if (blocked) return blocked;
+    } else if (pathname.startsWith('/api/auth/')) {
+      const blocked = applyRateLimit(loginLimiter, ip);
+      if (blocked) return blocked;
+    }
+  }
+
+  // --- Existing auth redirect logic (unchanged) ---
   const isLoggedIn = !!req.auth;
 
   // Redirect authenticated users away from auth pages
@@ -31,5 +53,7 @@ export const config = {
     '/profile/:path*',
     '/login',
     '/signup',
+    '/api/auth/register',
+    '/api/auth/:path*',
   ],
 };

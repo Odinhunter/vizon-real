@@ -9,6 +9,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import { prisma } from '@/lib/db';
+import { applyRateLimit, diagnosticStartLimiter, diagnosticAnswerLimiter } from '@/lib/rateLimit';
 import { DiagnosticSession } from '@/engine/diagnosticSession';
 import { initializeDiagnosticSession } from '@/engine/initializeSession';
 import { runDiagnosticSessionStep } from '@/engine/runDiagnosticSessionStep';
@@ -34,12 +35,18 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
     const { action } = body;
 
+    // Rate limit by user ID, per action type
+    const limiterKey = session.user.id;
     if (action === 'start') {
+      const blocked = applyRateLimit(diagnosticStartLimiter, limiterKey);
+      if (blocked) return blocked;
       return handleStart(body, session.user.id);
     }
 
     if (action === 'answer') {
-      return handleAnswer(body);
+      const blocked = applyRateLimit(diagnosticAnswerLimiter, limiterKey);
+      if (blocked) return blocked;
+      return handleAnswer(body, session.user.id);
     }
 
     return NextResponse.json(
@@ -47,8 +54,8 @@ export async function POST(req: NextRequest) {
       { status: 400 }
     );
   } catch (err) {
-    const message = err instanceof Error ? err.message : 'Internal server error';
-    return NextResponse.json({ error: message }, { status: 500 });
+    console.error('Diagnostic API error:', err);
+    return NextResponse.json({ error: 'An error occurred processing your request' }, { status: 500 });
   }
 }
 
@@ -109,10 +116,10 @@ async function handleAnswer(body: {
   rawResponse?: unknown;
   selectedOptionId?: string;
   selectedOptionIds?: string[];
-}) {
+}, userId: string) {
   const { sessionId, rawResponse, selectedOptionId, selectedOptionIds } = body;
 
-  if (!sessionId) {
+  if (!sessionId || typeof sessionId !== 'string') {
     return NextResponse.json({ error: 'Missing sessionId' }, { status: 400 });
   }
 
@@ -126,6 +133,11 @@ async function handleAnswer(body: {
     return NextResponse.json({ error: 'Session not found' }, { status: 404 });
   }
 
+  // Ownership check — prevent users from submitting to other users' sessions
+  if (run.userId !== userId) {
+    return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+  }
+
   if (!run.pendingStepJson) {
     return NextResponse.json(
       { error: 'No pending step to answer' },
@@ -133,8 +145,15 @@ async function handleAnswer(body: {
     );
   }
 
-  const diagSession: DiagnosticSession = JSON.parse(run.sessionStateJson);
-  const lastStep: DiagnosticStep = JSON.parse(run.pendingStepJson);
+  let diagSession: DiagnosticSession;
+  let lastStep: DiagnosticStep;
+  try {
+    diagSession = JSON.parse(run.sessionStateJson);
+    lastStep = JSON.parse(run.pendingStepJson);
+  } catch {
+    console.error('Corrupted session state for session:', sessionId);
+    return NextResponse.json({ error: 'Corrupted session state' }, { status: 400 });
+  }
 
   const trackEntry = getTrackEntry(diagSession.careerTrackId);
   if (!trackEntry) {
@@ -295,9 +314,7 @@ async function handleAnswer(body: {
         };
       } catch (err) {
         console.error('Batch extraction failed:', err);
-        throw new Error(
-          `AI analysis failed: ${err instanceof Error ? err.message : 'unknown error'} — please retry`
-        );
+        throw new Error('Unable to complete analysis. Please try again later.');
       }
     }
 
