@@ -31,7 +31,7 @@ export default function HeroSection() {
         }}
       />
 
-      <div className="relative z-10 w-full max-w-[1200px] mx-auto px-6 lg:px-12 pt-28 pb-24 text-center flex flex-col items-center">
+      <div className="relative z-10 w-full max-w-[1200px] mx-auto px-5 md:px-6 lg:px-12 pt-24 md:pt-28 pb-10 md:pb-24 text-center flex flex-col items-center">
         {/* Headline */}
         <h1
           className="font-extrabold leading-[1.05] tracking-[-0.03em] mb-6"
@@ -40,13 +40,13 @@ export default function HeroSection() {
           <span className="text-white">Most candidates aren&apos;t ready.</span>
           <br />
           <span className="bg-gradient-to-r from-[#8db8e3] to-[#a5d0f5] bg-clip-text text-transparent">
-            Are you actually one of them?
+            Are you one of them?
           </span>
         </h1>
 
         {/* Subtitle */}
         <p
-          className="text-[17px] text-white/55 leading-relaxed max-w-2xl mb-12"
+          className="text-[15px] md:text-[17px] text-white/55 leading-relaxed max-w-2xl mb-8 md:mb-12"
           style={{ animation: 'fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.35s both' }}
         >
           AI is raising the bar. Firms are getting pickier. And most candidates walking into MBB interviews have prep — not proof. Vizon gives you a 40-minute diagnostic across 5 skills and 3 real cases. One score. No flattery.
@@ -54,7 +54,7 @@ export default function HeroSection() {
 
         {/* CTA area */}
         <div
-          className="flex flex-col sm:flex-row items-center gap-5 mb-14"
+          className="flex flex-col sm:flex-row items-center gap-5 mb-0 md:mb-14"
           style={{ animation: 'fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.5s both' }}
         >
           <Link
