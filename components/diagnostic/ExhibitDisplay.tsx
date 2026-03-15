@@ -158,7 +158,7 @@ function BarDisplay({ exhibit, mode }: { exhibit: ChartExhibit; mode: 'inline' |
         </div>
       )}
       <div className="px-5 py-4">
-        <ResponsiveContainer width="100%" height={280}>
+        <ResponsiveContainer width="100%" height={280} minWidth={0}>
           <BarChart data={data} barCategoryGap={isGrouped ? '20%' : '25%'}>
             <CartesianGrid horizontal vertical={false} strokeDasharray="3 3" stroke="#E5E7EB" />
             <XAxis dataKey="name" tick={{ fontSize: 11, fontFamily: 'var(--font-geist-mono), monospace' }} axisLine={false} tickLine={false} />
@@ -205,7 +205,7 @@ function LineDisplay({ exhibit, mode }: { exhibit: ChartExhibit; mode: 'inline' 
         </div>
       )}
       <div className="px-5 py-4">
-        <ResponsiveContainer width="100%" height={280}>
+        <ResponsiveContainer width="100%" height={280} minWidth={0}>
           <LineChart data={data}>
             <CartesianGrid horizontal vertical={false} strokeDasharray="3 3" stroke="#E5E7EB" />
             <XAxis dataKey="name" tick={{ fontSize: 11, fontFamily: 'var(--font-geist-mono), monospace' }} axisLine={false} tickLine={false} />
@@ -266,7 +266,7 @@ function WaterfallDisplay({ exhibit, mode }: { exhibit: WaterfallExhibit; mode: 
         </div>
       )}
       <div className="px-5 py-4">
-        <ResponsiveContainer width="100%" height={280}>
+        <ResponsiveContainer width="100%" height={280} minWidth={0}>
           <ComposedChart data={data} barCategoryGap="20%">
             <CartesianGrid horizontal vertical={false} strokeDasharray="3 3" stroke="#E5E7EB" />
             <XAxis dataKey="name" tick={{ fontSize: 11, fontFamily: 'var(--font-geist-mono), monospace' }} axisLine={false} tickLine={false} />

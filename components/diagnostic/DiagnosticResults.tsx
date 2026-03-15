@@ -495,7 +495,7 @@ export default function DiagnosticResults({
               {/* Concentric donut rings */}
               <div className="flex justify-center mb-4">
                 <div className="w-48 h-48">
-                  <ResponsiveContainer width="100%" height="100%">
+                  <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
                     <PieChart>
                       {firmFit.map((ff, i) => {
                         const innerR = 30 + i * 18;
@@ -622,7 +622,7 @@ export default function DiagnosticResults({
                 SKILL PROFILE
               </p>
               <div className="flex-1 min-h-[280px]">
-                <ResponsiveContainer width="100%" height="100%">
+                <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
                   <RadarChart data={radarData} cx="50%" cy="50%" outerRadius="65%">
                     <PolarGrid stroke="#e2e6ea" />
                     <PolarAngleAxis
@@ -709,7 +709,7 @@ export default function DiagnosticResults({
 
               <p className="text-[9px] font-mono text-[#5a6775] uppercase tracking-widest mb-3">CASE STAGE PROGRESSION</p>
               <div className="h-[140px]">
-                <ResponsiveContainer width="100%" height="100%">
+                <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
                   <AreaChart data={areaChartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                     <defs>
                       <linearGradient id="areaGrad" x1="0" y1="0" x2="0" y2="1">
@@ -782,7 +782,7 @@ export default function DiagnosticResults({
                 BEHAVIORAL SIGNALS
               </p>
               <div className="h-[220px]">
-                <ResponsiveContainer width="100%" height="100%">
+                <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
                   <BarChart data={behavioralBarData} layout="vertical" margin={{ top: 0, right: 10, left: 0, bottom: 0 }}>
                     <CartesianGrid strokeDasharray="3 3" stroke="#e2e6ea" horizontal={false} />
                     <XAxis type="number" domain={[0, 100]} tick={{ fontSize: 10, fontFamily: "'DM Mono', monospace", fill: '#5a6775' }} />
@@ -934,7 +934,7 @@ function SkillCard({ skill, expanded, onToggle }: { skill: SkillDetail; expanded
         {skill.stageScores.length > 0 && (
           <div className="flex items-end gap-3 mb-3">
             <div className="w-[100px] h-[48px]">
-              <ResponsiveContainer width="100%" height="100%">
+              <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
                 <BarChart data={stageBarData} margin={{ top: 0, right: 0, left: 0, bottom: 0 }}>
                   <XAxis
                     dataKey="name"

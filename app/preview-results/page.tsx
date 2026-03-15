@@ -1,7 +1,12 @@
 'use client';
 
-import DiagnosticResults from '@/components/diagnostic/DiagnosticResults';
+import dynamic from 'next/dynamic';
 import type { DiagnosticReport } from '@/lib/api/diagnosticClient';
+
+const DiagnosticResults = dynamic(
+  () => import('@/components/diagnostic/DiagnosticResults'),
+  { ssr: false }
+);
 
 const MOCK_RESULT: DiagnosticReport = {
   trackScore: 78,
