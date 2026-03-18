@@ -23,7 +23,7 @@ const nextConfig: NextConfig = {
               "style-src 'self' 'unsafe-inline'",
               "img-src 'self' data: https:",
               "font-src 'self' data:",
-              "connect-src 'self' https://accounts.google.com",
+              "connect-src 'self' https://accounts.google.com https://va.vercel-scripts.com",
               "frame-ancestors 'none'",
               "base-uri 'self'",
               "form-action 'self'",

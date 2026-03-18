@@ -1,8 +1,11 @@
 import Link from 'next/link';
 
-export const metadata = {
-  title: 'Terms of Service — Vizon',
-  description: 'The terms that govern your use of the Vizon platform.',
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: 'Terms of Service',
+  description: 'The terms and conditions that govern your use of the Vizon career diagnostic platform.',
+  alternates: { canonical: 'https://getvizon.com/terms' },
 };
 
 export default function TermsPage() {

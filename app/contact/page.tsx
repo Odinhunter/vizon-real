@@ -1,8 +1,11 @@
 import Link from 'next/link';
 
-export const metadata = {
-  title: 'Contact — Vizon',
-  description: 'Get in touch with the Vizon team.',
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: 'Contact',
+  description: 'Get in touch with the Vizon team for questions, feedback, or support.',
+  alternates: { canonical: 'https://getvizon.com/contact' },
 };
 
 export default function ContactPage() {

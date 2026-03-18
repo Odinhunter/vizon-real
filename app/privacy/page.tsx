@@ -1,8 +1,11 @@
 import Link from 'next/link';
 
-export const metadata = {
-  title: 'Privacy Policy — Vizon',
-  description: 'How Vizon collects, uses, and protects your data.',
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: 'Privacy Policy',
+  description: 'How Vizon collects, uses, and protects your data during career diagnostics.',
+  alternates: { canonical: 'https://getvizon.com/privacy' },
 };
 
 export default function PrivacyPage() {
