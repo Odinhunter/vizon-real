@@ -7,7 +7,7 @@ import { prisma } from '@/lib/db';
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   adapter: PrismaAdapter(prisma),
-  session: { strategy: 'jwt' },
+  session: { strategy: 'jwt', maxAge: 7 * 24 * 60 * 60 }, // 7 days
   pages: {
     signIn: '/login',
   },
@@ -15,7 +15,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     Google({
       clientId: process.env.GOOGLE_CLIENT_ID!,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
-      checks: ['state'],
+      checks: ['state', 'pkce'],
     }),
     Credentials({
       name: 'credentials',

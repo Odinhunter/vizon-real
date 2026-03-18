@@ -50,7 +50,7 @@ export async function POST(req: NextRequest) {
     }
 
     return NextResponse.json(
-      { error: `Unknown action: ${action}` },
+      { error: 'Unknown action' },
       { status: 400 }
     );
   } catch (err) {
@@ -117,10 +117,32 @@ async function handleAnswer(body: {
   selectedOptionId?: string;
   selectedOptionIds?: string[];
 }, userId: string) {
-  const { sessionId, rawResponse, selectedOptionId, selectedOptionIds } = body;
+  const { sessionId, selectedOptionId, selectedOptionIds } = body;
+  let { rawResponse } = body;
 
   if (!sessionId || typeof sessionId !== 'string') {
     return NextResponse.json({ error: 'Missing sessionId' }, { status: 400 });
+  }
+
+  // Input validation: cap rawResponse size to prevent DB/memory abuse
+  if (typeof rawResponse === 'string' && rawResponse.length > 10_000) {
+    rawResponse = rawResponse.slice(0, 10_000);
+  } else if (rawResponse != null && typeof rawResponse !== 'string') {
+    const serialized = JSON.stringify(rawResponse);
+    if (serialized.length > 10_000) {
+      return NextResponse.json({ error: 'Response too large' }, { status: 400 });
+    }
+  }
+
+  // Validate option IDs
+  if (selectedOptionId != null && (typeof selectedOptionId !== 'string' || selectedOptionId.length > 20)) {
+    return NextResponse.json({ error: 'Invalid option selection' }, { status: 400 });
+  }
+  if (selectedOptionIds != null) {
+    if (!Array.isArray(selectedOptionIds) || selectedOptionIds.length > 10 ||
+        selectedOptionIds.some((id: unknown) => typeof id !== 'string' || (id as string).length > 20)) {
+      return NextResponse.json({ error: 'Invalid option selections' }, { status: 400 });
+    }
   }
 
   // Load session state from DB

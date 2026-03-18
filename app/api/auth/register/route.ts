@@ -48,8 +48,8 @@ export async function POST(req: NextRequest) {
     const existing = await prisma.user.findUnique({ where: { email: trimmedEmail } });
     if (existing) {
       return NextResponse.json(
-        { error: 'An account with this email already exists' },
-        { status: 409 }
+        { error: 'Unable to create account. Please try a different email or sign in.' },
+        { status: 400 }
       );
     }
 
@@ -68,7 +68,7 @@ export async function POST(req: NextRequest) {
       { status: 201 }
     );
   } catch (err) {
-    console.error('Registration error:', err);
+    console.error('Registration error:', err instanceof Error ? err.message : 'Unknown error');
     return NextResponse.json(
       { error: 'Registration failed' },
       { status: 500 }
