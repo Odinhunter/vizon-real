@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Sora, DM_Mono } from "next/font/google";
 import SessionProvider from "@/components/auth/SessionProvider";
+import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
 
 const sora = Sora({
@@ -29,6 +30,7 @@ export default function RootLayout({
     <html lang="en">
       <body className={`${sora.variable} ${dmMono.variable} antialiased`}>
         <SessionProvider>{children}</SessionProvider>
+        <Analytics />
       </body>
     </html>
   );
