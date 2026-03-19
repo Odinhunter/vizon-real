@@ -20,7 +20,7 @@ export const consultingCaseContent: Record<string, CaseContent> = {
       hypothesis_driven_thinking_low_context: {
         type: 'bar',
         title: 'Total Membership by Quarter',
-        subtitle: 'Membership peaked in Q2 then declined sharply into Q4',
+        subtitle: 'Quarterly membership data across all 20 locations',
         xKeys: ['Q1', 'Q2', 'Q3', 'Q4'],
         series: [
           { name: 'Total Members', values: [48000, 50000, 46000, 39000], highlight: true },
@@ -33,7 +33,7 @@ export const consultingCaseContent: Record<string, CaseContent> = {
       analytical_thinking_low_context: {
         type: 'table',
         title: 'Average Monthly Economics Per Gym',
-        subtitle: 'Revenue per gym has fallen; costs have risen slightly',
+        subtitle: 'Monthly unit economics per gym location',
         columns: ['6 Months Ago', 'Today'],
         rows: [
           { label: 'Members per gym', values: ['2,400', '1,950'] },
@@ -50,7 +50,7 @@ export const consultingCaseContent: Record<string, CaseContent> = {
       decision_recommendation_low_context: {
         type: 'table',
         title: 'Customer Exit Survey — Top Reasons for Cancellation',
-        subtitle: 'Crowding is the single largest driver of member churn',
+        subtitle: 'Exit survey responses from recent cancellations (n=400)',
         columns: ['% of Responses'],
         rows: [
           { label: 'Crowded gyms', values: ['35%'], isHighlight: true },
@@ -79,34 +79,36 @@ export const consultingCaseContent: Record<string, CaseContent> = {
       'Daily order volumes by month, delivery capacity metrics, solution comparison table',
 
     probeExhibits: {
-      // Shown on hypothesis probe — demand growth data with city concentration insight
+      // Shown on hypothesis probe — grouped bar showing orders vs capacity
       hypothesis_driven_thinking_medium_context: {
-        type: 'bar',
-        title: 'Average Daily Orders by Month',
-        subtitle: 'Demand has grown significantly over the past 4 months',
+        type: 'grouped_bar',
+        title: 'Average Daily Orders vs. Delivery Capacity',
+        subtitle: 'Average daily order volumes, last 4 months',
         xKeys: ['Month 1', 'Month 2', 'Month 3', 'Month 4'],
         series: [
           { name: 'Orders per Day', values: [15000, 16500, 19000, 23000], highlight: true },
+          { name: 'Delivery Capacity', values: [16000, 16000, 16000, 16000] },
         ],
         yAxisFormat: 'number',
-        footnote: 'Delivery delays are most severe in New York, Los Angeles, and Chicago — these three cities account for 60% of total FastDrop demand.',
+        footnote: 'Delivery capacity based on 800 drivers × 20 deliveries/day. Delays are most severe in New York, Los Angeles, and Chicago — these three cities account for 60% of total FastDrop demand.',
       },
 
       // Shown on analytical thinking probe — capacity metrics for multi-step calculation
       analytical_thinking_medium_context: {
         type: 'table',
         title: 'FastDrop Delivery Capacity Metrics',
-        subtitle: 'Driver count is flat while productivity has declined',
+        subtitle: 'Delivery operations data — current vs. 4 months ago',
         columns: ['4 Months Ago', 'Today'],
         rows: [
           { label: 'Active drivers', values: ['800', '800'] },
           { label: 'Avg. deliveries per driver per day', values: ['22', '20'], isHighlight: true },
+          { label: 'Driver turnover (monthly)', values: ['3%', '8%'], isHighlight: true },
           { isSpacer: true, label: '', values: [] },
           { label: 'Current daily demand', values: ['—', '23,000 orders'] },
           { label: 'Demand in top 3 cities (NY, LA, Chicago)', values: ['—', '60% of total'] },
           { label: 'Drivers allocated to top 3 cities', values: ['—', '50% of drivers'], isHighlight: true },
         ],
-        footnote: 'Use these figures to calculate total delivery capacity, city-level demand, city-level capacity, the delivery gap, and the number of additional drivers needed.',
+        footnote: 'Driver turnover has doubled in top 3 cities vs. other markets.',
       },
 
       // Shown on recommendation probe — solution comparison table
@@ -121,7 +123,7 @@ export const consultingCaseContent: Record<string, CaseContent> = {
           { label: 'Open new fulfillment hubs', values: ['+1,200 deliveries/day', '9 months', '$12M'] },
           { label: 'Limit peak-hour orders', values: ['−10% demand', 'Immediate', 'Low'] },
         ],
-        footnote: 'Routing improvement increases average deliveries per driver from 20 to ~23 per day. New capacity at 800 drivers × 23 = 18,400 deliveries/day vs. 23,000 demand.',
+        footnote: 'All cost estimates are annualized. Implementation can be staggered.',
       },
     },
   },
@@ -141,11 +143,11 @@ export const consultingCaseContent: Record<string, CaseContent> = {
       'Singapore market size and competitive share, QuickCart financials and network assets, entry strategy economics comparison',
 
     probeExhibits: {
-      // Shown on hypothesis probe — market context with competition, QuickCart assets, and build-time signals
+      // Shown on hypothesis probe — market context with competition, QuickCart assets, and tension data
       hypothesis_driven_thinking_high_context: {
         type: 'table',
         title: 'Singapore Food Delivery Market — Key Facts',
-        subtitle: 'A concentrated market with strong network effects and a multi-year lead time for organic entry',
+        subtitle: 'Singapore food delivery market overview',
         columns: ['Value'],
         rows: [
           { label: 'Total annual order value', values: ['$2B'] },
@@ -157,17 +159,19 @@ export const consultingCaseContent: Record<string, CaseContent> = {
           { label: 'QuickCart active delivery drivers', values: ['5,000'] },
           { label: 'QuickCart restaurant partnerships', values: ['3,500'] },
           { label: 'QuickCart active users', values: ['1.2M'] },
+          { label: 'QuickCart user growth (YoY)', values: ['-5%'], isHighlight: true },
+          { label: 'QuickCart driver retention (annual)', values: ['60%'] },
           { isSpacer: true, label: '', values: [] },
           { label: 'Estimated time to build network organically', values: ['2–3 years'] },
         ],
-        footnote: 'Source: Industry data and management estimates. Building a delivery network from scratch would likely take 2–3 years.',
+        footnote: 'Source: Industry data and management estimates. QuickCart\'s user base has been declining and 40% of drivers churn annually. Building a delivery network from scratch would likely take 2–3 years.',
       },
 
       // Shown on analytical thinking probe — economics for multi-step revenue, profit, and payback calculation
       analytical_thinking_high_context: {
         type: 'table',
         title: 'Singapore Food Delivery Economics',
-        subtitle: 'Apply these assumptions to estimate QuickCart\'s revenue, profit, growth potential, and acquisition payback',
+        subtitle: 'Financial assumptions for market entry analysis',
         columns: ['Value'],
         rows: [
           { label: 'Total food delivery market (order value)', values: ['$2B'] },
@@ -182,20 +186,21 @@ export const consultingCaseContent: Record<string, CaseContent> = {
           { label: 'Estimated acquisition price for QuickCart', values: ['$60M'] },
           { label: 'Organic entry — expected market share (Year 5)', values: ['10%'] },
         ],
-        footnote: 'Delivery platforms typically achieve higher margins as order volume increases, due to better driver utilization and fixed platform costs. Use these figures to calculate revenue, profit at scale, acquisition payback, and organic entry revenue.',
+        footnote: 'Commission rates vary by platform; 20% represents the industry average for Singapore.',
       },
 
       // Shown on recommendation probe — strategy comparison with investment and outcomes
       decision_recommendation_high_context: {
         type: 'table',
         title: 'Entry Strategy Comparison — Acquisition vs. Organic',
-        subtitle: 'Acquisition costs more upfront but delivers immediate scale in a network-effects-driven market',
+        subtitle: 'Entry strategy comparison — key metrics',
         columns: ['Acquisition', 'Organic Entry'],
         rows: [
           { label: 'Investment required', values: ['$60M', '$40M'] },
           { label: 'Time to market', values: ['Immediate', '~3 years'], isHighlight: true },
           { label: 'Expected market share (Year 5)', values: ['12%', '10%'] },
           { label: 'Network effects', values: ['Strong', 'Weak initially'], isHighlight: true },
+          { label: 'Acquisition payback (at scale profit)', values: ['~8 years', 'N/A'], isHighlight: true },
         ],
         footnote: 'Organic entry would likely delay meaningful revenue generation by approximately three years while building driver and restaurant networks. Food delivery platforms benefit from network effects — early scale leads to better driver utilisation and improving margins over time.',
       },
