@@ -180,16 +180,95 @@ export const financeCaseContent: Record<string, CaseContent> = {
 
   finance_case_003: {
     caseId: 'finance_case_003',
-    title: 'Contested Acquisition of a SaaS Platform by a PE Sponsor',
-    company: 'Meridian SaaS / Arkwright Capital',
-    role: 'Investment Professional evaluating a contested acquisition',
+    title: 'Cognify AI Growth Equity Investment',
+    company: 'Cognify AI',
+    role: 'Growth Equity Investment Professional',
     narrative:
-      "You are on the investment team at Arkwright Capital, a mid-market PE sponsor. Arkwright is evaluating a contested acquisition of Meridian, a B2B SaaS company serving mid-market logistics teams with $85M in ARR. Two other sponsors are in the final round. Your final bid is due in four days. The pressure to decide — and to price accurately — is acute.",
+      'You are on the investment team at a growth equity fund evaluating Cognify AI, a US-based agentic AI company that builds autonomous workflow agents for enterprises. The company generates revenue through a subscription-based model (ARR). The fund is considering acquiring a 40% stake and exiting in 5 years. Assume no dilution over the holding period.',
     situation:
-      "Meridian has posted 35% ARR growth year-over-year, and the business is strategically compelling. However, the unit economics have been deteriorating: net revenue retention has declined from 118% to 104% over six quarters, CAC payback has extended from 22 to 31 months, and EBITDA margin is -28% with no clear path to profitability within 24 months. The company completed a go-to-market restructuring 9 months ago, which management credits with stabilizing churn. Competing bids are reportedly in the 9-11x ARR range. Your preliminary view is that 9x ARR is the right ceiling, but your deal team is divided: the junior analysts are bullish on the market opportunity; the senior partners are concerned about the NRR trend and the extended payback.",
+      'Cognify AI has $120M in ARR growing at 30%, with 600 enterprise customers at an average ARR of $200K. EBITDA margin is 20%. Management expects ARR growth to moderate from 30% to ~20% over time, while EBITDA margins expand from 20% to 30%. Comparable SaaS companies trade at 8×–12× ARR depending on growth. The fund would enter at 10× current ARR and targets an exit at 10× ARR after 5 years.',
     problemStatement:
-      'Should Arkwright bid? At what valuation range, and what are the three or four diligence questions that could materially move the price or kill the deal? With four days to closing, how do you frame the investment decision?',
+      'Should the fund invest in Cognify AI? Evaluate the entry valuation, projected returns (MoM and IRR), downside risks, and optimal deal structure for a 40% stake with a 5-year holding period.',
     dataExhibitHint:
-      'ARR bridge and NRR trend by quarter, CAC payback evolution, unit economics by customer cohort, comparable acquisition multiples in B2B SaaS',
+      'Current business metrics, growth and margin assumptions, entry/exit valuation, downside scenario, deal structure comparison',
+
+    probeExhibits: {
+      // Q1: Business & Financial Decomposition — current metrics
+      financial_signal_high_context: {
+        type: 'table',
+        title: 'Cognify AI Current Metrics',
+        subtitle: 'Core operating data for the business',
+        columns: ['Value'],
+        rows: [
+          { label: 'Annual recurring revenue (ARR)', values: ['$120M'], isHighlight: true },
+          { label: 'ARR growth rate', values: ['30%'], isHighlight: true },
+          { label: 'EBITDA margin', values: ['20%'] },
+          { label: 'Customers', values: ['600'] },
+          { label: 'Average ARR per customer', values: ['$200K'] },
+        ],
+        footnote: 'All figures are trailing twelve-month. Revenue is 100% subscription-based.',
+      },
+
+      // Q2: Investment Thesis — growth trajectory and margin expansion
+      investment_thesis_high_context: {
+        type: 'table',
+        title: 'Growth & Margin Outlook',
+        subtitle: 'Management projections and market context',
+        columns: ['Current', 'Projected'],
+        rows: [
+          { label: 'ARR growth rate', values: ['30%', '~20% (moderating)'], isHighlight: true },
+          { label: 'EBITDA margin', values: ['20%', '30%'], isHighlight: true },
+          { isSpacer: true, label: '', values: [] },
+          { label: 'Comparable SaaS multiples', values: ['8×–12× ARR', '(growth-dependent)'] },
+        ],
+        footnote: 'Margin expansion driven by operating leverage as customer base scales. Higher-growth SaaS companies command premium multiples within the 8×–12× range.',
+      },
+
+      // Q3: Capital Deployment & Return Thinking — entry + exit assumptions
+      capital_allocation_high_context: {
+        type: 'table',
+        title: 'Entry Valuation & Exit Assumptions',
+        subtitle: 'Key parameters for return analysis',
+        columns: ['Value'],
+        rows: [
+          { label: 'Current ARR', values: ['$120M'] },
+          { label: 'Entry multiple', values: ['10× ARR'] },
+          { label: 'Ownership acquired', values: ['40%'] },
+          { isSpacer: true, label: '', values: [] },
+          { label: 'ARR growth over 5 years', values: ['~2.5×'], isHighlight: true },
+          { label: 'Exit multiple', values: ['10× ARR'] },
+        ],
+        footnote: 'ARR grows to approximately 2.5× over 5 years, implying a ~20% blended CAGR as growth moderates from 30% to ~20%.',
+      },
+
+      // Q4: Risk & Downside — compressed scenario
+      risk_assessment_high_context: {
+        type: 'table',
+        title: 'Downside Scenario',
+        subtitle: 'Impact of slower growth and multiple compression',
+        columns: ['Base Case', 'Downside'],
+        rows: [
+          { label: 'ARR at exit', values: ['~$300M', '~$240M'], isHighlight: true },
+          { label: 'Exit multiple', values: ['10× ARR', '7× ARR'], isHighlight: true },
+        ],
+        footnote: 'Downside assumes slower customer acquisition, competitive pressure on pricing, and market-wide SaaS multiple compression.',
+      },
+
+      // Q5: Investment Decision & Deal Structuring — structure comparison
+      investment_recommendation_high_context: {
+        type: 'table',
+        title: 'Deal Structure Options',
+        subtitle: 'Two proposed structures for the investment',
+        columns: ['Option A', 'Option B'],
+        rows: [
+          { label: 'Structure', values: ['Standard equity', 'Preferred + equity'] },
+          { label: 'Investment amount', values: ['$480M', '$300M'] },
+          { label: 'Ownership', values: ['40%', '25%'] },
+          { label: 'Preferred return', values: ['None', '8% compounded annually'] },
+          { label: 'Above preferred', values: ['Pro-rata', 'Pro-rata'] },
+        ],
+        footnote: 'Under Option B, the fund receives its $300M plus 8% compounded annually before any remaining proceeds are shared pro-rata based on ownership.',
+      },
+    },
   },
 };

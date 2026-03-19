@@ -49,13 +49,23 @@ export const financeProbeContent: Record<string, ProbeVariantContent> = {
   },
   financial_signal_high_context: {
     variantId: 'financial_signal_high_context',
-    format: 'free_text',
+    format: 'multi_select_plus_reasoning',
+    maxSelections: 3,
     question:
-      'The income statement, balance sheet, and cash flow statement are sending conflicting signals. How do you interpret this tension, and what does it tell you about the quality of reported earnings?',
+      'Which are the THREE most important drivers of Cognify\'s enterprise value?',
+    options: [
+      { id: 'A', text: 'Total ARR' },
+      { id: 'B', text: 'ARR growth rate' },
+      { id: 'C', text: 'Number of customers' },
+      { id: 'D', text: 'EBITDA margin' },
+      { id: 'E', text: 'Office lease costs' },
+      { id: 'F', text: 'Short-term customer onboarding cost' },
+      { id: 'G', text: 'Social media engagement' },
+    ],
     instruction:
-      'Work through the specific tension between the financial statements and explain what it implies about the sustainability of reported performance.',
+      'Select exactly three. Then break down how Cognify generates revenue and enterprise value as a SaaS business. Max 120 words.',
     scoringGuidance:
-      'Strong: names the specific cross-statement tension in the case (e.g., net income growing but operating cash flow declining), explains the accounting mechanisms that could cause it (e.g., accrual timing, working capital build), assesses earnings quality implications, and states what additional disclosure would resolve the ambiguity. Weak: summarizes each statement separately without analyzing the tension between them.',
+      'Correct selection: A (Total ARR), B (ARR growth rate), D (EBITDA margin). SaaS enterprise value is driven by ARR × growth-adjusted multiple, with profitability (EBITDA margin) determining whether growth is sustainable and capital-efficient. Revenue = customers × average ARR per customer = 600 × $200K = $120M. Enterprise value at entry = $120M × 10× = $1.2B. C (Number of customers) is a component of ARR but not independently the value driver — it is captured within A. E, F, and G are not material value drivers. Strong reasoning: explains the ARR × multiple valuation framework, connects growth rate to multiple (8×–12× range depends on growth), and shows how EBITDA margin signals operating leverage. Weak: selects cost-side or irrelevant options, or cannot explain the SaaS valuation framework.',
   },
 
   // ── Investment Thesis Formation ──────────────────────────────────────────────
@@ -92,13 +102,19 @@ export const financeProbeContent: Record<string, ProbeVariantContent> = {
   },
   investment_thesis_high_context: {
     variantId: 'investment_thesis_high_context',
-    format: 'free_text',
+    format: 'mcq_plus_reasoning',
     question:
-      'Revenue growth is strong but unit economics are deteriorating and valuation is stretched. Multiple factors are pulling in different directions. How do you form a coherent investment view?',
+      'What is the strongest investment thesis for Cognify AI?',
+    options: [
+      { id: 'A', text: 'ARR growth and margin expansion will drive valuation growth' },
+      { id: 'B', text: 'Marketing costs can be reduced to improve profitability' },
+      { id: 'C', text: 'Competitors will exit the agentic AI market' },
+      { id: 'D', text: 'Pricing will increase significantly as AI adoption grows' },
+    ],
     instruction:
-      'Explain how you weigh the competing factors and arrive at a position. Identify what would cause you to change your thesis.',
+      'Select one. Then explain how value will be created over the investment period, referencing the growth and margin projections. Max 120 words.',
     scoringGuidance:
-      'Strong: names the key tension (growth vs. economics vs. valuation), explains a clear framework for weighing them (e.g., at what margin trajectory does the growth multiple become defensible), arrives at a specific view, and names the 1–2 data points that would flip the thesis. References specific case data. Weak: describes the tension without resolving it, or produces a balanced "on one hand / on the other hand" without a conclusion.',
+      'Correct: A. Value creation comes from two compounding drivers: (1) ARR grows ~2.5× over 5 years ($120M → ~$300M) as growth moderates from 30% to ~20%, and (2) EBITDA margin expands from 20% to 30% through operating leverage. At a 10× exit multiple, enterprise value grows from $1.2B to $3.0B — a 2.5× increase. B is a weak thesis — marketing cost reduction is not the primary value driver for a high-growth SaaS company. C relies on unprovable competitive assumptions. D is speculative and not supported by the case data. Strong reasoning: explains both growth levers, shows how they compound, and connects ARR growth to multiple sustainability (companies growing 20%+ justify 10× ARR multiples within the 8×–12× range). Weak: selects B/C/D, or selects A but cannot explain the dual-lever value creation mechanism.',
   },
 
   // ── Capital Allocation Judgment ──────────────────────────────────────────────
@@ -135,13 +151,19 @@ export const financeProbeContent: Record<string, ProbeVariantContent> = {
   },
   capital_allocation_high_context: {
     variantId: 'capital_allocation_high_context',
-    format: 'free_text',
+    format: 'mcq_plus_reasoning',
     question:
-      'The company faces simultaneous pressure to fund growth, service existing debt, and maintain liquidity buffer — but cannot fully satisfy all three. How do you reason through this capital allocation trade-off?',
+      'Work through the full return analysis. What is the approximate multiple of money (MoM) for this investment?',
+    options: [
+      { id: 'A', text: '1.5×' },
+      { id: 'B', text: '2.0×' },
+      { id: 'C', text: '2.5×' },
+      { id: 'D', text: '3.0×' },
+    ],
     instruction:
-      'Explain your framework for prioritizing competing capital needs, the risks of each trade-off, and how you would communicate this to management.',
+      'Select the closest answer. Then show your full calculation through all steps: (1) enterprise value at entry, (2) equity investment required, (3) approximate annual ARR growth rate implied by 2.5× over 5 years, (4) ARR at exit, (5) exit enterprise value, (6) equity value of the fund\'s stake at exit, (7) MoM. Then evaluate whether this represents an attractive return in IRR terms over a 5-year holding period. Max 120 words.',
     scoringGuidance:
-      'Strong: applies a clear prioritization hierarchy (e.g., liquidity floor first, then debt service, then growth — or argues explicitly for a different ordering), quantifies the trade-off using case numbers, names the risk of under-funding each need, and frames the communication to management around the constraint rather than the choice. Weak: treats the three needs as equally urgent, or recommends without acknowledging that all three cannot be met simultaneously.',
+      'Correct: C (2.5×). Full calculation chain: (1) Entry EV = $120M × 10 = $1.2B. (2) Equity investment = $1.2B × 40% = $480M. (3) 2.5× over 5 years implies ~20% CAGR (1.20^5 ≈ 2.49). (4) Exit ARR = $120M × 2.5 = $300M. (5) Exit EV = $300M × 10 = $3.0B. (6) Equity at exit = $3.0B × 40% = $1.2B. (7) MoM = $1.2B / $480M = 2.5×. IRR: 2.5× over 5 years ≈ ~20% IRR, which is an attractive return for growth equity. Strong: produces the full calculation chain correctly, correctly identifies ~20% CAGR from 2.5× growth, and evaluates IRR attractiveness. Partial: gets MoM correct but misses CAGR step or IRR evaluation. Weak: confuses enterprise value with equity value, cannot produce the calculation chain, or selects wrong answer.',
   },
 
   // ── Risk Sensitivity Reasoning ──────────────────────────────────────────────
@@ -178,13 +200,19 @@ export const financeProbeContent: Record<string, ProbeVariantContent> = {
   },
   risk_assessment_high_context: {
     variantId: 'risk_assessment_high_context',
-    format: 'free_text',
+    format: 'mcq_plus_reasoning',
     question:
-      'Macro headwinds, company-specific execution risk, and balance sheet pressure are all present simultaneously. How do you think about the combined risk profile?',
+      'Under the downside scenario, what is the approximate MoM for the fund\'s investment?',
+    options: [
+      { id: 'A', text: '1.2×' },
+      { id: 'B', text: '1.4×' },
+      { id: 'C', text: '1.8×' },
+      { id: 'D', text: '2.0×' },
+    ],
     instruction:
-      'Explain how you reason about the interaction between risks, which dominate the picture, and how this informs your overall investment view.',
+      'Select the closest answer. Then show your calculation: (1) exit enterprise value in the downside case, (2) equity value of the fund\'s stake, (3) downside MoM. Explain how growth slowdown and multiple compression interact to affect returns. Max 120 words.',
     scoringGuidance:
-      'Strong: analyzes the correlation structure between the three risk types (e.g., macro headwinds amplify balance sheet stress), names which risk dominates (and why), explains how the combined profile changes the required return threshold, and states how this feeds into the investment view. References the specific risks present in the case. Weak: treats each risk independently, or summarizes each risk without analyzing how they interact.',
+      'Correct: B (1.4×). Calculation: (1) Downside exit EV = $240M ARR × 7× = $1.68B ≈ $1.7B. (2) Equity at exit = $1.7B × 40% = $680M. (3) MoM = $680M / $480M ≈ 1.4×. This is a dramatic compression from the base case 2.5× MoM. 1.4× over 5 years implies ~7% IRR — well below growth equity targets of 20%+. Strong: produces the full downside calculation, recognizes the "double hit" of lower ARR growth AND lower exit multiple compressing returns simultaneously, and compares downside IRR (~7%) to base case (~20%). Notes that the downside still returns capital (no loss), but the opportunity cost is severe. Weak: selects C or D (base case contamination), cannot calculate the downside cascade, or fails to compare base vs. downside return profiles.',
   },
 
   // ── Investment Recommendation Clarity ────────────────────────────────────────
@@ -217,12 +245,16 @@ export const financeProbeContent: Record<string, ProbeVariantContent> = {
   },
   investment_recommendation_high_context: {
     variantId: 'investment_recommendation_high_context',
-    format: 'free_text',
+    format: 'mcq_plus_reasoning',
     question:
-      "The consensus view on this investment is bullish. Your analysis leads you to a more cautious position. How do you defend your view, and what would cause you to change it?",
+      'Which deal structure should the fund prefer?',
+    options: [
+      { id: 'A', text: 'Option A — $480M for 40% standard equity' },
+      { id: 'B', text: 'Option B — $300M for 25% equity with 8% preferred return' },
+    ],
     instruction:
-      'Argue your position clearly. Anticipate the strongest counterarguments and explain what evidence would shift your stance.',
+      'Select one. Then explain your decision considering: (1) expected returns under the base case, (2) downside protection, and (3) capital efficiency. Max 120 words.',
     scoringGuidance:
-      'Strong: names the specific consensus argument being challenged, explains the analytical basis for the divergent view using case data, pre-empts the strongest bull counterargument, and names the specific evidence (e.g., metric threshold, management action) that would cause a view change. Weak: restates the cautious view without engaging with the consensus, or names evidence too vaguely to be actionable.',
+      'Both A and B can score well with strong reasoning. For A (Standard equity): Base case delivers 2.5× MoM / ~20% IRR on $480M. Higher ownership (40% vs. 25%) captures more upside in a strong exit scenario. Downside: 1.4× MoM / ~7% IRR — still returns capital but subpar. Best argument: the fund has conviction in the base case and wants maximum upside capture. For B (Preferred structure): $300M investment is more capital-efficient. The 8% compounded preferred ($300M × 1.08^5 ≈ $441M) provides a floor — the fund recovers nearly all capital before sharing proceeds. Above the preferred, 25% pro-rata participation captures upside. Best argument: the preferred return protects against downside while requiring 37.5% less capital, freeing capital for other investments. Strong: engages with both structures quantitatively, compares base and downside scenarios for each, and makes a clear recommendation with specific reasoning about risk/return trade-off and capital efficiency. Weak: selects either option without comparing the structures, ignores the preferred return mechanics, or cannot articulate the trade-off between higher ownership and downside protection.',
   },
 };

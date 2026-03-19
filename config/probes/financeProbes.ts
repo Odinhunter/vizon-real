@@ -33,7 +33,7 @@ export const financeProbes: Probe[] = [
         variantId: 'financial_signal_high_context',
         contextLevel: 'high',
         description:
-          'Multi-year financial data with balance sheet shifts and cash flow tension.',
+          'SaaS metrics decomposition — identifying ARR-based enterprise value drivers.',
       },
     ],
   },
@@ -62,7 +62,7 @@ export const financeProbes: Probe[] = [
         variantId: 'investment_thesis_high_context',
         contextLevel: 'high',
         description:
-          'Mixed growth, margin, and leverage signals requiring trade-off reasoning.',
+          'Dual-lever value creation thesis — ARR growth and margin expansion in SaaS.',
       },
     ],
   },
@@ -91,7 +91,7 @@ export const financeProbes: Probe[] = [
         variantId: 'capital_allocation_high_context',
         contextLevel: 'high',
         description:
-          'Capital trade-offs involving growth vs balance sheet stability.',
+          'Multi-step return analysis — entry valuation, exit ARR, MoM, and IRR evaluation.',
       },
     ],
   },
@@ -120,7 +120,7 @@ export const financeProbes: Probe[] = [
         variantId: 'risk_assessment_high_context',
         contextLevel: 'high',
         description:
-          'Macro and balance sheet risks interacting under uncertainty.',
+          'Downside scenario — growth slowdown and multiple compression impact on returns.',
       },
     ],
   },
@@ -149,7 +149,7 @@ export const financeProbes: Probe[] = [
         variantId: 'investment_recommendation_high_context',
         contextLevel: 'high',
         description:
-          'Complex financial trade-offs requiring executive-level clarity.',
+          'Deal structure comparison — standard equity vs. preferred return mechanics.',
       },
     ],
   },

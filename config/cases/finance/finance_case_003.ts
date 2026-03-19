@@ -1,13 +1,24 @@
 import { CaseMetadata } from '../types';
 
+/**
+ * Level 3 finance case: Growth equity deal structuring for an agentic AI company.
+ * Tests multi-step valuation, return analysis (MoM/IRR), downside sensitivity,
+ * and deal structure comparison with preferred return mechanics.
+ */
 export const financeCase003: CaseMetadata = {
   caseId: 'finance_case_003',
   trackId: 'finance',
-  title: 'Contested Acquisition of a SaaS Platform by a PE Sponsor',
+  title: 'Cognify AI Growth Equity Investment',
   description:
-    'A PE sponsor evaluates a contested acquisition of a high-growth SaaS platform with mixed unit economics and divergent valuation signals.',
-  scenarioType: 'investment_analysis',
-  tags: ['early-diagnostic', 'M&A', 'SaaS'],
+    'Growth equity deal evaluation of an agentic AI SaaS company, requiring ARR-based valuation, multi-step return analysis (MoM/IRR), downside scenario modeling, and deal structure comparison with preferred return mechanics.',
+  scenarioType: 'investment_evaluation',
+  tags: [
+    'growth-equity',
+    'saas',
+    'agentic-ai',
+    'deal-structuring',
+    'arr-valuation',
+  ],
   probeSlotIds: [
     'ps_financial_signal_interpretation',
     'ps_investment_thesis_formation',
