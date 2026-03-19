@@ -1,23 +1,23 @@
 import { CaseMetadata } from '../types';
 
 /**
- * Level 1 finance case focused on public market investment reasoning.
- * Tests security-level evaluation without requiring technical modeling.
+ * Level 1 finance case: PE investment evaluation of a premium coffee chain expansion.
+ * Tests unit economics reasoning, ROIC calculation, and investment judgment.
  * This is metadata only — financial data lives in case content layer.
  */
 export const financeCase001: CaseMetadata = {
   caseId: 'finance_case_001',
   trackId: 'finance',
-  title: 'Initiating Coverage on Lumina Fitness Technologies',
+  title: 'BrewCo Café Chain Investment',
   description:
-    'Public equity-style investment evaluation of a connected fitness company transitioning from pandemic-driven growth to normalized demand, requiring assessment of earnings quality, valuation, and balance sheet risk.',
-  scenarioType: 'security_investment_analysis',
+    'Private equity investment evaluation of a premium coffee chain expanding from 50 to 120 stores across Southeast Asia, requiring unit economics analysis, ROIC calculation, and risk assessment.',
+  scenarioType: 'investment_evaluation',
   tags: [
-    'equity-research',
-    'valuation',
-    'earnings-quality',
-    'subscription-transition',
-    'balance-sheet-risk',
+    'private-equity',
+    'unit-economics',
+    'store-expansion',
+    'coffee-chain',
+    'southeast-asia',
   ],
   probeSlotIds: [
     'ps_financial_signal_interpretation',

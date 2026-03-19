@@ -1,13 +1,23 @@
 import { CaseMetadata } from '../types';
 
+/**
+ * Level 2 finance case: PE acquisition evaluation of a German EV manufacturer.
+ * Tests valuation mechanics, EBITDA growth modeling, MoM/ROIC calculation, and downside sensitivity.
+ */
 export const financeCase002: CaseMetadata = {
   caseId: 'finance_case_002',
   trackId: 'finance',
-  title: 'Overleveraged Balance Sheet at a Regional Retail Chain',
+  title: 'AutoNova AG Investment Evaluation',
   description:
-    'A regional retail chain faces rising debt service costs and tightening covenants while navigating a softening consumer environment.',
-  scenarioType: 'credit_analysis',
-  tags: ['early-diagnostic', 'leverage', 'retail'],
+    'Private equity acquisition evaluation of a mid-sized German EV manufacturer, requiring entry/exit valuation, EBITDA growth projection, MoM calculation, and downside scenario analysis.',
+  scenarioType: 'investment_evaluation',
+  tags: [
+    'private-equity',
+    'valuation',
+    'ev-manufacturer',
+    'lbo-lite',
+    'germany',
+  ],
   probeSlotIds: [
     'ps_financial_signal_interpretation',
     'ps_investment_thesis_formation',

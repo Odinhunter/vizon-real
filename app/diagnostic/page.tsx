@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
-import { redirect } from 'next/navigation';
 import { supportedTrackIds } from '@/config/registry';
 import DiagnosticController from '@/components/diagnostic/DiagnosticController';
+import TrackSelection from '@/components/diagnostic/TrackSelection';
 
 export const metadata: Metadata = {
   title: "Career Diagnostic",
@@ -18,7 +18,7 @@ export default async function DiagnosticPage({ searchParams }: DiagnosticPagePro
   const trackId = params.track;
 
   if (!trackId || !supportedTrackIds.includes(trackId)) {
-    redirect('/');
+    return <TrackSelection />;
   }
 
   return <DiagnosticController trackId={trackId} />;

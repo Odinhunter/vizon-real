@@ -3,32 +3,179 @@ import type { CaseContent } from '../types';
 export const financeCaseContent: Record<string, CaseContent> = {
   finance_case_001: {
     caseId: 'finance_case_001',
-    title: 'Initiating Coverage on Lumina Fitness Technologies',
-    company: 'Lumina Fitness Technologies',
-    role: 'Equity Research Analyst initiating coverage',
+    title: 'BrewCo Café Chain Investment',
+    company: 'BrewCo',
+    role: 'Private Equity Investment Professional',
     narrative:
-      "You are an equity research analyst initiating coverage on Lumina Fitness Technologies, a connected fitness company that experienced explosive subscriber growth during the pandemic before facing normalization headwinds. Management is guiding toward profitability within 18 months, but the market is skeptical. Your job is to form a clear investment view and initiate with a rating.",
+      'You are an investment professional at a mid-market private equity fund evaluating BrewCo, a premium coffee chain operating 50 stores across Southeast Asia. BrewCo is seeking growth capital to expand from 50 to 120 stores over the next 3 years. Your fund is considering leading the investment round. You need to evaluate the business fundamentals, expansion economics, and return profile to make an investment recommendation.',
     situation:
-      "Lumina grew its subscriber base 4x during the pandemic, reaching 3.2 million connected subscribers. Subscriber growth has been flat to negative for five consecutive quarters, and hardware sales have declined 60% from peak. The company has pivoted toward a software-only subscription tier at $29/month, abandoning the $39 hardware-bundled tier. This transition has improved gross margins on new subscribers but created a mixed installed base. Management is guiding to positive EBITDA within six quarters. Cash burn is approximately $45M per quarter, and the company holds $280M in cash. The stock is down 72% from its peak.",
+      'BrewCo operates 50 stores with average revenue of approximately $500K per store. Each store serves about 250 customers per day at an average order value of $5.50, operating 360 days per year. The company plans to expand to 120 stores over 3 years. New stores require $400K in initial investment each and are expected to ramp from $450K revenue at 9% margin in Year 1 to $500K revenue at 18% margin at steady state over a 2-year maturity period.',
     problemStatement:
-      'What is your investment rating on Lumina, and what is the thesis? Specifically: how do you assess the pace of normalization, the economics of the subscription transition, and balance sheet sustainability?',
+      'Should the fund invest in BrewCo\'s expansion from 50 to 120 stores? Evaluate the unit economics, return on invested capital, key risks, and overall investment attractiveness.',
     dataExhibitHint:
-      '3-year income statement with segment detail, subscriber metrics (gross adds, churn, ARPU by tier), cash position and burn rate, comparable company trading multiples',
+      'Current business metrics, store expansion economics, investment return analysis, downside scenario, and investment summary',
+
+    probeExhibits: {
+      financial_signal_low_context: {
+        type: 'table',
+        title: 'BrewCo Current Business Metrics',
+        subtitle: 'Core operating data for the existing 50-store network',
+        columns: ['Value'],
+        rows: [
+          { label: 'Number of stores', values: ['50'] },
+          { label: 'Daily customers per store', values: ['250'] },
+          { label: 'Average order value', values: ['$5.50'] },
+          { label: 'Operating days per year', values: ['360'] },
+        ],
+        footnote:
+          'All stores are in Southeast Asia. Figures represent trailing twelve-month averages.',
+      },
+
+      investment_thesis_low_context: {
+        type: 'table',
+        title: 'Store Expansion Economics',
+        subtitle: 'New stores ramp to steady-state performance over 2 years',
+        columns: ['Existing Stores', 'New Stores'],
+        rows: [
+          { label: 'Annual revenue per store', values: ['$500K', '$450K (Y1)'] },
+          { label: 'Operating margin', values: ['18%', '9% (Y1) → 18% (steady state)'] },
+          { label: 'Time to maturity', values: ['—', '2 years'] },
+        ],
+        footnote:
+          'New stores reach existing store performance levels after approximately 2 years of operation.',
+      },
+
+      capital_allocation_low_context: {
+        type: 'table',
+        title: 'Store Investment Economics',
+        subtitle: 'Per-store capital requirements and return profile',
+        columns: ['Value'],
+        rows: [
+          { label: 'Initial investment per store', values: ['$400K'] },
+          { label: 'Steady-state revenue per store', values: ['$500K'] },
+          { label: 'Steady-state operating margin', values: ['18%'] },
+          { label: 'Year 1 revenue (new store)', values: ['$450K'] },
+          { label: 'Year 1 operating margin (new store)', values: ['9%'] },
+        ],
+        footnote:
+          'Investment includes fit-out, equipment, and working capital. Margin improvement driven by operating leverage as customer traffic builds.',
+      },
+
+      risk_assessment_low_context: {
+        type: 'table',
+        title: 'Downside Scenario',
+        subtitle: 'Impact of slower ramp-up and weaker unit economics',
+        columns: ['Base Case', 'Downside Case'],
+        rows: [
+          { label: 'Revenue per store', values: ['$500K', '$420K'] },
+          { label: 'Operating margin', values: ['18%', '12%'] },
+        ],
+        footnote:
+          'Downside assumes slower customer acquisition and higher operating costs in new markets.',
+      },
+
+      investment_recommendation_low_context: {
+        type: 'table',
+        title: 'Investment Summary',
+        subtitle: 'Key metrics for the 70-store expansion program',
+        columns: ['Value'],
+        rows: [
+          { label: 'Total expansion investment', values: ['$28M'] },
+          { label: 'Steady-state annual profit (70 new stores)', values: ['$6.3M'] },
+          { label: 'Time to steady state', values: ['2 years'] },
+          { label: 'Target return', values: ['20%+'] },
+          { label: 'Investment horizon', values: ['5 years'] },
+        ],
+        footnote: 'Assume exit valuation at 10× steady-state annual profit.',
+      },
+    },
   },
 
   finance_case_002: {
     caseId: 'finance_case_002',
-    title: 'Overleveraged Balance Sheet at a Regional Retail Chain',
-    company: 'Broadstone Retail Group',
-    role: 'Credit Analyst evaluating refinancing risk',
+    title: 'AutoNova AG Investment Evaluation',
+    company: 'AutoNova AG',
+    role: 'Private Equity Investment Professional',
     narrative:
-      'You are a credit analyst at a leveraged finance desk reviewing Broadstone Retail Group, a regional retail chain with 210 locations across the Midwest. A $450M bond matures in 14 months. The company is in early-stage discussions with its lenders, and the market is closely watching whether a refinancing is achievable given the deteriorating operating environment.',
+      'You are on the investment team at a private equity fund evaluating a majority acquisition of AutoNova AG, a mid-sized German electric vehicle manufacturer. AutoNova sells mid-range EVs across Europe and has benefited from strong demand for sustainable mobility. The fund is considering acquiring a majority stake and exiting in 5 years.',
     situation:
-      "Broadstone carries $1.2B in total debt — a 5.5x leverage multiple at current EBITDA. EBITDA has compressed from $240M three years ago to $175M last year, driven by three consecutive quarters of negative same-store sales (-2.4%, -3.8%, -4.1%) and rising occupancy costs. The company is currently in compliance with its covenants, but EBITDA covenant headroom has narrowed to $18M. Management is pursuing $40M in annualized cost savings through store consolidation and labor rationalization, but these initiatives are 8–12 months from full realization. Two non-core distribution assets are being marketed for sale at an estimated $120M, but no buyer has been announced.",
+      'AutoNova sells 120,000 vehicles annually at an average selling price of €32,000, generating €3.84B in revenue with a 12% EBITDA margin (€460M). The company is expected to grow revenue at 7% annually, with EBITDA margins expanding from 12% to 15% by Year 5 due to improved battery sourcing costs and production scale efficiencies. The fund would enter at an 8× EBITDA multiple and targets an exit at 9× in the base case. For purposes of this analysis, assume an all-equity transaction structure.',
     problemStatement:
-      'Is Broadstone capable of refinancing successfully in the current environment, or does the combination of operational deterioration and leverage create an unsustainable path to the bond maturity? What is your credit assessment?',
+      'Should the fund acquire a majority stake in AutoNova AG? Evaluate the entry valuation, projected returns, downside risks, and overall investment attractiveness over a 5-year holding period.',
     dataExhibitHint:
-      'Leverage ratio trend (3 years), EBITDA-to-interest coverage, covenant headroom analysis, cash flow waterfall under base and stress scenarios',
+      'Operating metrics, growth and margin assumptions, entry valuation, exit assumptions, and downside scenario',
+
+    probeExhibits: {
+      financial_signal_medium_context: {
+        type: 'table',
+        title: 'AutoNova Operating Metrics',
+        subtitle: 'Core financial data for the current business',
+        columns: ['Value'],
+        rows: [
+          { label: 'Vehicles sold annually', values: ['120,000'] },
+          { label: 'Average selling price (ASP)', values: ['€32,000'] },
+          { label: 'Total revenue', values: ['€3.84B'] },
+          { label: 'EBITDA margin', values: ['12%'] },
+          { label: 'EBITDA', values: ['€460M'], isHighlight: true },
+        ],
+        footnote: 'AutoNova operates across major European markets with a focus on mid-range EVs.',
+      },
+
+      investment_thesis_medium_context: {
+        type: 'table',
+        title: 'Growth & Margin Assumptions',
+        subtitle: 'Margin expansion driven by battery sourcing and scale efficiencies',
+        columns: ['Value'],
+        rows: [
+          { label: 'Annual revenue growth', values: ['7%'] },
+          { label: 'EBITDA margin (today)', values: ['12%'] },
+          { label: 'EBITDA margin (Year 5)', values: ['15%'], isHighlight: true },
+        ],
+        footnote: 'Margin expansion expected from improved battery sourcing costs and production scale efficiencies.',
+      },
+
+      capital_allocation_medium_context: {
+        type: 'table',
+        title: 'Entry Valuation & Growth Assumptions',
+        subtitle: 'Entry at 8× current EBITDA with revenue growth and margin expansion',
+        columns: ['Value'],
+        rows: [
+          { label: 'Current EBITDA', values: ['€460M'] },
+          { label: 'Entry multiple', values: ['8×'] },
+          { isSpacer: true, label: '', values: [] },
+          { label: 'Annual revenue growth', values: ['7%'] },
+          { label: 'EBITDA margin (Year 5)', values: ['15%'] },
+          { label: 'Exit multiple', values: ['9×'] },
+        ],
+        footnote: 'Candidate should calculate entry EV, Year 5 EBITDA, exit EV, and return metrics independently.',
+      },
+
+      risk_assessment_medium_context: {
+        type: 'table',
+        title: 'Downside Scenario',
+        subtitle: 'Impact of slower growth, compressed margins, and lower exit multiple',
+        columns: ['Base Case', 'Downside'],
+        rows: [
+          { label: 'Revenue growth', values: ['7%', '5%'] },
+          { label: 'EBITDA margin (Year 5)', values: ['15%', '12%'] },
+          { label: 'Exit multiple', values: ['9×', '7×'] },
+        ],
+        footnote: 'Downside assumes slower EV adoption, competitive pressure on pricing, and limited margin improvement.',
+      },
+
+      investment_recommendation_medium_context: {
+        type: 'table',
+        title: 'Investment Context',
+        subtitle: 'Key parameters for the investment decision',
+        columns: ['Value'],
+        rows: [
+          { label: 'Holding period', values: ['5 years'] },
+          { label: 'Target return', values: ['20% IRR'] },
+          { label: 'Transaction structure', values: ['All-equity (simplified)'] },
+        ],
+        footnote: 'Growth and margin expansion take time — returns are back-loaded toward exit. In a strong market scenario, the fund expects to exit at a 10× EBITDA multiple.',
+      },
+    },
   },
 
   finance_case_003: {

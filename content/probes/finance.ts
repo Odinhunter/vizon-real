@@ -9,23 +9,43 @@ export const financeProbeContent: Record<string, ProbeVariantContent> = {
 
   financial_signal_low_context: {
     variantId: 'financial_signal_low_context',
-    format: 'free_text',
+    format: 'multi_select_plus_reasoning',
+    maxSelections: 3,
     question:
-      "What do the financial metrics tell you about this company's current performance and trajectory?",
+      'Based on the data above, which are the THREE most important drivers of BrewCo\'s revenue?',
+    options: [
+      { id: 'A', text: 'Number of stores' },
+      { id: 'B', text: 'Rent cost per store' },
+      { id: 'C', text: 'Customer volume per store' },
+      { id: 'D', text: 'Average order value' },
+      { id: 'E', text: 'Staff-to-customer ratio' },
+      { id: 'F', text: 'Operating days per year' },
+      { id: 'G', text: 'Gross margin per item sold' },
+    ],
     instruction:
-      'Identify the most important signals and explain what they indicate about the business.',
+      'Select exactly three. Then calculate BrewCo\'s annual revenue per store and explain the key drivers. Max 120 words.',
     scoringGuidance:
-      'Strong: identifies the 2–3 most diagnostic metrics from the case (e.g., revenue growth rate, margin trend, cash conversion), explains what each signals about the business model, and synthesizes them into a coherent trajectory view. Weak: lists metrics without interpretation, describes what the numbers are rather than what they mean, or treats all metrics as equally important.',
+      'Correct selection: A (Number of stores), C (Customer volume per store), D (Average order value). These are the direct revenue formula components: Revenue = stores × customers/day × AOV × days. Strong reasoning: calculates 250 × $5.50 × 360 = $495K ≈ $500K per store, and explains why these are the controllable levers. F (Operating days) is a valid partial credit option — it is in the revenue formula but is largely fixed at 360. G (Gross margin) is a tempting distractor — it drives profit, not revenue. B (Rent) and E (Staff ratio) are cost-side metrics. Weak: selects cost-side options (B, E, G) confusing revenue drivers with profit drivers, or cannot produce the revenue calculation.',
   },
   financial_signal_medium_context: {
     variantId: 'financial_signal_medium_context',
-    format: 'free_text',
+    format: 'multi_select_plus_reasoning',
+    maxSelections: 3,
     question:
-      'Revenue is growing but margins and cash conversion are deteriorating. What story does the data tell, and which signals are most diagnostic?',
+      'Which are the THREE most important drivers of AutoNova\'s EBITDA?',
+    options: [
+      { id: 'A', text: 'Number of vehicles sold' },
+      { id: 'B', text: 'Average selling price per vehicle' },
+      { id: 'C', text: 'Battery supplier geographic diversification' },
+      { id: 'D', text: 'EBITDA margin (operating cost structure)' },
+      { id: 'E', text: 'Warranty claim frequency' },
+      { id: 'F', text: 'Depreciation schedule on manufacturing equipment' },
+      { id: 'G', text: 'Number of dealership locations' },
+    ],
     instruction:
-      'Prioritize the signals that matter most and explain the pattern they form together.',
+      'Select exactly three. Then break down how AutoNova generates revenue and EBITDA, showing the calculation. Max 120 words.',
     scoringGuidance:
-      'Strong: identifies the growth-quality tension explicitly, explains what deteriorating margins + cash conversion means together (e.g., investment-led vs. structural cost problem), names the most diagnostic metric for distinguishing the two, and grounds the interpretation in the specific case numbers. Weak: describes the symptoms without forming a coherent story, or treats revenue growth and margin compression as independent issues.',
+      'Correct selection: A (Number of vehicles sold), B (Average selling price), D (EBITDA margin). Revenue = volume × ASP = 120,000 × €32,000 = €3.84B. EBITDA = revenue × margin = €3.84B × 12% = €460M. F (Depreciation) is a tempting distractor — it matters for EBIT and net income, but EBITDA explicitly adds back depreciation. G (Dealerships) affects volume indirectly but is not a direct P&L driver. Strong reasoning: decomposes the P&L into revenue = volume × price, then EBITDA = revenue × margin, and recognizes that EBITDA margin captures the cost structure. Weak: selects F (confuses EBITDA with EBIT) or C/E/G, or cannot produce the revenue-to-EBITDA calculation.',
   },
   financial_signal_high_context: {
     variantId: 'financial_signal_high_context',
@@ -42,22 +62,33 @@ export const financeProbeContent: Record<string, ProbeVariantContent> = {
 
   investment_thesis_low_context: {
     variantId: 'investment_thesis_low_context',
-    format: 'free_text',
-    question: 'What is your initial directional investment view on this company?',
+    format: 'mcq_plus_reasoning',
+    question: 'What is the strongest value creation driver in this investment?',
+    options: [
+      { id: 'A', text: 'Store expansion with improving unit economics as new stores mature' },
+      { id: 'B', text: 'Margin improvement in existing stores through cost optimization' },
+      { id: 'C', text: 'Increasing average order value through premium product mix' },
+      { id: 'D', text: 'Reducing initial investment per store to accelerate rollout' },
+    ],
     instruction:
-      'Articulate a clear investment stance — bullish, bearish, or cautious — and the core logic behind it.',
+      'Select one. Then explain how expansion creates value over time, referencing the store economics data. Max 120 words.',
     scoringGuidance:
-      'Strong: commits to a clear directional stance, grounds it in 2–3 specific observations from the case, and names what would need to be true for the thesis to play out. Weak: hedges without a direction, describes the company without forming a view, or gives a stance with no supporting logic from the case data.',
+      'Correct: A. The core value creation story is expanding from 50 to 120 stores while unit economics improve as new stores mature (9% → 18% margin over 2 years). B is tempting but the case shows existing stores already operate at 18% margin — there is no improvement opportunity flagged. C and D are plausible levers but not supported by the case data. Strong reasoning: explains the margin ramp mechanism (new stores start at 9% and converge to 18% over 2 years), quantifies the scale (70 new stores × $90K steady-state profit = $6.3M incremental), and distinguishes between growth-driven and efficiency-driven value creation. Weak: selects B/C/D, or selects A but cannot explain the margin ramp.',
   },
   investment_thesis_medium_context: {
     variantId: 'investment_thesis_medium_context',
-    format: 'free_text',
-    question:
-      'What is your investment thesis, and what are the two or three assumptions it most depends on?',
+    format: 'mcq_plus_reasoning',
+    question: 'What is the strongest value creation thesis for this investment?',
+    options: [
+      { id: 'A', text: 'EBITDA growth driven by revenue growth and margin expansion' },
+      { id: 'B', text: 'Operational restructuring to cut headcount and reduce SG&A' },
+      { id: 'C', text: 'Multiple arbitrage — buying low and selling at a higher multiple' },
+      { id: 'D', text: 'Government EV subsidies increasing consumer demand' },
+    ],
     instruction:
-      'State the thesis and identify what must be true for it to hold. How confident are you in each assumption?',
+      'Select one. Then explain how value will be created over the 5-year holding period, referencing the specific growth and margin drivers. Max 120 words.',
     scoringGuidance:
-      'Strong: states a specific thesis (not just a direction), names 2–3 assumptions that are load-bearing for the thesis, assesses the confidence level for each with reasoning grounded in the case, and notes what would invalidate the thesis. Weak: states a direction without articulating a thesis, or lists assumptions without assessing their probability or importance.',
+      'Correct: A. Value creation comes from two compounding drivers: (1) 7% annual revenue growth growing revenue ~1.4× over 5 years (~€5.4B), and (2) margin expansion from 12% to 15% driven by battery sourcing and scale efficiencies. Combined, EBITDA grows from €460M to ~€800M. C (multiple arbitrage) is a tempting distractor — the entry/exit multiple does expand from 8× to 9×, but this is a secondary effect that only works because EBITDA growth justifies a higher multiple. Strong reasoning: explains both growth levers, shows how they compound, and distinguishes primary (EBITDA growth) from secondary (multiple expansion) value creation. Weak: selects C without recognizing that multiple expansion requires operational improvement to sustain, or selects B/D which are not in the case.',
   },
   investment_thesis_high_context: {
     variantId: 'investment_thesis_high_context',
@@ -74,23 +105,33 @@ export const financeProbeContent: Record<string, ProbeVariantContent> = {
 
   capital_allocation_low_context: {
     variantId: 'capital_allocation_low_context',
-    format: 'free_text',
-    question:
-      'How should this company prioritize its capital deployment given the financial position you see?',
+    format: 'mcq_plus_reasoning',
+    question: 'What is the return on invested capital (ROIC) per store at steady state?',
+    options: [
+      { id: 'A', text: '10%' },
+      { id: 'B', text: '15%' },
+      { id: 'C', text: '22.5%' },
+      { id: 'D', text: '30%' },
+    ],
     instruction:
-      'State a clear capital allocation priority and the logic behind it.',
+      'Select the closest answer. Then show your calculations: (1) steady-state annual profit per store, (2) Year 1 profit per new store, (3) approximate payback period, (4) total annual profit from 70 new stores, and (5) ROIC. Evaluate whether this expansion is capital efficient. Max 120 words.',
     scoringGuidance:
-      'Strong: states a specific capital allocation priority grounded in the case financial position (e.g., debt paydown before growth investment given leverage ratio, or growth investment given strong free cash flow), explains the return logic, and names the opportunity cost of the alternative. Weak: lists options without prioritizing, or gives a generic answer not connected to the case data.',
+      'Correct: C (22.5%). Calculation chain: (1) Steady-state profit = $500K × 18% = $90K per store. (2) Year 1 profit = $450K × 9% = $40.5K per store. (3) Payback ≈ $400K / $90K ≈ 4.4 years (or ~5 years accounting for Y1 ramp). (4) Total from 70 stores = 70 × $90K = $6.3M. (5) ROIC = $90K / $400K = 22.5%. Strong: produces the full calculation chain correctly and concludes that 22.5% ROIC exceeds the 20% target return, making the expansion capital-efficient. Weak: selects wrong answer, cannot produce the calculation, or confuses revenue with profit in the ROIC formula.',
   },
   capital_allocation_medium_context: {
     variantId: 'capital_allocation_medium_context',
-    format: 'free_text',
-    question:
-      'The company is weighing two competing uses of capital: investing in organic growth versus paying down debt. Which would you prioritize, and why?',
+    format: 'mcq_plus_reasoning',
+    question: 'What is the approximate EBITDA yield on entry price at Year 5?',
+    options: [
+      { id: 'A', text: '~10%' },
+      { id: 'B', text: '~15%' },
+      { id: 'C', text: '~22%' },
+      { id: 'D', text: '~30%' },
+    ],
     instruction:
-      'Compare the incremental returns and strategic logic of each option. Identify what information would change your answer.',
+      'Select the closest answer. Then show your calculations: (1) entry enterprise value, (2) approximate Year 5 revenue, (3) Year 5 EBITDA, (4) exit enterprise value, and (5) approximate MoM. Evaluate whether this investment shows strong capital efficiency. Max 120 words.',
     scoringGuidance:
-      'Strong: compares the after-tax cost of debt vs. expected incremental return on growth investment using case-specific numbers, names the leverage threshold or coverage ratio that changes the answer, and identifies 1–2 pieces of information that would materially shift the recommendation. Weak: gives a direction without the return comparison, or applies generic capital structure principles without engaging with the case numbers.',
+      'Correct: C (~22%). Calculation chain: (1) Entry EV = €460M × 8 = €3.68B ≈ €3.7B. (2) Revenue grows at 7% for 5 years: €3.84B × 1.40 ≈ €5.4B. (3) Y5 EBITDA = €5.4B × 15% ≈ €810M ≈ €800M. (4) Exit EV = €800M × 9 = €7.2B. (5) MoM = €7.2B / €3.7B ≈ 2.0×. EBITDA yield = €800M / €3.7B ≈ 22%. Strong: produces the full calculation chain from entry to exit, correctly grows revenue at 7% (not 10%), applies the 15% exit margin, and concludes the investment generates ~2× MoM over 5 years. Weak: uses wrong growth rate, confuses revenue with EBITDA, or cannot connect the valuation steps.',
   },
   capital_allocation_high_context: {
     variantId: 'capital_allocation_high_context',
@@ -107,23 +148,33 @@ export const financeProbeContent: Record<string, ProbeVariantContent> = {
 
   risk_assessment_low_context: {
     variantId: 'risk_assessment_low_context',
-    format: 'free_text',
-    question:
-      'What is the primary financial or operational risk you would flag for this investment?',
+    format: 'mcq_plus_reasoning',
+    question: 'What is the biggest risk to the investment thesis?',
+    options: [
+      { id: 'A', text: 'Rising input costs compressing existing store margins' },
+      { id: 'B', text: 'Slower ramp-up and weaker unit economics in new stores' },
+      { id: 'C', text: 'Cannibalization of existing stores by new locations' },
+      { id: 'D', text: 'Currency depreciation in Southeast Asian markets' },
+    ],
     instruction:
-      'Identify the single most important downside risk and explain how you would assess its potential impact.',
+      'Select one. Then calculate annual profit per store and investment payback under the downside scenario, and explain how this risk affects returns and capital recovery. Max 100 words.',
     scoringGuidance:
-      'Strong: names a specific risk grounded in the case data (not a generic "execution risk"), explains the mechanism by which it could materialize, and estimates the order-of-magnitude impact on the investment case. Weak: lists multiple risks without prioritizing, names a generic risk without connecting it to the case, or describes the risk without assessing its impact.',
+      'Correct: B. The downside scenario directly threatens the investment thesis by reducing store-level returns. A (input costs) and C (cannibalization) are real risks but are not quantified in the case data — the downside scenario explicitly models B. D (currency) is valid but second-order. Strong reasoning: calculates downside profit = $420K × 12% = $50.4K (~$50K) per store, payback = $400K / $50K = 8 years (vs. ~4.4 years base case). This nearly doubles the payback period and drops ROIC from 22.5% to ~12.5%, below the 20% target. The 8-year payback also exceeds the 5-year investment horizon. Weak: selects A/C/D without engaging with the downside data, or selects B but cannot produce the calculation.',
   },
   risk_assessment_medium_context: {
     variantId: 'risk_assessment_medium_context',
-    format: 'free_text',
-    question:
-      'What are the two or three most important risks in this situation? How would you rank them and estimate their potential impact?',
+    format: 'mcq_plus_reasoning',
+    question: 'Under the downside scenario, what is the approximate Year 5 EBITDA?',
+    options: [
+      { id: 'A', text: '~€590M' },
+      { id: 'B', text: '~€700M' },
+      { id: 'C', text: '~€800M' },
+      { id: 'D', text: '~€1B' },
+    ],
     instruction:
-      'Prioritize the risks with clear reasoning and explain how each would affect the investment case.',
+      'Select one. Then calculate the downside exit valuation and MoM. Explain how the combination of lower EBITDA and a lower exit multiple affects the return profile. Max 120 words.',
     scoringGuidance:
-      'Strong: names 2–3 specific risks grounded in the case, ranks them with explicit logic (e.g., probability × impact or which is least hedgeable), estimates the impact of each on the investment case numerically or directionally, and notes how the risks interact. Weak: lists risks in no particular order, applies generic risk categories without case-specific grounding, or describes risks without estimating impact.',
+      'Correct: A (~€590M). Under downside: revenue grows at 5% for 5 years → €3.84B × 1.28 ≈ €4.9B, EBITDA = €4.9B × 12% ≈ €590M. Exit EV = €590M × 7 = €4.13B. MoM = €4.13B / €3.7B ≈ 1.1×. This is a dramatic compression from the base case 2.0× MoM — the fund barely gets its money back. Strong reasoning: connects lower EBITDA + lower exit multiple → severely compressed returns, recognizes the "double hit" of operational underperformance and multiple contraction, and notes that 1.1× MoM over 5 years implies ~2% annualized return — far below the 20% IRR target. Weak: selects C or D (base case numbers), or cannot calculate the downside cascade from EBITDA → EV → MoM.',
   },
   risk_assessment_high_context: {
     variantId: 'risk_assessment_high_context',
@@ -140,22 +191,29 @@ export const financeProbeContent: Record<string, ProbeVariantContent> = {
 
   investment_recommendation_low_context: {
     variantId: 'investment_recommendation_low_context',
-    format: 'free_text',
-    question: 'What is your investment recommendation, and what is your core rationale?',
+    format: 'mcq_plus_reasoning',
+    question: 'Based on the data above, should the fund proceed with the investment?',
+    options: [
+      { id: 'A', text: 'Invest — the return profile justifies the risk' },
+      { id: 'B', text: 'Do not invest — the risks outweigh the potential returns' },
+    ],
     instruction:
-      'Give a clear buy, hold, or sell recommendation with your key supporting logic.',
+      'Select one. Then explain your investment decision, including return profile, capital efficiency, and downside risks. Max 120 words.',
     scoringGuidance:
-      'Strong: gives a specific recommendation (buy/hold/sell or equivalent), anchors it in 2–3 reasons directly drawn from the case analysis, and names the key risk to the recommendation. Weak: hedges without committing, restates the analysis without a recommendation, or gives a recommendation disconnected from the case data.',
+      'Correct: A. Strong reasoning: (1) Yield = $6.3M / $28M ≈ 22.5%, exceeding the 20% target. (2) Exit value at 10× steady-state profit = $6.3M × 10 = $63M on a $28M investment — a >2× return. (3) Even with the 2-year ramp period, returns exceed target within the 5-year horizon. (4) Acknowledges downside risk (payback extends to 8 years, ROIC drops to ~12.5%) but argues base case economics are compelling enough. Weak: selects B without engaging with the numbers, or selects A but cannot articulate the return math. A well-reasoned B answer with strong downside analysis can receive partial credit.',
   },
   investment_recommendation_medium_context: {
     variantId: 'investment_recommendation_medium_context',
-    format: 'free_text',
-    question:
-      'Given the risk/return profile, how do you structure your recommendation, and what are the key conditions that would cause you to change it?',
+    format: 'mcq_plus_reasoning',
+    question: 'Should the fund proceed with this investment?',
+    options: [
+      { id: 'A', text: 'Invest — the return profile justifies the risk' },
+      { id: 'B', text: 'Do not invest — the risks outweigh the potential returns' },
+    ],
     instruction:
-      'Frame the recommendation with explicit reasoning about risk weighting and identify the two or three factors most likely to alter your view.',
+      'Select one. Then explain your decision considering: (1) return profile (MoM and implied IRR), (2) growth and margin drivers, and (3) downside severity. Max 120 words.',
     scoringGuidance:
-      'Strong: frames the recommendation in terms of the risk/return trade-off explicitly (e.g., return is sufficient given the risk at current price), names 2–3 specific conditions that would flip the view, and assigns rough probability or watchlist criteria to each. Weak: gives a recommendation without the risk/return framing, or names "change conditions" too generically (e.g., "if results disappoint").',
+      'Correct: A. Strong reasoning: (1) Base case delivers ~2× MoM over 5 years (€3.7B → €7.2B), implying ~15% IRR. While below 20% target in base case, a strong exit at 10× EBITDA (€800M × 10 = €8B) yields 2.2× MoM / ~17% IRR — close to target. (2) Growth is supported by two compounding levers: 7% revenue growth + margin expansion from 12% to 15%. (3) Acknowledges downside risk is severe (MoM compresses to ~1.1×) but argues base case assumptions are reasonable given EV market tailwinds. The nuance matters: a strong candidate should note that base case ~15% IRR is below target but argue the upside/downside skew is favorable. A well-reasoned B with strong downside analysis can receive full credit — the case is genuinely close.',
   },
   investment_recommendation_high_context: {
     variantId: 'investment_recommendation_high_context',
