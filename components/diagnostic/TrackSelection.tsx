@@ -4,13 +4,14 @@ import { useRouter } from 'next/navigation';
 import { trackCards } from '@/content/index';
 
 const NAVY = '#051c2c';
-const CARD = 'rounded-2xl shadow-md shadow-black/[0.05] border border-white/70 bg-white';
 
 const trackMeta: Record<
   string,
   {
     accent: string;
-    icon: string;
+    accentLight: string;
+    gradient: string;
+    icon: React.ReactNode;
     caseCount: string;
     time: string;
     level: string;
@@ -19,15 +20,29 @@ const trackMeta: Record<
 > = {
   consulting: {
     accent: '#1A56DB',
-    icon: '◇',
+    accentLight: '#EBF0FE',
+    gradient: 'from-blue-600 to-indigo-700',
+    icon: (
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" />
+        <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" />
+      </svg>
+    ),
     caseCount: '3 Cases',
     time: '25–35 min',
     level: 'Progressive',
     open: true,
   },
   finance: {
-    accent: '#051c2c',
-    icon: '△',
+    accent: '#059669',
+    accentLight: '#ECFDF5',
+    gradient: 'from-emerald-600 to-teal-700',
+    icon: (
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+        <line x1="12" y1="1" x2="12" y2="23" />
+        <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+      </svg>
+    ),
     caseCount: '2 Cases',
     time: '20–30 min',
     level: 'Progressive',
@@ -35,7 +50,16 @@ const trackMeta: Record<
   },
   analytics: {
     accent: '#e8521a',
-    icon: '◎',
+    accentLight: '#FFF4ED',
+    gradient: 'from-orange-500 to-red-600',
+    icon: (
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M21 12c0 4.97-4.03 9-9 9s-9-4.03-9-9 4.03-9 9-9" />
+        <path d="M21 3v6h-6" />
+        <path d="M21 9c-1.5-2.5-4-5-9-5" />
+        <line x1="3" y1="21" x2="9" y2="15" />
+      </svg>
+    ),
     caseCount: '3 Cases',
     time: '25–35 min',
     level: 'Progressive',
@@ -57,31 +81,33 @@ export default function TrackSelection() {
 
   return (
     <div className="min-h-screen bg-[#f7f8fa]">
-      {/* Header */}
-      <div className="bg-white border-b border-[#e2e6ea]">
-        <div className="max-w-3xl mx-auto w-full px-5 md:px-10 pt-10 pb-8">
-          <div className="flex flex-wrap gap-2 mb-5">
-            <span className="px-2.5 py-1 rounded-full bg-[#f7f8fa] text-[9px] font-mono tracking-[0.15em] uppercase text-[#5a6775]">
-              VIZON DIAGNOSTIC
-            </span>
-          </div>
+      {/* Hero header */}
+      <div className="relative overflow-hidden bg-white border-b border-[#e2e6ea]">
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          <div className="absolute -top-24 -right-24 w-96 h-96 rounded-full bg-blue-50 opacity-60 blur-3xl" />
+          <div className="absolute -bottom-16 -left-16 w-72 h-72 rounded-full bg-emerald-50 opacity-40 blur-3xl" />
+        </div>
+        <div className="relative max-w-6xl mx-auto w-full px-6 md:px-12 pt-14 pb-12 text-center">
+          <span className="inline-block px-3 py-1.5 rounded-full bg-[#f0f2f5] text-[10px] font-mono tracking-[0.18em] uppercase text-[#5a6775] mb-5">
+            VIZON DIAGNOSTIC
+          </span>
 
           <h1
-            className="font-sans font-bold leading-[1.1] tracking-[-0.02em] mb-3"
-            style={{ fontSize: 'clamp(28px, 4vw, 42px)', color: NAVY }}
+            className="font-sans font-bold leading-[1.08] tracking-[-0.03em] mb-4 mx-auto"
+            style={{ fontSize: 'clamp(32px, 5vw, 52px)', color: NAVY, maxWidth: '640px' }}
           >
             Choose your track
           </h1>
-          <p className="text-[14px] text-[#4a5568] leading-relaxed max-w-2xl">
+          <p className="text-[15px] text-[#5a6775] leading-relaxed max-w-lg mx-auto">
             Each track is built around the skills that matter most for that career path.
             Pick the one that matches where you&apos;re headed.
           </p>
         </div>
       </div>
 
-      {/* Track cards */}
-      <div className="max-w-3xl mx-auto w-full px-5 md:px-10 py-8">
-        <div className="space-y-4">
+      {/* Track cards grid */}
+      <div className="max-w-6xl mx-auto w-full px-6 md:px-12 py-10">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
           {trackCards.map((card) => {
             const meta = trackMeta[card.trackId];
             if (!meta) return null;
@@ -91,106 +117,100 @@ export default function TrackSelection() {
                 key={card.trackId}
                 disabled={!meta.open}
                 onClick={() => router.push(`/diagnostic?track=${card.trackId}`)}
-                className={`${CARD} w-full text-left overflow-hidden transition-all duration-200 ${
+                className={`group relative flex flex-col text-left rounded-2xl overflow-hidden transition-all duration-300 bg-white border border-[#e5e7eb] ${
                   meta.open
-                    ? 'hover:shadow-xl hover:shadow-black/[0.08] hover:-translate-y-0.5 cursor-pointer'
+                    ? 'hover:shadow-2xl hover:shadow-black/[0.08] hover:-translate-y-1 cursor-pointer'
                     : 'opacity-50 cursor-not-allowed'
                 }`}
               >
-                {/* Accent bar */}
-                <div className="h-1" style={{ backgroundColor: meta.accent }} />
-
-                <div className="p-6 md:p-7">
-                  {/* Title row */}
-                  <div className="flex items-start justify-between mb-3">
-                    <div className="flex items-center gap-3">
-                      <div
-                        className="w-9 h-9 rounded-xl flex items-center justify-center text-[16px] shrink-0"
-                        style={{
-                          backgroundColor: `${meta.accent}10`,
-                          color: meta.accent,
-                        }}
-                      >
-                        {meta.icon}
-                      </div>
-                      <div>
-                        <h3
-                          className="text-[18px] md:text-[20px] font-bold leading-tight"
-                          style={{ color: NAVY }}
-                        >
-                          {card.displayName}
-                        </h3>
-                      </div>
-                    </div>
-
-                    {meta.open ? (
-                      <span className="shrink-0 ml-3 inline-flex items-center px-3 py-1 text-[10px] font-semibold rounded-full bg-emerald-50 text-emerald-600">
-                        Open
-                      </span>
-                    ) : (
-                      <span className="shrink-0 ml-3 inline-flex items-center px-3 py-1 text-[10px] font-semibold rounded-full bg-[#f7f8fa] text-[#8896a4]">
-                        Coming soon
-                      </span>
-                    )}
+                {/* Colored header band */}
+                <div
+                  className={`relative px-6 pt-7 pb-6 bg-gradient-to-br ${meta.gradient} text-white`}
+                >
+                  <div className="absolute inset-0 opacity-10">
+                    <div className="absolute top-3 right-3 w-32 h-32 rounded-full border border-white/30" />
+                    <div className="absolute -bottom-6 -left-6 w-24 h-24 rounded-full border border-white/20" />
                   </div>
 
-                  {/* Description */}
-                  <p className="text-[13px] text-[#5a6775] leading-relaxed mb-5 ml-12">
+                  <div className="relative">
+                    <div className="flex items-center justify-between mb-4">
+                      <div className="w-11 h-11 rounded-xl bg-white/20 backdrop-blur-sm flex items-center justify-center">
+                        {meta.icon}
+                      </div>
+                      {meta.open ? (
+                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 text-[10px] font-semibold rounded-full bg-white/20 backdrop-blur-sm text-white">
+                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-300 animate-pulse" />
+                          Open
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center px-2.5 py-1 text-[10px] font-semibold rounded-full bg-white/15 backdrop-blur-sm text-white/70">
+                          Coming soon
+                        </span>
+                      )}
+                    </div>
+                    <h3 className="text-[20px] font-bold leading-tight tracking-[-0.01em]">
+                      {card.displayName}
+                    </h3>
+                  </div>
+                </div>
+
+                {/* Body */}
+                <div className="flex-1 flex flex-col px-6 pt-5 pb-6">
+                  <p className="text-[13px] text-[#5a6775] leading-[1.6] mb-5">
                     {trackDescriptions[card.trackId]}
                   </p>
 
-                  {/* Stats row */}
-                  <div className="flex items-center gap-4 ml-12">
-                    {[
-                      { label: meta.caseCount },
-                      { label: meta.time },
-                      { label: meta.level },
-                    ].map((stat) => (
+                  {/* Stats */}
+                  <div className="flex items-center gap-2 mb-5">
+                    {[meta.caseCount, meta.time, meta.level].map((label) => (
                       <span
-                        key={stat.label}
-                        className="inline-flex items-center px-3 py-1.5 rounded-lg bg-[#f7f8fa] text-[11px] font-mono text-[#5a6775]"
+                        key={label}
+                        className="inline-flex items-center px-2.5 py-1.5 rounded-lg text-[10px] font-mono font-medium"
+                        style={{ backgroundColor: meta.accentLight, color: meta.accent }}
                       >
-                        {stat.label}
+                        {label}
                       </span>
                     ))}
                   </div>
 
                   {/* Skills */}
-                  <div className="flex flex-wrap gap-1.5 mt-4 ml-12">
+                  <div className="flex flex-wrap gap-1.5 mb-6">
                     {card.skills.map((skill) => (
                       <span
                         key={skill}
-                        className="inline-block rounded-full px-2.5 py-1 text-[10px] font-semibold"
-                        style={{
-                          backgroundColor: `${meta.accent}08`,
-                          color: meta.accent,
-                        }}
+                        className="inline-block rounded-full px-2.5 py-1 text-[10px] font-medium text-[#4a5568] bg-[#f3f4f6]"
                       >
                         {skill}
                       </span>
                     ))}
                   </div>
 
-                  {/* CTA hint */}
-                  {meta.open && (
-                    <div className="mt-5 ml-12">
+                  {/* CTA */}
+                  <div className="mt-auto">
+                    {meta.open ? (
                       <span
-                        className="inline-flex items-center gap-1.5 text-[12px] font-semibold"
+                        className="inline-flex items-center gap-2 text-[13px] font-semibold transition-all duration-200 group-hover:gap-3"
                         style={{ color: meta.accent }}
                       >
                         Start diagnostic
-                        <span className="opacity-50">&#8594;</span>
+                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M3 8h10M9 4l4 4-4 4" />
+                        </svg>
                       </span>
-                    </div>
-                  )}
+                    ) : (
+                      <span className="inline-flex items-center gap-2 text-[13px] font-semibold text-[#9ca3af]">
+                        Coming soon
+                      </span>
+                    )}
+                  </div>
                 </div>
               </button>
             );
           })}
         </div>
 
-        <p className="text-[10px] font-mono text-[#5a6775] text-center mt-6 tracking-wide">
-          No preparation required. Results are AI-powered and delivered instantly.
+        <p className="text-[11px] font-mono text-[#8896a4] text-center mt-8 tracking-wide">
+          No preparation required &middot; Results are AI-powered and delivered instantly
         </p>
       </div>
     </div>
