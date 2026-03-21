@@ -17,7 +17,7 @@ const trackDescriptions: Record<string, string> = {
 
 const trackStatus: Record<string, { label: string; open: boolean }> = {
   consulting: { label: 'Open now', open: true },
-  finance: { label: 'Upcoming', open: false },
+  finance: { label: 'Open now', open: true },
   analytics: { label: 'Upcoming', open: false },
 };
 
