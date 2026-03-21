@@ -98,7 +98,7 @@ export default function Navbar() {
                   )}
                 </div>
                 <Link
-                  href="/diagnostic?track=consulting"
+                  href="/diagnostic"
                   className="bg-[#1A56DB] text-white text-[12px] md:text-[13px] font-semibold px-4 md:px-6 py-2 rounded-xl hover:bg-[#1548b8] transition-colors"
                 >
                   <span className="hidden sm:inline">Run Diagnostic →</span>
@@ -114,7 +114,7 @@ export default function Navbar() {
                   Sign in
                 </Link>
                 <Link
-                  href="/signup?callbackUrl=/diagnostic?track=consulting"
+                  href="/signup?callbackUrl=/diagnostic"
                   className="bg-[#1A56DB] text-white text-[12px] md:text-[13px] font-semibold px-4 md:px-6 py-2 rounded-xl hover:bg-[#1548b8] transition-colors"
                 >
                   Get Started →

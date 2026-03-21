@@ -9,8 +9,8 @@ import MockTrajectoryCard from './MockTrajectoryCard';
 export default function HeroSection() {
   const { data: session } = useSession();
   const ctaHref = session
-    ? '/diagnostic?track=consulting'
-    : '/signup?callbackUrl=/diagnostic?track=consulting';
+    ? '/diagnostic'
+    : '/signup?callbackUrl=/diagnostic';
 
   return (
     <section className="relative overflow-hidden">

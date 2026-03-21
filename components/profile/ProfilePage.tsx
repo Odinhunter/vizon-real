@@ -106,7 +106,7 @@ export default function ProfilePage() {
           <span className="font-mono text-[12px] font-medium tracking-[0.2em] text-[#051c2c]">VIZON</span>
         </Link>
         <Link
-          href="/diagnostic?track=consulting"
+          href="/diagnostic"
           className="bg-[#1A56DB] text-white text-[13px] font-semibold px-6 py-2 rounded-xl hover:bg-[#1548b8] transition-colors"
         >
           Run Diagnostic →
@@ -148,7 +148,7 @@ export default function ProfilePage() {
             <h2 className="font-sans text-lg font-bold text-[#051c2c] mb-2">You haven&apos;t taken a diagnostic yet</h2>
             <p className="font-sans text-sm text-neutral-500 mb-6">Complete your first diagnostic to see your results here.</p>
             <Link
-              href="/diagnostic?track=consulting"
+              href="/diagnostic"
               className="inline-block bg-[#1A56DB] text-white text-[14px] font-semibold px-8 py-3 rounded-xl hover:bg-[#1548b8] transition-colors"
             >
               Run your first diagnostic →

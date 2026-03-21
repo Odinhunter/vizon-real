@@ -865,7 +865,7 @@ export default function DiagnosticResults({
           {readOnly ? (
             <>
               <a
-                href="/signup?callbackUrl=/diagnostic?track=consulting"
+                href="/signup?callbackUrl=/diagnostic"
                 className="flex-1 py-4 text-white font-mono text-[11px] text-center tracking-[0.15em] uppercase rounded-xl shadow-lg hover:-translate-y-0.5 hover:shadow-xl transition-all duration-200"
                 style={{ backgroundColor: NAVY }}
               >

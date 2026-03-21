@@ -71,7 +71,7 @@ export default function SignUpForm({ callbackUrl }: SignUpFormProps) {
   const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
 
-  const redirect = callbackUrl || '/diagnostic?track=consulting';
+  const redirect = callbackUrl || '/diagnostic';
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
