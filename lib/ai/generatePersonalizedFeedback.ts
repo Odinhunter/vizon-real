@@ -37,7 +37,8 @@ export async function generatePersonalizedFeedback(
   trackScore: number,
   benchmark: number,
   archetypeName?: string,
-  archetypeTopTraits?: string[]
+  archetypeTopTraits?: string[],
+  trackId = 'consulting'
 ): Promise<PersonalizedFeedbackOutput | null> {
   // Build key observations grouped by skill
   const keyObservations: Record<string, string[]> = {};
@@ -58,7 +59,7 @@ export async function generatePersonalizedFeedback(
     benchmark,
     archetypeName,
     archetypeTopTraits,
-  });
+  }, trackId);
 
   try {
     const response = await callModel({ system, prompt: user, temperature: 0.3 });

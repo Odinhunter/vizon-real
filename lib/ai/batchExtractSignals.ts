@@ -18,11 +18,12 @@ const RETRY_PREFIX =
   'REMINDER: Return only a valid JSON array. No markdown, no extra text, no code blocks.\n\n';
 
 export async function batchExtractSignals(
-  probes: PendingResponse[]
+  probes: PendingResponse[],
+  trackId = 'consulting'
 ): Promise<BatchExtractionResult> {
   if (probes.length === 0) return [];
 
-  const { system, user } = buildBatchExtractionPrompt(probes);
+  const { system, user } = buildBatchExtractionPrompt(probes, trackId);
 
   const first = await callAndValidate(system, user, probes.length);
   if (first) return first;

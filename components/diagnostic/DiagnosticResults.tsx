@@ -147,6 +147,9 @@ const FIRM_COLORS: Record<string, string> = {
   McKinsey: '#051c2c',
   BCG:      '#00875a',
   Bain:     '#cc0000',
+  'Growth Equity':      '#0ea5e9',
+  'Buyout PE':          '#6366f1',
+  'Investment Banking': '#f59e0b',
 };
 
 const STAT_ACCENT_COLORS = ['var(--accent)', 'var(--blue)', '#10b981', '#051c2c', '#8b5cf6'];
@@ -444,7 +447,12 @@ export default function DiagnosticResults({
                    archetype.id === 'hypothesis_driver' ? '\u{1F3AF}' :
                    archetype.id === 'analytical_powerhouse' ? '\u{1F4CA}' :
                    archetype.id === 'communicator' ? '\u{1F4AC}' :
-                   archetype.id === 'pressure_performer' ? '\u{26A1}' : '\u{1F504}'}
+                   archetype.id === 'pressure_performer' ? '\u{26A1}' :
+                   archetype.id === 'quantitative_modeler' ? '\u{1F522}' :
+                   archetype.id === 'thesis_builder' ? '\u{1F3AF}' :
+                   archetype.id === 'risk_adjusted_thinker' ? '\u{1F6E1}\u{FE0F}' :
+                   archetype.id === 'deal_maker' ? '\u{1F4BC}' :
+                   archetype.id === 'balanced_investor' ? '\u{1F504}' : '\u{1F504}'}
                 </div>
                 <div>
                   <p className="font-sans text-[18px] font-bold leading-tight" style={{ color: NAVY }}>
@@ -490,7 +498,9 @@ export default function DiagnosticResults({
 
             {/* MBB Firm Fit */}
             <div className={`${CARD} p-6`}>
-              <p className="text-[9px] font-mono text-[#5a6775] uppercase tracking-widest mb-4">MBB FIRM FIT</p>
+              <p className="text-[9px] font-mono text-[#5a6775] uppercase tracking-widest mb-4">
+                {trackId === 'finance' ? 'FUND STRATEGY FIT' : 'MBB FIRM FIT'}
+              </p>
 
               {/* Concentric donut rings */}
               <div className="flex justify-center mb-4">
@@ -553,7 +563,9 @@ export default function DiagnosticResults({
               </div>
               <div className="mt-5 pt-4 border-t border-[#e2e6ea]">
                 <p className="font-sans text-[11px] text-[#4a5568] leading-relaxed">
-                  Fit scores reflect how your skill profile aligns with each firm&apos;s known emphasis areas. The red marker indicates the MBB benchmark ({benchmark}).
+                  {trackId === 'finance'
+                    ? `Fit scores reflect how your skill profile aligns with each fund strategy's emphasis areas. The red marker indicates the benchmark (${benchmark}).`
+                    : `Fit scores reflect how your skill profile aligns with each firm's known emphasis areas. The red marker indicates the MBB benchmark (${benchmark}).`}
                 </p>
               </div>
             </div>

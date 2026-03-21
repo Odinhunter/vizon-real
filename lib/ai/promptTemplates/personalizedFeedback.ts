@@ -8,6 +8,8 @@
 
 import type { PendingResponse } from '@/engine/diagnosticSession';
 import type { SkillDetail, Recommendation } from '@/lib/api/diagnosticClient';
+import { getTrackAnalysisConfig } from '@/engine/trackAnalysisConfig';
+import { buildFinancePersonalizedFeedbackPrompt } from './financePersonalizedFeedback';
 
 export interface PersonalizedFeedbackInput {
   skills: SkillDetail[];
@@ -30,21 +32,18 @@ export interface PersonalizedFeedbackPrompt {
   user: string;
 }
 
-const SKILL_LABELS: Record<string, string> = {
-  problem_structuring: 'Structuring',
-  hypothesis_driven_thinking: 'Hypothesis Thinking',
-  analytical_thinking: 'Analytical Thinking',
-  client_communication: 'Client Communication',
-  decision_recommendation: 'Decision & Recommendation',
-};
-
-function getSkillLabel(skillId: string): string {
-  return SKILL_LABELS[skillId] ?? skillId;
+function getSkillLabel(skillId: string, trackId: string): string {
+  const config = getTrackAnalysisConfig(trackId);
+  return config.skillLabels[skillId] ?? skillId;
 }
 
 export function buildPersonalizedFeedbackPrompt(
-  input: PersonalizedFeedbackInput
+  input: PersonalizedFeedbackInput,
+  trackId = 'consulting'
 ): PersonalizedFeedbackPrompt {
+  if (trackId === 'finance') {
+    return buildFinancePersonalizedFeedbackPrompt(input);
+  }
   const system = `You are a brutally honest senior MBB partner writing personalized diagnostic feedback for a candidate who just completed a consulting skills assessment. You have reviewed every word they wrote.
 
 YOUR VOICE:
@@ -81,7 +80,7 @@ WHAT MAKES GOOD FEEDBACK (do this):
       .map((ss) => `L${ss.stage}: ${ss.score}`)
       .join(' → ');
 
-    return `SKILL: ${getSkillLabel(skill.skillId)} (${skill.skillId})
+    return `SKILL: ${getSkillLabel(skill.skillId, trackId)} (${skill.skillId})
 Score: ${skill.score}/100 | Benchmark: ${skill.benchmark} | Gap: ${skill.gap > 0 ? '+' : ''}${skill.gap} | Assessment: ${skill.assessment}
 Trajectory: ${skill.trajectory} | Stage scores: ${stageScoreStr}
 AI observations: ${observations.length > 0 ? observations.join('; ') : 'none'}
@@ -107,7 +106,7 @@ TASK 1 — SKILL NARRATIVES:
 Write a personalized narrative for EACH skill (2-3 sentences). Reference specific things from their responses. Be honest about what they did well and what they clearly struggled with. Each narrative must contain at least one specific observation that could only apply to this candidate's actual answers.
 
 TASK 2 — PRIORITY RECOMMENDATIONS:
-Write ${weakestSkills.length} personalized recommendations for their weakest skills: ${weakestSkills.map((s) => getSkillLabel(s.skillId)).join(', ')}.
+Write ${weakestSkills.length} personalized recommendations for their weakest skills: ${weakestSkills.map((s) => getSkillLabel(s.skillId, trackId)).join(', ')}.
 Each recommendation should:
 - Have a specific, actionable title (not generic like "practice more")
 - Reference what went wrong in their actual responses

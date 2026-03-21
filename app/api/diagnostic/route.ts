@@ -258,7 +258,7 @@ async function handleAnswer(body: {
 
     if (pendingResponses.length > 0) {
       try {
-        extractions = await batchExtractSignals(pendingResponses);
+        extractions = await batchExtractSignals(pendingResponses, diagSession.careerTrackId);
 
         // Apply each extraction to skillEvidence and behavioralEvidence
         let skillEvidence = { ...finalSession.skillEvidence };
@@ -345,7 +345,8 @@ async function handleAnswer(body: {
       finalSession.behavioralEvidence,
       trackEntry.engineTrack.skills,
       trackEntry.engineTrack.name,
-      pendingResponses.length
+      pendingResponses.length,
+      diagSession.careerTrackId
     );
 
     // Generate personalized feedback using AI (second call)
@@ -358,7 +359,8 @@ async function handleAnswer(body: {
           diagnosticResult.trackScore,
           diagnosticResult.benchmark,
           diagnosticResult.archetype.name,
-          diagnosticResult.archetype.topTraits
+          diagnosticResult.archetype.topTraits,
+          diagSession.careerTrackId
         );
 
         if (personalized) {

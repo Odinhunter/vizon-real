@@ -17,6 +17,7 @@ import {
 } from "./signalSchema";
 import { callModel } from "./modelClient";
 import { buildConsultingExtractionPrompt } from "./promptTemplates/consultingExtraction";
+import { buildFinanceExtractionPrompt } from "./promptTemplates/financeBatchExtraction";
 
 const RETRY_PREFIX =
   "REMINDER: Return only valid JSON matching the required structure. Do not include any extra text.\n\n";
@@ -57,6 +58,8 @@ function buildPromptForTrack(input: ExtractionInput): string {
   switch (input.trackId) {
     case "consulting":
       return buildConsultingExtractionPrompt(input);
+    case "finance":
+      return buildFinanceExtractionPrompt(input);
     default:
       throw new Error("Extraction not implemented for this track yet");
   }
