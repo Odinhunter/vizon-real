@@ -43,8 +43,8 @@ const trackMeta: Record<
         <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
       </svg>
     ),
-    caseCount: '2 Cases',
-    time: '20–30 min',
+    caseCount: '3 Cases',
+    time: '25–35 min',
     level: 'Progressive',
     open: true,
   },
