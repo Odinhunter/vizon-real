@@ -80,25 +80,26 @@ export default function TrackSelection() {
   const router = useRouter();
 
   return (
-    <div className="min-h-screen bg-[#f7f8fa]">
+    <div className="min-h-screen bg-[#dce8f8]">
       {/* Hero header */}
-      <div className="relative overflow-hidden bg-white border-b border-[#e2e6ea]">
+      <div className="relative overflow-hidden">
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          <div className="absolute -top-24 -right-24 w-96 h-96 rounded-full bg-blue-50 opacity-60 blur-3xl" />
-          <div className="absolute -bottom-16 -left-16 w-72 h-72 rounded-full bg-emerald-50 opacity-40 blur-3xl" />
+          <div className="absolute -top-32 -right-32 w-[500px] h-[500px] rounded-full bg-blue-200/40 blur-3xl" />
+          <div className="absolute -bottom-20 -left-20 w-80 h-80 rounded-full bg-indigo-200/30 blur-3xl" />
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[300px] rounded-full bg-white/20 blur-3xl" />
         </div>
-        <div className="relative max-w-6xl mx-auto w-full px-6 md:px-12 pt-14 pb-12 text-center">
-          <span className="inline-block px-3 py-1.5 rounded-full bg-[#f0f2f5] text-[10px] font-mono tracking-[0.18em] uppercase text-[#5a6775] mb-5">
+        <div className="relative max-w-6xl mx-auto w-full px-6 md:px-12 pt-16 pb-14 text-center">
+          <span className="inline-block px-4 py-1.5 rounded-full bg-white/40 backdrop-blur-md border border-white/50 text-[10px] font-mono tracking-[0.18em] uppercase text-[#3a5068] mb-6">
             VIZON DIAGNOSTIC
           </span>
 
           <h1
-            className="font-sans font-bold leading-[1.08] tracking-[-0.03em] mb-4 mx-auto"
-            style={{ fontSize: 'clamp(32px, 5vw, 52px)', color: NAVY, maxWidth: '640px' }}
+            className="font-sans font-bold leading-[1.08] tracking-[-0.03em] mb-5 mx-auto"
+            style={{ fontSize: 'clamp(34px, 5vw, 54px)', color: NAVY, maxWidth: '640px' }}
           >
             Choose your track
           </h1>
-          <p className="text-[15px] text-[#5a6775] leading-relaxed max-w-lg mx-auto">
+          <p className="text-[16px] text-[#3a4f63] leading-relaxed max-w-lg mx-auto font-medium">
             Each track is built around the skills that matter most for that career path.
             Pick the one that matches where you&apos;re headed.
           </p>
@@ -106,8 +107,8 @@ export default function TrackSelection() {
       </div>
 
       {/* Track cards grid */}
-      <div className="max-w-6xl mx-auto w-full px-6 md:px-12 py-10">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+      <div className="max-w-6xl mx-auto w-full px-6 md:px-12 pb-12">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {trackCards.map((card) => {
             const meta = trackMeta[card.trackId];
             if (!meta) return null;
@@ -117,9 +118,9 @@ export default function TrackSelection() {
                 key={card.trackId}
                 disabled={!meta.open}
                 onClick={() => router.push(`/diagnostic?track=${card.trackId}`)}
-                className={`group relative flex flex-col text-left rounded-2xl overflow-hidden transition-all duration-300 bg-white border border-[#e5e7eb] ${
+                className={`group relative flex flex-col text-left rounded-2xl overflow-hidden transition-all duration-300 bg-white/60 backdrop-blur-xl border border-white/70 shadow-lg shadow-blue-900/[0.06] ${
                   meta.open
-                    ? 'hover:shadow-2xl hover:shadow-black/[0.08] hover:-translate-y-1 cursor-pointer'
+                    ? 'hover:shadow-2xl hover:shadow-blue-900/[0.12] hover:-translate-y-1.5 hover:bg-white/80 cursor-pointer'
                     : 'opacity-50 cursor-not-allowed'
                 }`}
               >
@@ -148,7 +149,7 @@ export default function TrackSelection() {
                         </span>
                       )}
                     </div>
-                    <h3 className="text-[20px] font-bold leading-tight tracking-[-0.01em]">
+                    <h3 className="text-[21px] font-bold leading-tight tracking-[-0.01em]">
                       {card.displayName}
                     </h3>
                   </div>
@@ -156,7 +157,7 @@ export default function TrackSelection() {
 
                 {/* Body */}
                 <div className="flex-1 flex flex-col px-6 pt-5 pb-6">
-                  <p className="text-[13px] text-[#5a6775] leading-[1.6] mb-5">
+                  <p className="text-[14px] text-[#3a4f63] leading-[1.65] mb-5">
                     {trackDescriptions[card.trackId]}
                   </p>
 
@@ -165,8 +166,8 @@ export default function TrackSelection() {
                     {[meta.caseCount, meta.time, meta.level].map((label) => (
                       <span
                         key={label}
-                        className="inline-flex items-center px-2.5 py-1.5 rounded-lg text-[10px] font-mono font-medium"
-                        style={{ backgroundColor: meta.accentLight, color: meta.accent }}
+                        className="inline-flex items-center px-2.5 py-1.5 rounded-lg text-[10px] font-mono font-semibold backdrop-blur-sm"
+                        style={{ backgroundColor: `${meta.accent}12`, color: meta.accent }}
                       >
                         {label}
                       </span>
@@ -178,7 +179,7 @@ export default function TrackSelection() {
                     {card.skills.map((skill) => (
                       <span
                         key={skill}
-                        className="inline-block rounded-full px-2.5 py-1 text-[10px] font-medium text-[#4a5568] bg-[#f3f4f6]"
+                        className="inline-block rounded-full px-2.5 py-1 text-[11px] font-medium text-[#3a4f63] bg-[#f0f3f7]"
                       >
                         {skill}
                       </span>
@@ -189,16 +190,16 @@ export default function TrackSelection() {
                   <div className="mt-auto">
                     {meta.open ? (
                       <span
-                        className="inline-flex items-center gap-2 text-[13px] font-semibold transition-all duration-200 group-hover:gap-3"
+                        className="inline-flex items-center gap-2 text-[14px] font-bold transition-all duration-200 group-hover:gap-3"
                         style={{ color: meta.accent }}
                       >
                         Start diagnostic
-                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                           <path d="M3 8h10M9 4l4 4-4 4" />
                         </svg>
                       </span>
                     ) : (
-                      <span className="inline-flex items-center gap-2 text-[13px] font-semibold text-[#9ca3af]">
+                      <span className="inline-flex items-center gap-2 text-[14px] font-bold text-[#9ca3af]">
                         Coming soon
                       </span>
                     )}
@@ -209,7 +210,7 @@ export default function TrackSelection() {
           })}
         </div>
 
-        <p className="text-[11px] font-mono text-[#8896a4] text-center mt-8 tracking-wide">
+        <p className="text-[11px] font-mono text-[#5a7088] text-center mt-10 tracking-wide">
           No preparation required &middot; Results are AI-powered and delivered instantly
         </p>
       </div>
