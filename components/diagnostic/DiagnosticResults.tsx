@@ -8,6 +8,8 @@ import type {
   TrajectoryPattern,
   SkillDetail,
   ResiliencePattern,
+  AnswerFeedback,
+  CaseSummary,
 } from '@/lib/api/diagnosticClient';
 import {
   RadarChart,
@@ -232,6 +234,8 @@ export default function DiagnosticResults({
     firmFit,
     pressureResilience,
     percentile,
+    answerFeedback,
+    caseSummaries,
   } = result;
 
   const [expandedSkills, setExpandedSkills] = useState<Set<string>>(new Set());
@@ -697,6 +701,30 @@ export default function DiagnosticResults({
           </div>
         </div>
 
+        {/* ── Answer Feedback + Case Summaries ────────────────────── */}
+        {((answerFeedback && answerFeedback.length > 0) || (caseSummaries && caseSummaries.length > 0)) && (
+          <div className="reveal">
+            <p className="text-[10px] font-mono text-[#5a6775] uppercase tracking-[0.2em] mb-5">
+              ANSWER-LEVEL FEEDBACK
+            </p>
+            <div className="flex flex-col gap-8">
+              {[1, 2, 3].map((stage) => {
+                const stageAnswers = answerFeedback?.filter((a) => a.caseStage === stage) ?? [];
+                const stageSummary = caseSummaries?.find((s) => s.caseStage === stage);
+                if (!stageAnswers.length && !stageSummary) return null;
+                return (
+                  <CaseFeedbackBlock
+                    key={stage}
+                    caseStage={stage as 1 | 2 | 3}
+                    answerFeedback={stageAnswers}
+                    caseSummary={stageSummary}
+                  />
+                );
+              })}
+            </div>
+          </div>
+        )}
+
         {/* ── Pressure Resilience ──────────────────────────────────────── */}
         <div ref={pressureRef} className="reveal">
           <p className="text-[10px] font-mono text-[#5a6775] uppercase tracking-[0.2em] mb-5">
@@ -901,6 +929,77 @@ export default function DiagnosticResults({
 }
 
 // ─── Sub-components ─────────────────────────────────────────────────────────
+
+const CASE_STAGE_LABELS: Record<1 | 2 | 3, string> = {
+  1: 'Case 1 — Baseline',
+  2: 'Case 2 — Escalation',
+  3: 'Case 3 — Pressure',
+};
+
+function CaseFeedbackBlock({
+  caseStage,
+  answerFeedback,
+  caseSummary,
+}: {
+  caseStage: 1 | 2 | 3;
+  answerFeedback: AnswerFeedback[];
+  caseSummary?: CaseSummary;
+}) {
+  return (
+    <div className={`${CARD} overflow-hidden`}>
+      {/* Case header */}
+      <div className="px-6 pt-5 pb-4 border-b border-[#e2e6ea]" style={{ background: 'linear-gradient(to right, #f7f8fa, #fff)' }}>
+        <p className="text-[10px] font-mono text-[#5a6775] uppercase tracking-[0.2em] mb-1">
+          {CASE_STAGE_LABELS[caseStage]}
+        </p>
+
+        {/* Case-level summary */}
+        {caseSummary && (
+          <div className="mt-3 flex flex-col gap-3">
+            <p className="font-sans text-[13px] text-[#4a5568] leading-relaxed">
+              {caseSummary.overallAssessment}
+            </p>
+            <div className="flex flex-col sm:flex-row gap-3">
+              <div className="flex-1 rounded-xl bg-emerald-50 border border-emerald-100 px-4 py-3">
+                <p className="text-[9px] font-mono text-emerald-600 uppercase tracking-widest mb-1">STRONGEST MOMENT</p>
+                <p className="font-sans text-[12px] text-emerald-800 leading-relaxed">{caseSummary.strongestMoment}</p>
+              </div>
+              <div className="flex-1 rounded-xl bg-amber-50 border border-amber-100 px-4 py-3">
+                <p className="text-[9px] font-mono text-amber-600 uppercase tracking-widest mb-1">CLEAREST GAP</p>
+                <p className="font-sans text-[12px] text-amber-800 leading-relaxed">{caseSummary.clearestGap}</p>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Per-answer feedback */}
+      {answerFeedback.length > 0 && (
+        <div className="divide-y divide-[#f0f1f3]">
+          {answerFeedback.map((af) => (
+            <div key={af.sequenceNumber} className="px-6 py-4">
+              <div className="flex items-center gap-2 mb-2">
+                <span
+                  className="shrink-0 w-6 h-6 flex items-center justify-center font-mono text-[10px] font-medium text-white rounded-full"
+                  style={{ backgroundColor: NAVY }}
+                >
+                  {af.sequenceNumber}
+                </span>
+                <span className="font-mono text-[10px] text-[#5a6775] uppercase tracking-wider">{af.skillLabel}</span>
+              </div>
+              {af.questionSnippet && (
+                <p className="font-mono text-[11px] text-[#7a8793] leading-snug mb-2 italic">
+                  &ldquo;{af.questionSnippet}&rdquo;
+                </p>
+              )}
+              <p className="font-sans text-[12px] text-[#4a5568] leading-relaxed">{af.feedback}</p>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
 
 function PerformanceBar({ score, benchmark, assessment }: { score: number; benchmark: number; assessment: SkillAssessment }) {
   const barColor = ASSESSMENT_COLORS[assessment].bar;

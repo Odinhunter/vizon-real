@@ -364,7 +364,7 @@ async function handleAnswer(body: {
         );
 
         if (personalized) {
-          // Patch skill narratives + archetype feedback
+          // Patch skill narratives + archetype feedback + new per-answer/case fields
           diagnosticResult = {
             ...diagnosticResult,
             skills: diagnosticResult.skills.map((skill) => ({
@@ -378,6 +378,8 @@ async function handleAnswer(body: {
               ...diagnosticResult.archetype,
               feedback: personalized.archetypeFeedback || undefined,
             },
+            answerFeedback: personalized.answerFeedback,
+            caseSummaries: personalized.caseSummaries,
           };
         }
       } catch (err) {

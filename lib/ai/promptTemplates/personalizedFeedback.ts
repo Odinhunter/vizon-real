@@ -21,10 +21,28 @@ export interface PersonalizedFeedbackInput {
   archetypeTopTraits?: string[];
 }
 
+export interface AnswerFeedbackItem {
+  sequenceNumber: number;
+  skillId: string;
+  skillLabel: string;
+  caseStage: 1 | 2 | 3;
+  questionSnippet: string;
+  feedback: string;
+}
+
+export interface CaseSummaryItem {
+  caseStage: 1 | 2 | 3;
+  overallAssessment: string;
+  strongestMoment: string;
+  clearestGap: string;
+}
+
 export interface PersonalizedFeedbackOutput {
   skillNarratives: Record<string, string>; // skillId → narrative
   recommendations: Recommendation[];
   archetypeFeedback: string; // personalized paragraph for the candidate profile card
+  answerFeedback?: AnswerFeedbackItem[];
+  caseSummaries?: CaseSummaryItem[];
 }
 
 export interface PersonalizedFeedbackPrompt {
@@ -69,7 +87,7 @@ WHAT MAKES GOOD FEEDBACK (do this):
     const responses = input.pendingResponses.filter((p) => p.skillId === skill.skillId);
     const observations = input.keyObservations[skill.skillId] ?? [];
 
-    const responseSnippets = responses.map((r, i) => {
+    const responseSnippets = responses.map((r) => {
       const stageLabel = `L${r.caseStage}`;
       const answer = r.rawResponse?.substring(0, 500) || '(no response)';
       return `  [${stageLabel}/${r.contextLevel}] Q: "${r.probeQuestion?.substring(0, 150)}..."
@@ -88,6 +106,18 @@ Candidate responses:
 ${responseSnippets}`;
   }).join('\n\n---\n\n');
 
+  // Build ordered answer list for per-answer feedback
+  const orderedAnswers = input.pendingResponses.map((r, i) => {
+    const skillLabel = getSkillLabel(r.skillId, trackId);
+    const answer = r.rawResponse?.substring(0, 600) || '(no response)';
+    let optionNote = '';
+    if (r.selectedOptionId) optionNote = ` [Selected option: ${r.selectedOptionId}]`;
+    if (r.selectedOptionIds?.length) optionNote = ` [Selected options: ${r.selectedOptionIds.join(', ')}]`;
+    return `Answer ${i + 1} | Skill: ${skillLabel} (${r.skillId}) | Case L${r.caseStage} | Context: ${r.contextLevel}
+Q: "${r.probeQuestion?.substring(0, 200) || '(no question)'}"${optionNote}
+A: "${answer}"`;
+  }).join('\n\n');
+
   // Identify weakest skills for recommendations
   const sortedByGap = [...input.skills].sort((a, b) => a.gap - b.gap);
   const weakestSkills = sortedByGap.slice(0, 3).filter((s) => s.gap < 5);
@@ -101,6 +131,9 @@ Top Traits: ${input.archetypeTopTraits?.join(', ') ?? 'N/A'}`;
 ${archetypeInfo}
 
 ${skillBlocks}
+
+ANSWERS IN SEQUENCE:
+${orderedAnswers}
 
 TASK 1 — SKILL NARRATIVES:
 Write a personalized narrative for EACH skill (2-3 sentences). Reference specific things from their responses. Be honest about what they did well and what they clearly struggled with. Each narrative must contain at least one specific observation that could only apply to this candidate's actual answers.
@@ -116,6 +149,20 @@ Each recommendation should:
 TASK 3 — ARCHETYPE FEEDBACK:
 Write a personalized 3-4 sentence paragraph that goes deeper on this candidate's archetype profile. Reference specific patterns from their responses that reveal why they fit this archetype. Call out both their defining strength and their most notable blind spot based on what you observed. This should read like a senior partner's private coaching note — direct, specific, and actionable. Do NOT repeat the archetype description — add NEW insight based on their actual performance.
 
+TASK 4 — PER-ANSWER FEEDBACK:
+For EACH of the ${input.pendingResponses.length} answers above, write 2-3 sentences of qualitative feedback that references specific phrases, choices, or omissions in that actual answer. Do not write generic coaching. Quote or closely paraphrase something specific the candidate said or failed to say. Show what was good and what was missing.
+
+Examples of strong per-answer feedback:
+- "Your opening hypothesis named the right problem but didn't commit to a direction — you said 'could be either revenue or cost' but didn't follow it with a so-what or a prioritization."
+- "You correctly identified the capacity gap but jumped straight to 'hire more drivers' without acknowledging the 8% monthly turnover data sitting in the exhibit. That omission is exactly what a follow-up question would expose."
+- "This was your clearest response — you used the SCR structure precisely, led with the complication rather than burying it, and quantified the risk with the payback number."
+
+TASK 5 — CASE SUMMARIES:
+Write a summary for each of the 3 cases (L1, L2, L3). For each case, produce:
+- overallAssessment: 2-3 sentences on how the candidate performed across the questions in that case
+- strongestMoment: 1-2 sentences naming the specific thing they did best (reference actual content)
+- clearestGap: 1-2 sentences naming the most important thing they missed or under-delivered (reference actual content)
+
 OUTPUT FORMAT:
 Return ONLY valid JSON matching this exact structure:
 {
@@ -123,10 +170,18 @@ Return ONLY valid JSON matching this exact structure:
     "${input.skills.map((s) => s.skillId).join('": "...",\n    "')}": "..."
   },
   "recommendations": [
-    { "priority": 1, "title": "...", "description": "..." },
-    ...
+    { "priority": 1, "title": "...", "description": "..." }
   ],
-  "archetype_feedback": "..."
+  "archetype_feedback": "...",
+  "answer_feedback": [
+    { "sequence_number": 1, "skill_id": "...", "skill_label": "...", "case_stage": 1, "question_snippet": "...", "feedback": "..." },
+    { "sequence_number": 2, "skill_id": "...", "skill_label": "...", "case_stage": 2, "question_snippet": "...", "feedback": "..." }
+  ],
+  "case_summaries": [
+    { "case_stage": 1, "overall_assessment": "...", "strongest_moment": "...", "clearest_gap": "..." },
+    { "case_stage": 2, "overall_assessment": "...", "strongest_moment": "...", "clearest_gap": "..." },
+    { "case_stage": 3, "overall_assessment": "...", "strongest_moment": "...", "clearest_gap": "..." }
+  ]
 }
 
 Do not wrap in markdown code blocks. Do not include text outside the JSON.`;

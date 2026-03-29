@@ -28,6 +28,24 @@ const FeedbackResponseSchema = z.object({
     })
   ),
   archetype_feedback: z.string().optional(),
+  answer_feedback: z.array(
+    z.object({
+      sequence_number: z.number(),
+      skill_id: z.string(),
+      skill_label: z.string(),
+      case_stage: z.number(),
+      question_snippet: z.string(),
+      feedback: z.string(),
+    })
+  ).optional(),
+  case_summaries: z.array(
+    z.object({
+      case_stage: z.number(),
+      overall_assessment: z.string(),
+      strongest_moment: z.string(),
+      clearest_gap: z.string(),
+    })
+  ).optional(),
 }).strip();
 
 export async function generatePersonalizedFeedback(
@@ -79,6 +97,20 @@ export async function generatePersonalizedFeedback(
         description: r.description,
       })),
       archetypeFeedback: parsed.archetype_feedback ?? '',
+      answerFeedback: parsed.answer_feedback?.map((af) => ({
+        sequenceNumber: af.sequence_number,
+        skillId: af.skill_id,
+        skillLabel: af.skill_label,
+        caseStage: af.case_stage as 1 | 2 | 3,
+        questionSnippet: af.question_snippet,
+        feedback: af.feedback,
+      })),
+      caseSummaries: parsed.case_summaries?.map((cs) => ({
+        caseStage: cs.case_stage as 1 | 2 | 3,
+        overallAssessment: cs.overall_assessment,
+        strongestMoment: cs.strongest_moment,
+        clearestGap: cs.clearest_gap,
+      })),
     };
   } catch (err) {
     console.error('Personalized feedback generation failed:', err);

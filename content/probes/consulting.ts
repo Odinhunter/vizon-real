@@ -22,7 +22,7 @@ export const consultingProbeContent: Record<string, ProbeVariantContent> = {
     question:
       'To diagnose the decline in profits, you want to identify the most important areas to investigate first. Select the THREE areas you would investigate first.',
     instruction:
-      'Choose exactly three areas. Then explain how you structured the profit problem and why you selected these areas. Use 3–5 bullet points. Max 120 words.',
+      'Choose exactly three areas. Then explain how you structured the profit problem and why you selected these areas. Use 3–5 bullet points. Max 250 words.',
     options: [
       { id: 'A', text: 'Membership trends' },
       { id: 'B', text: 'Historical pricing strategy' },
@@ -43,7 +43,7 @@ export const consultingProbeContent: Record<string, ProbeVariantContent> = {
     question:
       'To diagnose the delivery delay problem, you want to identify the most important areas to investigate first. Select the THREE areas you would investigate first.',
     instruction:
-      'Choose exactly three areas. Then explain how you structured the delivery delay problem and why you selected these areas. Use 3–5 bullet points. Max 120 words.',
+      'Choose exactly three areas. Then explain how you structured the delivery delay problem and why you selected these areas. Use 3–5 bullet points. Max 250 words.',
     options: [
       { id: 'A', text: 'Customer order demand levels' },
       { id: 'B', text: 'Delivery driver availability and retention' },
@@ -64,7 +64,7 @@ export const consultingProbeContent: Record<string, ProbeVariantContent> = {
     question:
       'Before deciding whether to acquire QuickCart or enter Singapore organically, you want to structure the key areas to evaluate. Select the THREE most important areas to investigate first.',
     instruction:
-      'Choose exactly three areas. Then explain how you structured the acquisition decision and why you selected these areas. Use 3–5 bullet points. Max 120 words.',
+      'Choose exactly three areas. Then explain how you structured the acquisition decision and why you selected these areas. Use 3–5 bullet points. Max 250 words.',
     options: [
       { id: 'A', text: 'Size and growth of the food delivery market in Singapore' },
       { id: 'B', text: 'QuickCart\'s technology platform and integration complexity' },
@@ -86,7 +86,7 @@ export const consultingProbeContent: Record<string, ProbeVariantContent> = {
     question:
       'Look at the membership trend data. What is your initial hypothesis for the primary cause of FitLife\'s profit decline?',
     instruction:
-      'Select the hypothesis you find most compelling. Then explain what additional data you would request to test your hypothesis. Max 100 words.',
+      'Select the hypothesis you find most compelling. Then explain what additional data you would request to test your hypothesis. Max 250 words.',
     options: [
       { id: 'A', text: 'Membership decline due to increased competition' },
       { id: 'B', text: 'Rising operating costs per gym' },
@@ -103,7 +103,7 @@ export const consultingProbeContent: Record<string, ProbeVariantContent> = {
     question:
       'Daily orders have grown from 15,000 to 23,000 over four months. What is your initial hypothesis for the increase in delivery delays?',
     instruction:
-      'Select the hypothesis you find most compelling. Then explain what additional data you would request next to test your hypothesis. Max 100 words.',
+      'Select the hypothesis you find most compelling. Then explain what additional data you would request next to test your hypothesis. Max 250 words.',
     options: [
       { id: 'A', text: 'Demand growth is exceeding delivery capacity in major cities' },
       { id: 'B', text: 'High driver turnover is reducing experienced driver availability' },
@@ -120,7 +120,7 @@ export const consultingProbeContent: Record<string, ProbeVariantContent> = {
     question:
       'Review the Singapore market data. Given the competitive landscape and QuickCart\'s operating metrics, what is your initial hypothesis regarding the best entry strategy for SwiftEats?',
     instruction:
-      'Select the hypothesis you find most compelling. Then explain what additional data you would request to evaluate the entry decision. Max 100 words.',
+      'Select the hypothesis you find most compelling. Then explain what additional data you would request to evaluate the entry decision. Max 250 words.',
     options: [
       { id: 'A', text: 'Acquiring QuickCart provides immediate scale despite asset quality risks' },
       { id: 'B', text: 'QuickCart\'s declining metrics suggest organic entry may be lower risk' },
@@ -139,7 +139,7 @@ export const consultingProbeContent: Record<string, ProbeVariantContent> = {
     question:
       'Using the exhibit data, calculate the monthly profit per gym 6 months ago, the monthly profit per gym today, and the total monthly profit lost across all 20 gyms. What is the approximate total monthly profit the company has lost?',
     instruction:
-      'Select the closest answer. Then show your full calculation in three steps: (1) monthly profit per gym 6 months ago, (2) monthly profit per gym today, (3) total monthly profit lost across all 20 gyms. Explain what appears to be the primary driver. Max 120 words.',
+      'Select the closest answer. Then show your full calculation in three steps: (1) monthly profit per gym 6 months ago, (2) monthly profit per gym today, (3) total monthly profit lost across all 20 gyms. Explain what appears to be the primary driver. Max 250 words.',
     options: [
       { id: 'A', text: '~₹100L total monthly profit lost' },
       { id: 'B', text: '~₹150L total monthly profit lost' },
@@ -156,7 +156,7 @@ export const consultingProbeContent: Record<string, ProbeVariantContent> = {
     question:
       'Using the exhibit data, work through the delivery capacity analysis step by step. Approximately how many additional drivers would FastDrop need in the top 3 cities to close the delivery gap?',
     instruction:
-      'Select the closest answer. Then show your full calculation through all the steps. Explain what operational issues appear to be driving the delivery delays. Max 120 words.',
+      'Select the closest answer. Then show your full calculation through all the steps. Explain what operational issues appear to be driving the delivery delays. Max 250 words.',
     options: [
       { id: 'A', text: '~150 additional drivers' },
       { id: 'B', text: '~220 additional drivers' },
@@ -173,7 +173,7 @@ export const consultingProbeContent: Record<string, ProbeVariantContent> = {
     question:
       'Using the exhibit data, work through the financial analysis step by step. Calculate QuickCart\'s current revenue and profit, then estimate revenue and profit at scale if market share grows to 12% with improved margins, and determine how long it would take to recover the acquisition cost. Approximately how many years would it take to recover the $60M acquisition cost through operating profit at scale?',
     instruction:
-      'Select the closest answer. Then show your full calculation through all the steps: (1) QuickCart\'s current annual revenue, (2) current operating profit, (3) revenue at 12% market share, (4) profit at 15% margin, (5) acquisition payback period, and (6) organic entry revenue at 10% share. Explain how you evaluated the financial attractiveness of the acquisition. Max 120 words.',
+      'Select the closest answer. Then show your full calculation through all the steps: (1) QuickCart\'s current annual revenue, (2) current operating profit, (3) revenue at 12% market share, (4) profit at 15% margin, (5) acquisition payback period, and (6) organic entry revenue at 10% share. Explain how you evaluated the financial attractiveness of the acquisition. Max 250 words.',
     options: [
       { id: 'A', text: '~4 years' },
       { id: 'B', text: '~6 years' },
@@ -192,7 +192,7 @@ export const consultingProbeContent: Record<string, ProbeVariantContent> = {
     question:
       'The CEO asks: "What have we learned so far about the decline in FitLife\'s profits?" Provide a concise update using this structure: Situation / Key Insight / Next Step.',
     instruction:
-      'Use the three-part structure above. Keep it concise and executive-friendly. Max 120 words.',
+      'Use the three-part structure above. Keep it concise and executive-friendly. Max 250 words.',
     scoringGuidance:
       'Strong: uses the explicit Situation / Key Insight / Next Step structure, summarizes profit decline clearly, highlights membership loss as the primary driver, links the decline to increased competition, and proposes concrete next investigation steps. Weak: repeats numbers without insight, ignores the structure, buries the key finding in the middle, lacks structure, or next step is too vague ("gather more data").',
   },
@@ -203,7 +203,7 @@ export const consultingProbeContent: Record<string, ProbeVariantContent> = {
     question:
       'The COO believes delivery delays are caused by insufficient drivers and wants to hire aggressively. The VP of Growth argues the problem is routing inefficiency and wants to invest in technology. The CEO asks you to weigh in. Using the Situation / Key Insight / Recommended Path structure, draft your response.',
     instruction:
-      'Use the three-part structure above. Address both perspectives with data. Keep it concise and executive-friendly. Max 120 words.',
+      'Use the three-part structure above. Address both perspectives with data. Keep it concise and executive-friendly. Max 250 words.',
     scoringGuidance:
       'Strong: uses the explicit Situation / Key Insight / Recommended Path structure, acknowledges both the COO and VP Growth perspectives, uses data to show the primary driver is a demand/capacity mismatch concentrated in top 3 cities (not simply a headcount or routing issue alone), and recommends a sequenced approach — routing improvement first (lower cost, structural efficiency gain) followed by targeted hiring in the top 3 cities where the allocation gap is largest. References specific data points (e.g., 60% demand vs. 50% drivers in top cities, driver turnover doubling). Weak: sides entirely with one executive without engaging the other\'s view, ignores the data, or proposes a vague "do both" without sequencing or rationale.',
   },
@@ -214,7 +214,7 @@ export const consultingProbeContent: Record<string, ProbeVariantContent> = {
     question:
       'The board is enthusiastic about acquiring QuickCart for immediate market access. Your analysis shows an 8-year payback and declining user metrics. The CEO asks you to present your findings to the board. Using the Situation / Complication / Recommendation structure, draft your message.',
     instruction:
-      'Use the Situation / Complication / Recommendation structure. Deliver the difficult finding clearly while remaining constructive. Max 120 words.',
+      'Use the Situation / Complication / Recommendation structure. Deliver the difficult finding clearly while remaining constructive. Max 250 words.',
     scoringGuidance:
       'Strong: uses the explicit Situation / Complication / Recommendation (SCR) structure. Situation: frames the strategic rationale the board already believes in (immediate market access, network effects, competitive concentration). Complication: introduces the 8-year payback, declining user base (-5% YoY), and high driver churn (40% annual) as material risks that temper the enthusiasm. Recommendation: either (a) recommends proceeding but at a renegotiated price with specific milestones/conditions, or (b) recommends organic entry with a clear argument for why SwiftEats\' brand can accelerate past the 10% baseline. Both paths can score well if supported by data. Weak: avoids delivering the complication, presents only positive findings, ignores the payback period, or uses a different structure than SCR.',
   },
@@ -227,7 +227,7 @@ export const consultingProbeContent: Record<string, ProbeVariantContent> = {
     question:
       'Which action should FitLife prioritize first to address the profit decline?',
     instruction:
-      'Select one priority action, then explain why this action should be prioritised. Connect your reasoning to the survey data and operational insights. Max 120 words.',
+      'Select one priority action, then explain why this action should be prioritised. Connect your reasoning to the survey data and operational insights. Max 250 words.',
     options: [
       { id: 'A', text: 'Lower membership prices to compete with new gyms' },
       { id: 'B', text: 'Expand gym floor space to increase capacity' },
@@ -244,7 +244,7 @@ export const consultingProbeContent: Record<string, ProbeVariantContent> = {
     question:
       'Considering operational impact, cost, and implementation time, which action should FastDrop prioritize first?',
     instruction:
-      'Select one priority action, then explain why it should be prioritized. Use the exhibit data to justify your recommendation. Max 120 words.',
+      'Select one priority action, then explain why it should be prioritized. Use the exhibit data to justify your recommendation. Max 250 words.',
     options: [
       { id: 'A', text: 'Hire more drivers' },
       { id: 'B', text: 'Improve routing software' },
@@ -261,7 +261,7 @@ export const consultingProbeContent: Record<string, ProbeVariantContent> = {
     question:
       'Considering financial return, time to market, and network effects, which strategy should SwiftEats pursue?',
     instruction:
-      'Select one strategy, then explain why this strategy should be prioritized. Address both the strengths and risks of your chosen path. Max 120 words.',
+      'Select one strategy, then explain why this strategy should be prioritized. Address both the strengths and risks of your chosen path. Max 250 words.',
     options: [
       { id: 'A', text: 'Acquire QuickCart' },
       { id: 'B', text: 'Build network organically' },

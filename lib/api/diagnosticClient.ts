@@ -115,6 +115,24 @@ export interface Recommendation {
   description: string;
 }
 
+/** Qualitative feedback tied to a single answer the candidate submitted */
+export interface AnswerFeedback {
+  sequenceNumber: number;
+  skillId: string;
+  skillLabel: string;
+  caseStage: 1 | 2 | 3;
+  questionSnippet: string;
+  feedback: string;
+}
+
+/** Rolled-up performance summary for a single case (one per case stage) */
+export interface CaseSummary {
+  caseStage: 1 | 2 | 3;
+  overallAssessment: string;
+  strongestMoment: string;
+  clearestGap: string;
+}
+
 export interface DiagnosticReport {
   trackScore: number;
   verdict: VerdictTier;
@@ -140,6 +158,8 @@ export interface DiagnosticReport {
   firmFit: FirmFit[];
   pressureResilience: PressureResilience;
   percentile: number;  // estimated percentile ranking 0-99
+  answerFeedback?: AnswerFeedback[];
+  caseSummaries?: CaseSummary[];
 }
 
 export interface StartResponse {
