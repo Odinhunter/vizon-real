@@ -1,9 +1,28 @@
+import { redirect } from 'next/navigation';
+import { auth } from '@/auth';
 import { prisma } from '@/lib/db';
 import type { DiagnosticReport } from '@/lib/api/diagnosticClient';
 
 export const dynamic = 'force-dynamic';
 
+/** Comma-separated list of emails allowed to access admin pages. */
+const ADMIN_EMAILS = (process.env.ADMIN_EMAILS ?? '')
+  .split(',')
+  .map((e) => e.trim().toLowerCase())
+  .filter(Boolean);
+
 export default async function AdminResultsPage() {
+  const session = await auth();
+
+  // Require authentication
+  if (!session?.user?.email) {
+    redirect('/login');
+  }
+
+  // Require admin role
+  if (!ADMIN_EMAILS.includes(session.user.email.toLowerCase())) {
+    redirect('/');
+  }
   const runs = await prisma.diagnosticRun.findMany({
     where: { status: 'COMPLETE' },
     orderBy: { completedAt: 'desc' },

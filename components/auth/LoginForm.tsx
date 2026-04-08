@@ -94,7 +94,10 @@ export default function LoginForm({ callbackUrl, error: serverError }: LoginForm
   const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
 
-  const redirect = callbackUrl || '/';
+  // Only allow relative paths for redirect — prevent open redirect attacks
+  const redirect = callbackUrl && callbackUrl.startsWith('/') && !callbackUrl.startsWith('//')
+    ? callbackUrl
+    : '/';
 
   const handleCredentialsSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

@@ -71,7 +71,10 @@ export default function SignUpForm({ callbackUrl }: SignUpFormProps) {
   const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
 
-  const redirect = callbackUrl || '/diagnostic';
+  // Only allow relative paths for redirect — prevent open redirect attacks
+  const redirect = callbackUrl && callbackUrl.startsWith('/') && !callbackUrl.startsWith('//')
+    ? callbackUrl
+    : '/diagnostic';
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

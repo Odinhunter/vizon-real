@@ -54,7 +54,7 @@ export async function POST(req: NextRequest) {
       { status: 400 }
     );
   } catch (err) {
-    console.error('Diagnostic API error:', err);
+    console.error('Diagnostic API error:', err instanceof Error ? err.message : 'Unknown error');
     return NextResponse.json({ error: 'An error occurred processing your request' }, { status: 500 });
   }
 }

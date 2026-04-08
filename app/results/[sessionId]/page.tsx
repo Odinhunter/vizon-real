@@ -1,4 +1,5 @@
-import { notFound } from 'next/navigation';
+import { notFound, redirect } from 'next/navigation';
+import { auth } from '@/auth';
 import { prisma } from '@/lib/db';
 import type { DiagnosticReport } from '@/lib/api/diagnosticClient';
 import DiagnosticResults from '@/components/diagnostic/DiagnosticResults';
@@ -38,14 +39,24 @@ export async function generateMetadata({ params }: ResultsPageProps): Promise<Me
 }
 
 export default async function ResultsPage({ params }: ResultsPageProps) {
+  const session = await auth();
+  if (!session?.user?.id) {
+    redirect('/login');
+  }
+
   const { sessionId } = await params;
 
   const run = await prisma.diagnosticRun.findUnique({
     where: { sessionId },
-    select: { resultJson: true, trackId: true, sessionId: true, status: true },
+    select: { resultJson: true, trackId: true, sessionId: true, status: true, userId: true },
   });
 
   if (!run || run.status !== 'COMPLETE' || !run.resultJson) {
+    notFound();
+  }
+
+  // Ownership check — users can only view their own results
+  if (run.userId !== session.user.id) {
     notFound();
   }
 
