@@ -133,7 +133,7 @@ export function calculateProbeScore(
  * trajectory dimension: a candidate who improves under pressure scores
  * higher than one who degrades, even if their simple average is identical.
  *
- * Stage weights: L1=1.0×, L2=1.5×, L3=2.0×
+ * Stage weights: L1=1.0×, L2=1.2×, L3=1.4×
  * Skills with no evidence return 0.
  */
 export function aggregateSkillScores(
@@ -242,7 +242,7 @@ export function generateDiagnosticResult(
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
-function clamp(value: number, min: number, max: number): number {
+export function clamp(value: number, min: number, max: number): number {
   return Math.min(max, Math.max(min, value));
 }
 

@@ -1,6 +1,8 @@
 'use client';
 
+import { motion } from 'framer-motion';
 import type { TrackIntroContent } from '@/content/types';
+import { fadeUp, staggerContainer } from '@/lib/motion/variants';
 
 interface DiagnosticIntroProps {
   intro: TrackIntroContent;
@@ -25,28 +27,34 @@ export default function DiagnosticIntro({
   isStarting,
 }: DiagnosticIntroProps) {
   return (
-    <div className="min-h-screen bg-[#f7f8fa]">
+    <motion.div
+      variants={staggerContainer}
+      initial="hidden"
+      animate="visible"
+      className="min-h-screen bg-[#f7f8fa]"
+    >
       {/* Hero header */}
       <div className="bg-white border-b border-[#e2e6ea]">
         <div className="max-w-4xl mx-auto w-full px-5 md:px-10 pt-10 pb-8">
-          <div className="flex flex-wrap gap-2 mb-5">
+          <motion.div variants={fadeUp} className="flex flex-wrap gap-2 mb-5">
             <span className="px-2.5 py-1 rounded-full bg-[#f7f8fa] text-[9px] font-mono tracking-[0.15em] uppercase text-[#5a6775]">
               VIZON DIAGNOSTIC
             </span>
             <span className="px-2.5 py-1 rounded-full bg-blue-50 text-[9px] font-mono tracking-[0.15em] uppercase text-[#1A56DB]">
               {intro.displayName}
             </span>
-          </div>
+          </motion.div>
 
-          <h1
+          <motion.h1
+            variants={fadeUp}
             className="font-sans font-bold leading-[1.1] tracking-[-0.02em] mb-3"
             style={{ fontSize: 'clamp(28px, 4vw, 42px)', color: NAVY }}
           >
             {intro.tagline}
-          </h1>
-          <p className="text-[14px] text-[#4a5568] leading-relaxed max-w-2xl">
+          </motion.h1>
+          <motion.p variants={fadeUp} className="text-[14px] text-[#4a5568] leading-relaxed max-w-2xl">
             {intro.description}
-          </p>
+          </motion.p>
         </div>
       </div>
 
@@ -170,6 +178,6 @@ export default function DiagnosticIntro({
           No preparation required. Write freely. Results in ~30 minutes.
         </p>
       </div>
-    </div>
+    </motion.div>
   );
 }

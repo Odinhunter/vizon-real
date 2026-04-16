@@ -18,8 +18,8 @@ model User {
   sessions       Session[]
   profile        UserProfile?
   diagnosticRuns DiagnosticRun[]
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
 }
 
 model Account {
@@ -77,12 +77,12 @@ model UserProfile {
 }
 
 model DiagnosticRun {
-  id          String    @id @default(cuid())
-  userId      String
-  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  trackId     String
-  sessionId   String    @unique
-  status      String    @default("IN_PROGRESS")
+  id        String @id @default(cuid())
+  userId    String
+  user      User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  trackId   String
+  sessionId String @unique
+  status    String @default("IN_PROGRESS")
 
   // Full engine session state — replaces in-memory Map.
   // Serialized DiagnosticSession JSON, updated on every step.
@@ -91,15 +91,15 @@ model DiagnosticRun {
   pendingStepJson  String?
 
   // Final report
-  resultJson  String?
+  resultJson String?
   // Denormalized for querying without parsing resultJson
-  trackScore  Int?
-  verdict     String?
+  trackScore Int?
+  verdict    String?
 
   startedAt   DateTime  @default(now())
   completedAt DateTime?
 
-  responses   ProbeResponse[]
+  responses ProbeResponse[]
 
   // Analytics: query runs by user, track, status, and time
   @@index([userId])
@@ -110,21 +110,21 @@ model DiagnosticRun {
 }
 
 model ProbeResponse {
-  id                String    @id @default(cuid())
-  diagnosticRunId   String
-  diagnosticRun     DiagnosticRun @relation(fields: [diagnosticRunId], references: [id], onDelete: Cascade)
+  id              String        @id @default(cuid())
+  diagnosticRunId String
+  diagnosticRun   DiagnosticRun @relation(fields: [diagnosticRunId], references: [id], onDelete: Cascade)
 
   // Probe identification
-  probeId           String
-  skillId           String
-  variantId         String
-  sequenceNumber    Int
+  probeId        String
+  skillId        String
+  variantId      String
+  sequenceNumber Int
 
   // Context at time of response
-  caseId            String
-  caseStage         Int
-  contextLevel      String
-  format            String
+  caseId       String
+  caseStage    Int
+  contextLevel String
+  format       String
 
   // User's answer
   rawResponse       String?
@@ -132,14 +132,14 @@ model ProbeResponse {
   selectedOptionIds String?
 
   // AI extraction results — populated after batch extraction on completion
-  signalStrength        Float?
-  responseQuality       Float?
-  framingQuality        Float?
-  reasoningConfidence   Float?
-  communicationClarity  Float?
-  probeScore            Float?
+  signalStrength       Float?
+  responseQuality      Float?
+  framingQuality       Float?
+  reasoningConfidence  Float?
+  communicationClarity Float?
+  probeScore           Float?
 
-  answeredAt      DateTime  @default(now())
+  answeredAt DateTime @default(now())
 
   // Analytics: query responses by run, skill, probe, case
   @@index([diagnosticRunId])

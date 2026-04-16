@@ -27,6 +27,7 @@ import {
   aggregateSkillScores,
   calculateTrackScore,
   aggregateBehavioralSignals,
+  clamp,
 } from './scoring';
 import { getTrackAnalysisConfig } from './trackAnalysisConfig';
 
@@ -103,9 +104,6 @@ function computeFirmFit(skills: SkillDetail[], firmWeights: Record<string, Recor
 
 // ─── Pressure Resilience ─────────────────────────────────────────────────────
 
-function clamp(value: number, min: number, max: number): number {
-  return Math.min(max, Math.max(min, value));
-}
 
 function computePressureResilience(skills: SkillDetail[]): PressureResilience {
   // Build skill × case heatmap

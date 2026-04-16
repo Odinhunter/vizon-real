@@ -7,14 +7,15 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
+import { after } from 'next/server';
 import { auth } from '@/auth';
 import { prisma } from '@/lib/db';
-import { applyRateLimit, diagnosticStartLimiter, diagnosticAnswerLimiter } from '@/lib/rateLimit';
+import { applyRateLimit, diagnosticStartLimiter, diagnosticAnswerLimiter, diagnosticCheckLimiter } from '@/lib/rateLimit';
 import { DiagnosticSession } from '@/engine/diagnosticSession';
 import { initializeDiagnosticSession } from '@/engine/initializeSession';
 import { runDiagnosticSessionStep } from '@/engine/runDiagnosticSessionStep';
 import { handleDiagnosticStepCompletion } from '@/engine/handleDiagnosticStepCompletion';
-import { getRandomCaseForLevel } from '@/config/cases';
+import { allCases, getRandomCaseForLevel } from '@/config/cases';
 import { getTrackEntry, supportedTrackIds } from '@/config/registry';
 import { getCaseContent, getProbeContent, getProbeExhibit, serializeExhibitForAI } from '@/content/index';
 import { DiagnosticStep } from '@/engine/DiagnosticFlow';
@@ -24,6 +25,117 @@ import { analyzeResults } from '@/engine/analyzeResults';
 import { DiagnosticStatus } from '@/engine/diagnosticSession';
 import { batchExtractSignals } from '@/lib/ai/batchExtractSignals';
 import { generatePersonalizedFeedback } from '@/lib/ai/generatePersonalizedFeedback';
+
+// ── Session state validation ──────────────────────────────────────────────────
+
+/**
+ * Guards the parsed sessionStateJson blob before any field access.
+ * Only checks fields that are actually dereferenced in this file — not a full deep validation.
+ */
+function isValidSessionState(obj: unknown): obj is DiagnosticSession {
+  if (!obj || typeof obj !== 'object' || Array.isArray(obj)) return false;
+  const s = obj as Record<string, unknown>;
+  return (
+    typeof s.sessionId === 'string' && s.sessionId.length > 0 &&
+    typeof s.careerTrackId === 'string' && s.careerTrackId.length > 0 &&
+    typeof s.currentCaseId === 'string' && s.currentCaseId.length > 0 &&
+    (s.caseStage === 1 || s.caseStage === 2 || s.caseStage === 3) &&
+    typeof s.status === 'string' &&
+    Array.isArray(s.pendingResponses) &&
+    typeof s.skillEvidence === 'object' && s.skillEvidence !== null && !Array.isArray(s.skillEvidence) &&
+    typeof s.behavioralEvidence === 'object' && s.behavioralEvidence !== null &&
+    Array.isArray((s.behavioralEvidence as Record<string, unknown>).framing_quality) &&
+    Array.isArray((s.behavioralEvidence as Record<string, unknown>).reasoning_confidence) &&
+    Array.isArray((s.behavioralEvidence as Record<string, unknown>).communication_clarity)
+  );
+}
+
+/**
+ * Guards the parsed pendingStepJson blob before field access.
+ * For probe steps, ensures probe and variant sub-objects are present.
+ */
+function isValidPendingStep(obj: unknown): obj is DiagnosticStep {
+  if (!obj || typeof obj !== 'object' || Array.isArray(obj)) return false;
+  const s = obj as Record<string, unknown>;
+  if (typeof s.type !== 'string') return false;
+  if (s.type === 'probe') {
+    return (
+      typeof s.probe === 'object' && s.probe !== null &&
+      typeof s.variant === 'object' && s.variant !== null
+    );
+  }
+  return s.type === 'skip' || s.type === 'complete';
+}
+
+export async function GET(req: NextRequest) {
+  const session = await auth();
+  if (!session?.user?.id) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
+  const blocked = applyRateLimit(diagnosticCheckLimiter, session.user.id);
+  if (blocked) return blocked;
+
+  const { searchParams } = new URL(req.url);
+
+  // Feedback polling: GET /api/diagnostic?sessionId=<id>
+  const sessionId = searchParams.get('sessionId');
+  if (sessionId) {
+    const run = await prisma.diagnosticRun.findUnique({ where: { sessionId } });
+    if (!run || run.userId !== session.user.id) {
+      return NextResponse.json({ error: 'Not found' }, { status: 404 });
+    }
+    if (run.status !== 'COMPLETE' || !run.resultJson) {
+      return NextResponse.json({ personalizedFeedbackReady: false });
+    }
+    let result;
+    try {
+      result = JSON.parse(run.resultJson);
+    } catch {
+      return NextResponse.json({ personalizedFeedbackReady: false });
+    }
+    const ready = Array.isArray(result?.answerFeedback) && result.answerFeedback.length > 0;
+    return NextResponse.json({ personalizedFeedbackReady: ready, result: ready ? result : undefined });
+  }
+
+  // In-progress session check: GET /api/diagnostic?trackId=<id>
+  const trackId = searchParams.get('trackId');
+  if (!trackId) {
+    return NextResponse.json({ error: 'Missing trackId or sessionId' }, { status: 400 });
+  }
+
+  const run = await prisma.diagnosticRun.findFirst({
+    where: { userId: session.user.id, trackId, status: 'IN_PROGRESS' },
+    orderBy: { startedAt: 'desc' },
+  });
+
+  if (!run || !run.sessionStateJson || !run.pendingStepJson) {
+    return NextResponse.json({ inProgressSession: null });
+  }
+
+  let diagSession: DiagnosticSession;
+  try {
+    const parsed = JSON.parse(run.sessionStateJson);
+    if (!isValidSessionState(parsed)) {
+      return NextResponse.json({ inProgressSession: null });
+    }
+    diagSession = parsed;
+  } catch {
+    return NextResponse.json({ inProgressSession: null });
+  }
+
+  const probeNumber = (diagSession.currentSlotIndex ?? 0) + 1;
+
+  return NextResponse.json({
+    inProgressSession: {
+      sessionId: run.sessionId,
+      trackId: run.trackId,
+      caseStage: diagSession.caseStage as 1 | 2 | 3,
+      probeNumber,
+      startedAt: run.startedAt.toISOString(),
+    },
+  });
+}
 
 export async function POST(req: NextRequest) {
   const session = await auth();
@@ -47,6 +159,12 @@ export async function POST(req: NextRequest) {
       const blocked = applyRateLimit(diagnosticAnswerLimiter, limiterKey);
       if (blocked) return blocked;
       return handleAnswer(body, session.user.id);
+    }
+
+    if (action === 'resume') {
+      const blocked = applyRateLimit(diagnosticCheckLimiter, limiterKey);
+      if (blocked) return blocked;
+      return handleResume(body, session.user.id);
     }
 
     return NextResponse.json(
@@ -90,6 +208,12 @@ async function handleStart(body: { trackId?: string }, userId: string) {
   // Get the first step
   const result = await runDiagnosticSessionStep(diagSession, trackEntry.probes);
 
+  // Abandon any pre-existing in-progress sessions for this user+track
+  await prisma.diagnosticRun.updateMany({
+    where: { userId, trackId, status: 'IN_PROGRESS' },
+    data: { status: 'ABANDONED', pendingStepJson: null },
+  });
+
   // Persist full session state + pending step to DB
   await prisma.diagnosticRun.create({
     data: {
@@ -108,6 +232,7 @@ async function handleStart(body: { trackId?: string }, userId: string) {
     step: serializeStep(result.step, result.session.currentCaseId),
     caseStage: result.session.caseStage,
     currentCaseId: result.session.currentCaseId,
+    isLastProbe: computeIsLastProbe(result),
   });
 }
 
@@ -160,6 +285,10 @@ async function handleAnswer(body: {
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
   }
 
+  if (run.status !== 'IN_PROGRESS') {
+    return NextResponse.json({ error: 'Session is not in progress' }, { status: 400 });
+  }
+
   if (!run.pendingStepJson) {
     return NextResponse.json(
       { error: 'No pending step to answer' },
@@ -170,8 +299,14 @@ async function handleAnswer(body: {
   let diagSession: DiagnosticSession;
   let lastStep: DiagnosticStep;
   try {
-    diagSession = JSON.parse(run.sessionStateJson);
-    lastStep = JSON.parse(run.pendingStepJson);
+    const parsedSession = JSON.parse(run.sessionStateJson);
+    const parsedStep = JSON.parse(run.pendingStepJson);
+    if (!isValidSessionState(parsedSession) || !isValidPendingStep(parsedStep)) {
+      console.error('Corrupted session state for session:', sessionId);
+      return NextResponse.json({ error: 'Corrupted session state' }, { status: 400 });
+    }
+    diagSession = parsedSession;
+    lastStep = parsedStep;
   } catch {
     console.error('Corrupted session state for session:', sessionId);
     return NextResponse.json({ error: 'Corrupted session state' }, { status: 400 });
@@ -248,7 +383,7 @@ async function handleAnswer(body: {
     },
   });
 
-  // On completion: run the single batch AI extraction call, apply scores, generate result
+  // ── Phase 1: batch extraction + scoring (synchronous — required for scores) ──
   let diagnosticResult = undefined;
   if (result.session.status === DiagnosticStatus.COMPLETE) {
     let finalSession = result.session;
@@ -260,13 +395,13 @@ async function handleAnswer(body: {
       try {
         extractions = await batchExtractSignals(pendingResponses, diagSession.careerTrackId);
 
-        // Apply each extraction to skillEvidence and behavioralEvidence
         let skillEvidence = { ...finalSession.skillEvidence };
         let framing = [...finalSession.behavioralEvidence.framing_quality];
         let confidence = [...finalSession.behavioralEvidence.reasoning_confidence];
         let clarity = [...finalSession.behavioralEvidence.communication_clarity];
 
-        // Collect extraction data to update ProbeResponse records
+        const extractionByIndex = new Map(extractions.map(e => [e.probe_index, e]));
+
         const extractionUpdates: {
           sequenceNumber: number;
           signalStrength: number;
@@ -277,8 +412,12 @@ async function handleAnswer(body: {
           probeScore: number;
         }[] = [];
 
-        for (let i = 0; i < extractions.length; i++) {
-          const extraction = extractions[i];
+        for (let i = 0; i < pendingResponses.length; i++) {
+          const extraction = extractionByIndex.get(i + 1);
+          if (!extraction) {
+            console.warn(`[batch-extraction] No result for probe_index ${i + 1} — skipping`);
+            continue;
+          }
           const pending = pendingResponses[i];
           const probeScore = calculateProbeScore(
             extraction.signal_strength,
@@ -309,10 +448,7 @@ async function handleAnswer(body: {
         await Promise.all(
           extractionUpdates.map((update) =>
             prisma.probeResponse.updateMany({
-              where: {
-                diagnosticRunId: run.id,
-                sequenceNumber: update.sequenceNumber,
-              },
+              where: { diagnosticRunId: run.id, sequenceNumber: update.sequenceNumber },
               data: {
                 signalStrength: update.signalStrength,
                 responseQuality: update.responseQuality,
@@ -349,45 +485,7 @@ async function handleAnswer(body: {
       diagSession.careerTrackId
     );
 
-    // Generate personalized feedback using AI (second call)
-    if (extractions && pendingResponses.length > 0) {
-      try {
-        const personalized = await generatePersonalizedFeedback(
-          diagnosticResult.skills,
-          pendingResponses,
-          extractions,
-          diagnosticResult.trackScore,
-          diagnosticResult.benchmark,
-          diagnosticResult.archetype.name,
-          diagnosticResult.archetype.topTraits,
-          diagSession.careerTrackId
-        );
-
-        if (personalized) {
-          // Patch skill narratives + archetype feedback + new per-answer/case fields
-          diagnosticResult = {
-            ...diagnosticResult,
-            skills: diagnosticResult.skills.map((skill) => ({
-              ...skill,
-              narrative: personalized.skillNarratives[skill.skillId] ?? skill.narrative,
-            })),
-            recommendations: personalized.recommendations.length > 0
-              ? personalized.recommendations
-              : diagnosticResult.recommendations,
-            archetype: {
-              ...diagnosticResult.archetype,
-              feedback: personalized.archetypeFeedback || undefined,
-            },
-            answerFeedback: personalized.answerFeedback,
-            caseSummaries: personalized.caseSummaries,
-          };
-        }
-      } catch (err) {
-        console.error('Personalized feedback generation failed, using templates:', err);
-      }
-    }
-
-    // Persist completed run to DB with denormalized fields
+    // Persist base result immediately — client can render scores without waiting for phase 2
     await prisma.diagnosticRun.update({
       where: { sessionId },
       data: {
@@ -395,11 +493,65 @@ async function handleAnswer(body: {
         resultJson: JSON.stringify(diagnosticResult),
         trackScore: diagnosticResult.trackScore,
         verdict: diagnosticResult.verdict,
-        sessionStateJson: JSON.stringify(finalSession),
+        sessionStateJson: null,
         pendingStepJson: null,
         completedAt: new Date(),
       },
     });
+
+    // ── Phase 2: personalized feedback (fires after response is sent) ──────────
+    // after() runs once the HTTP response is flushed. The client receives the
+    // base scored result immediately and polls GET /api/diagnostic?sessionId=
+    // to hydrate narratives, recommendations, archetype paragraph, per-answer
+    // feedback, and case summaries when they are ready (~10-15s later).
+    if (extractions && pendingResponses.length > 0) {
+      const capturedResult = diagnosticResult;
+      const capturedExtractions = extractions;
+      const capturedPending = pendingResponses;
+      const capturedTrackId = diagSession.careerTrackId;
+      const capturedSessionId = sessionId;
+
+      after(async () => {
+        try {
+          const personalized = await generatePersonalizedFeedback(
+            capturedResult.skills,
+            capturedPending,
+            capturedExtractions,
+            capturedResult.trackScore,
+            capturedResult.benchmark,
+            capturedResult.archetype.name,
+            capturedResult.archetype.topTraits,
+            capturedTrackId
+          );
+
+          if (!personalized) return;
+
+          const enrichedResult = {
+            ...capturedResult,
+            skills: capturedResult.skills.map((skill) => ({
+              ...skill,
+              narrative: personalized.skillNarratives[skill.skillId] ?? skill.narrative,
+            })),
+            recommendations: personalized.recommendations.length > 0
+              ? personalized.recommendations
+              : capturedResult.recommendations,
+            archetype: {
+              ...capturedResult.archetype,
+              feedback: personalized.archetypeFeedback || undefined,
+            },
+            answerFeedback: personalized.answerFeedback,
+            caseSummaries: personalized.caseSummaries,
+          };
+
+          await prisma.diagnosticRun.update({
+            where: { sessionId: capturedSessionId },
+            data: { resultJson: JSON.stringify(enrichedResult) },
+          });
+        } catch (err) {
+          console.error('[phase-2] Personalized feedback failed — base result remains:', err);
+        }
+      });
+    }
   }
 
   return NextResponse.json({
@@ -408,8 +560,70 @@ async function handleAnswer(body: {
     caseStage: result.session.caseStage,
     currentCaseId: result.session.currentCaseId,
     status: result.session.status,
+    isLastProbe: computeIsLastProbe(result),
     ...(diagnosticResult !== undefined && { result: diagnosticResult }),
   });
+}
+
+async function handleResume(body: { sessionId?: string }, userId: string) {
+  const { sessionId } = body;
+  if (!sessionId || typeof sessionId !== 'string') {
+    return NextResponse.json({ error: 'Missing sessionId' }, { status: 400 });
+  }
+
+  const run = await prisma.diagnosticRun.findUnique({ where: { sessionId } });
+
+  if (!run || !run.sessionStateJson || !run.pendingStepJson) {
+    return NextResponse.json({ error: 'Session not found or has no pending step' }, { status: 404 });
+  }
+
+  if (run.userId !== userId) {
+    return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+  }
+
+  if (run.status !== 'IN_PROGRESS') {
+    return NextResponse.json({ error: 'Session is not in progress' }, { status: 400 });
+  }
+
+  let diagSession: DiagnosticSession;
+  let pendingStep: DiagnosticStep;
+  try {
+    const parsedSession = JSON.parse(run.sessionStateJson);
+    const parsedStep = JSON.parse(run.pendingStepJson);
+    if (!isValidSessionState(parsedSession) || !isValidPendingStep(parsedStep)) {
+      return NextResponse.json({ error: 'Corrupted session state' }, { status: 400 });
+    }
+    diagSession = parsedSession;
+    pendingStep = parsedStep;
+  } catch {
+    return NextResponse.json({ error: 'Corrupted session state' }, { status: 400 });
+  }
+
+  const probeNumber = (diagSession.currentSlotIndex ?? 0) + 1;
+  const stepResult = { session: diagSession, step: pendingStep };
+
+  return NextResponse.json({
+    sessionId: run.sessionId,
+    trackId: run.trackId,
+    step: serializeStep(pendingStep, diagSession.currentCaseId),
+    caseStage: diagSession.caseStage as 1 | 2 | 3,
+    currentCaseId: diagSession.currentCaseId,
+    probeNumber,
+    isLastProbe: computeIsLastProbe(stepResult),
+  });
+}
+
+/**
+ * Returns true when the step being returned is the very last probe of the session
+ * (slot N of N in case stage 3). The client uses this to show the analysis loading
+ * screen while the final submission is in-flight, without needing to count probes itself.
+ */
+function computeIsLastProbe(result: { session: DiagnosticSession; step: { type: string } }): boolean {
+  if (result.step.type !== 'probe' || result.session.caseStage !== 3) return false;
+  const caseMeta = allCases.find(c => c.caseId === result.session.currentCaseId);
+  if (!caseMeta) return false;
+  const slotIndex = result.session.currentSlotIndex ?? 0;
+  return slotIndex === caseMeta.probeSlotIds.length - 1;
 }
 
 /**

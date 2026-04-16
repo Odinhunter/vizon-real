@@ -3,6 +3,8 @@
 import { useEffect, useState, useRef } from 'react';
 import Link from 'next/link';
 import { useSession, signOut } from 'next-auth/react';
+import { AnimatePresence, motion } from 'framer-motion';
+import { dropdownVariants } from '@/lib/motion/variants';
 
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
@@ -79,23 +81,31 @@ export default function Navbar() {
                   >
                     {userInitial}
                   </button>
-                  {dropdownOpen && (
-                    <div className="absolute right-0 mt-2 w-44 bg-white rounded-xl shadow-lg border border-neutral-100 py-1.5 z-50">
-                      <Link
-                        href="/profile"
-                        onClick={() => setDropdownOpen(false)}
-                        className="block px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-50 transition-colors"
+                  <AnimatePresence>
+                    {dropdownOpen && (
+                      <motion.div
+                        variants={dropdownVariants}
+                        initial="hidden"
+                        animate="visible"
+                        exit="exit"
+                        className="absolute right-0 mt-2 w-44 bg-white rounded-xl shadow-lg border border-neutral-100 py-1.5 z-50 origin-top-right"
                       >
-                        Profile
-                      </Link>
-                      <button
-                        onClick={() => { setDropdownOpen(false); signOut(); }}
-                        className="block w-full text-left px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-50 transition-colors"
-                      >
-                        Sign out
-                      </button>
-                    </div>
-                  )}
+                        <Link
+                          href="/profile"
+                          onClick={() => setDropdownOpen(false)}
+                          className="block px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-50 transition-colors"
+                        >
+                          Profile
+                        </Link>
+                        <button
+                          onClick={() => { setDropdownOpen(false); signOut(); }}
+                          className="block w-full text-left px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-50 transition-colors"
+                        >
+                          Sign out
+                        </button>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
                 </div>
                 <Link
                   href="/diagnostic"

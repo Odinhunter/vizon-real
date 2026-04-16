@@ -1,10 +1,13 @@
 'use client';
 
 import { useState, useCallback, useEffect } from 'react';
-import type { ProbeStep, DiagnosticReport } from '@/lib/api/diagnosticClient';
-import { startSession, submitAnswer } from '@/lib/api/diagnosticClient';
+import { AnimatePresence, motion } from 'framer-motion';
+import type { ProbeStep, DiagnosticReport, InProgressSessionInfo } from '@/lib/api/diagnosticClient';
+import { startSession, submitAnswer, getInProgressSession, resumeSession } from '@/lib/api/diagnosticClient';
 import { getCaseContent, getProbeContent, getTrackIntro } from '@/content/index';
+import { pageTransition } from '@/lib/motion/variants';
 import DiagnosticIntro from './DiagnosticIntro';
+import ResumePrompt from './ResumePrompt';
 import UserSetup from './UserSetup';
 import CaseIntro from './CaseIntro';
 import ProbeDisplay from './ProbeDisplay';
@@ -15,19 +18,22 @@ interface DiagnosticControllerProps {
   trackId: string;
 }
 
-type Phase = 'intro' | 'user_setup' | 'case_intro' | 'probe' | 'results';
-
-const TOTAL_PROBES = 5;
+type Phase = 'intro' | 'resume_prompt' | 'user_setup' | 'case_intro' | 'probe' | 'results';
 
 export default function DiagnosticController({ trackId }: DiagnosticControllerProps) {
   const [phase, setPhase] = useState<Phase>('intro');
-  const [transitioning, setTransitioning] = useState(false);
   const [isStarting, setIsStarting] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isContinuing, setIsContinuing] = useState(false);
+  const [isStartingFresh, setIsStartingFresh] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Resume state
+  const [inProgressSession, setInProgressSession] = useState<InProgressSessionInfo | null>(null);
 
   // Session state
   const [sessionId, setSessionId] = useState<string | null>(null);
+  const [isLastProbe, setIsLastProbe] = useState(false);
   const [caseNumber, setCaseNumber] = useState<1 | 2 | 3>(1);
   const [currentCaseId, setCurrentCaseId] = useState<string | null>(null);
   const [probeNumber, setProbeNumber] = useState(1);
@@ -44,6 +50,25 @@ export default function DiagnosticController({ trackId }: DiagnosticControllerPr
   // Results
   const [result, setResult] = useState<DiagnosticReport | null>(null);
 
+  // ── Check for in-progress session on mount ───────────────────────────────────
+  useEffect(() => {
+    let cancelled = false;
+    getInProgressSession(trackId).then((session) => {
+      if (cancelled || !session) return;
+      setInProgressSession(session);
+      // Race condition guard: only switch if we're still on the intro
+      setPhase((prev) => (prev === 'intro' ? 'resume_prompt' : prev));
+    }).catch(() => { /* silently ignore — don't block normal flow */ });
+    return () => { cancelled = true; };
+  }, [trackId]);
+
+  // ── Guard: if phase is resume_prompt but session was cleared, return to intro ─
+  useEffect(() => {
+    if (phase === 'resume_prompt' && !inProgressSession) {
+      setPhase('intro');
+    }
+  }, [phase, inProgressSession]);
+
   // ── Scroll to top on phase/probe change ──────────────────────────────────────
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -51,11 +76,7 @@ export default function DiagnosticController({ trackId }: DiagnosticControllerPr
 
   // ── Transition helper ────────────────────────────────────────────────────────
   const transitionTo = useCallback((nextPhase: Phase) => {
-    setTransitioning(true);
-    setTimeout(() => {
-      setPhase(nextPhase);
-      setTransitioning(false);
-    }, 250);
+    setPhase(nextPhase);
   }, []);
 
   // ── Content lookups ────────────────────────────────────────────────────────
@@ -76,6 +97,7 @@ export default function DiagnosticController({ trackId }: DiagnosticControllerPr
       setCurrentCaseId(resp.currentCaseId);
       setCaseNumber(resp.caseStage as 1 | 2 | 3);
       setProbeNumber(1);
+      setIsLastProbe(resp.isLastProbe ?? false);
 
       if (resp.step.type === 'probe') {
         setPendingStep(resp.step);
@@ -105,6 +127,40 @@ export default function DiagnosticController({ trackId }: DiagnosticControllerPr
       await beginSession();
     }
   }, [beginSession, transitionTo]);
+
+  const handleContinue = useCallback(async () => {
+    if (!inProgressSession) return;
+    setIsContinuing(true);
+    setError(null);
+    try {
+      const resp = await resumeSession(inProgressSession.sessionId);
+      setSessionId(resp.sessionId);
+      setCurrentCaseId(resp.currentCaseId);
+      setCaseNumber(resp.caseStage as 1 | 2 | 3);
+      setProbeNumber(resp.probeNumber);
+      setIsLastProbe(resp.isLastProbe ?? false);
+
+      if (resp.step.type === 'probe') {
+        setActiveStep(resp.step);
+        setAnswer('');
+        transitionTo('probe');
+      }
+    } catch (e: unknown) {
+      setError(e instanceof Error ? e.message : 'Failed to resume session');
+    } finally {
+      setIsContinuing(false);
+    }
+  }, [inProgressSession, transitionTo]);
+
+  const handleStartFresh = useCallback(async () => {
+    setIsStartingFresh(true);
+    setError(null);
+    try {
+      await beginSession();
+    } finally {
+      setIsStartingFresh(false);
+    }
+  }, [beginSession]);
 
   const handleUserSetupComplete = useCallback(async () => {
     await beginSession();
@@ -146,6 +202,8 @@ export default function DiagnosticController({ trackId }: DiagnosticControllerPr
       setCaseNumber(nextCaseStage);
       setCurrentCaseId(resp.currentCaseId);
 
+      setIsLastProbe(resp.isLastProbe ?? false);
+
       if (resp.step.type === 'probe') {
         if (caseChanged) {
           setPendingStep(resp.step);
@@ -180,6 +238,8 @@ export default function DiagnosticController({ trackId }: DiagnosticControllerPr
     setAnswer('');
     setResult(null);
     setError(null);
+    setIsLastProbe(false);
+    setInProgressSession(null);
   }, [transitionTo]);
 
   // ── Render ─────────────────────────────────────────────────────────────────
@@ -209,76 +269,67 @@ export default function DiagnosticController({ trackId }: DiagnosticControllerPr
     );
   }
 
-  // Wrap all phases in a transition container
-  const transitionClass = `transition-all duration-300 ease-out ${
-    transitioning ? 'opacity-0 translate-y-2' : 'opacity-100 translate-y-0'
-  }`;
-
-  if (phase === 'intro') {
-    if (!trackIntro) {
-      return (
-        <div className="min-h-screen flex items-center justify-center">
-          <p className="text-sm text-neutral-500">Unknown track: {trackId}</p>
-        </div>
-      );
+  // Determine phase content + key for AnimatePresence
+  const renderPhase = () => {
+    if (phase === 'intro') {
+      if (!trackIntro) {
+        return (
+          <div className="min-h-screen flex items-center justify-center">
+            <p className="text-sm text-neutral-500">Unknown track: {trackId}</p>
+          </div>
+        );
+      }
+      return <DiagnosticIntro intro={trackIntro} onStart={handleStart} isStarting={isStarting} />;
     }
-    return (
-      <div className={transitionClass}>
-        <DiagnosticIntro intro={trackIntro} onStart={handleStart} isStarting={isStarting} />
-      </div>
-    );
-  }
 
-  if (phase === 'user_setup') {
-    return (
-      <div className={transitionClass}>
-        <UserSetup onComplete={handleUserSetupComplete} onSkip={handleUserSetupSkip} />
-      </div>
-    );
-  }
-
-  if (phase === 'case_intro') {
-    if (!caseContent) {
+    if (phase === 'resume_prompt') {
+      if (!inProgressSession) return null;
       return (
-        <div className="min-h-screen flex items-center justify-center">
-          <p className="text-sm text-neutral-500">Loading case…</p>
-        </div>
-      );
-    }
-    return (
-      <div className={transitionClass}>
-        <CaseIntro
-          content={caseContent}
-          caseNumber={caseNumber}
-          onBegin={handleBeginCase}
+        <ResumePrompt
+          session={inProgressSession}
+          onContinue={handleContinue}
+          onStartFresh={handleStartFresh}
+          isContinuing={isContinuing}
+          isStartingFresh={isStartingFresh}
         />
-      </div>
-    );
-  }
+      );
+    }
 
-  if (phase === 'probe') {
-    if (!activeStep || !caseContent) {
+    if (phase === 'user_setup') {
+      return <UserSetup onComplete={handleUserSetupComplete} onSkip={handleUserSetupSkip} />;
+    }
+
+    if (phase === 'case_intro') {
+      if (!caseContent) {
+        return (
+          <div className="min-h-screen flex items-center justify-center">
+            <p className="text-sm text-neutral-500">Loading case…</p>
+          </div>
+        );
+      }
+      return <CaseIntro content={caseContent} caseNumber={caseNumber} onBegin={handleBeginCase} />;
+    }
+
+    if (phase === 'probe') {
+      if (!activeStep || !caseContent) {
+        return (
+          <div className="min-h-screen flex items-center justify-center">
+            <p className="text-sm text-neutral-500">Loading probe…</p>
+          </div>
+        );
+      }
+
+      if (isSubmitting && isLastProbe) {
+        return <AnalysisLoadingScreen />;
+      }
+
+      const handleToggleOptionId = (id: string) => {
+        setSelectedOptionIds((prev) =>
+          prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
+        );
+      };
+
       return (
-        <div className="min-h-screen flex items-center justify-center">
-          <p className="text-sm text-neutral-500">Loading probe…</p>
-        </div>
-      );
-    }
-
-    // Show analysis loading screen for final probe
-    const isFinalProbe = caseNumber === 3 && probeNumber === TOTAL_PROBES;
-    if (isSubmitting && isFinalProbe) {
-      return <AnalysisLoadingScreen />;
-    }
-
-    const handleToggleOptionId = (id: string) => {
-      setSelectedOptionIds((prev) =>
-        prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
-      );
-    };
-
-    return (
-      <div className={transitionClass}>
         <ProbeDisplay
           key={activeStep.probeId}
           step={activeStep}
@@ -286,7 +337,8 @@ export default function DiagnosticController({ trackId }: DiagnosticControllerPr
           probeContent={probeContent}
           caseNumber={caseNumber}
           probeNumber={probeNumber}
-          totalProbes={TOTAL_PROBES}
+          totalProbes={5}
+          isLastProbe={isLastProbe}
           answer={answer}
           onAnswerChange={setAnswer}
           selectedOptionId={selectedOptionId}
@@ -296,24 +348,37 @@ export default function DiagnosticController({ trackId }: DiagnosticControllerPr
           onSubmit={handleSubmit}
           isSubmitting={isSubmitting}
         />
-      </div>
-    );
-  }
-
-  if (phase === 'results') {
-    if (!result) {
-      return (
-        <div className="min-h-screen flex items-center justify-center">
-          <p className="text-sm text-neutral-500">Computing results…</p>
-        </div>
       );
     }
-    return (
-      <div className={transitionClass}>
-        <DiagnosticResults result={result} trackId={trackId} onRestart={handleRestart} sessionId={sessionId ?? undefined} />
-      </div>
-    );
-  }
 
-  return null;
+    if (phase === 'results') {
+      if (!result) {
+        return (
+          <div className="min-h-screen flex items-center justify-center">
+            <p className="text-sm text-neutral-500">Computing results…</p>
+          </div>
+        );
+      }
+      return <DiagnosticResults result={result} trackId={trackId} onRestart={handleRestart} sessionId={sessionId ?? undefined} />;
+    }
+
+    return null;
+  };
+
+  // Use a compound key so within-probe changes also animate
+  const phaseKey = phase === 'probe' ? `probe-${activeStep?.probeId}-${probeNumber}` : phase;
+
+  return (
+    <AnimatePresence mode="wait">
+      <motion.div
+        key={phaseKey}
+        variants={pageTransition}
+        initial="initial"
+        animate="animate"
+        exit="exit"
+      >
+        {renderPhase()}
+      </motion.div>
+    </AnimatePresence>
+  );
 }

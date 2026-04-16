@@ -3,6 +3,9 @@
 import { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
 import Link from 'next/link';
+import { motion } from 'framer-motion';
+import { fadeUp, staggerContainer } from '@/lib/motion/variants';
+import Skeleton from '@/components/ui/Skeleton';
 
 interface RunSummary {
   sessionId: string;
@@ -32,10 +35,10 @@ const VERDICT_LABELS: Record<string, { label: string; color: string; bg: string 
 };
 
 const ASSESSMENT_COLORS: Record<string, string> = {
-  STRONG: '#10b981',
-  COMPETENT: '#3b82f6',
-  DEVELOPING: '#f59e0b',
-  WEAK: '#ef4444',
+  ABOVE_THRESHOLD: '#10b981',
+  NEAR_THRESHOLD: '#3b82f6',
+  BELOW_THRESHOLD: '#f59e0b',
+  CRITICAL_GAP: '#ef4444',
 };
 
 function MiniDonut({ score, color, size = 48 }: { score: number; color: string; size?: number }) {
@@ -91,8 +94,32 @@ export default function ProfilePage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#f7f8fa] flex items-center justify-center">
-        <div className="w-8 h-8 border-2 border-neutral-200 border-t-[#1A56DB] rounded-full animate-spin" />
+      <div className="min-h-screen bg-[#f7f8fa]">
+        <nav className="bg-white border-b border-neutral-100 px-6 py-4 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <span className="w-2 h-2 rounded-full bg-[#e8521a]" />
+            <span className="font-mono text-[12px] font-medium tracking-[0.2em] text-[#051c2c]">VIZON</span>
+          </div>
+          <Skeleton className="w-36 h-9 rounded-xl" />
+        </nav>
+        <div className="max-w-3xl mx-auto px-5 py-10 space-y-8">
+          <div className="bg-white rounded-2xl shadow-md p-8">
+            <div className="flex items-start gap-5">
+              <Skeleton className="w-16 h-16 rounded-full" />
+              <div className="flex-1 space-y-3">
+                <Skeleton className="h-5 w-40" />
+                <Skeleton className="h-4 w-56" />
+              </div>
+            </div>
+          </div>
+          <div className="bg-white rounded-2xl shadow-md p-8 space-y-4">
+            <Skeleton className="h-5 w-32" />
+            <Skeleton className="h-16 w-full rounded-xl" />
+            <Skeleton className="h-3 w-full rounded-full" />
+            <Skeleton className="h-3 w-4/5 rounded-full" />
+            <Skeleton className="h-3 w-3/5 rounded-full" />
+          </div>
+        </div>
       </div>
     );
   }
@@ -113,9 +140,14 @@ export default function ProfilePage() {
         </Link>
       </nav>
 
-      <div className="max-w-3xl mx-auto px-5 py-10 space-y-8">
+      <motion.div
+        variants={staggerContainer}
+        initial="hidden"
+        animate="visible"
+        className="max-w-3xl mx-auto px-5 py-10 space-y-8"
+      >
         {/* User card */}
-        <div className="bg-white rounded-2xl shadow-md p-8">
+        <motion.div variants={fadeUp} className="bg-white rounded-2xl shadow-md p-8">
           <div className="flex items-start gap-5">
             <div className="w-16 h-16 rounded-full bg-[#051c2c] text-white text-xl font-semibold flex items-center justify-center shrink-0">
               {userInitial}
@@ -132,11 +164,11 @@ export default function ProfilePage() {
               )}
             </div>
           </div>
-        </div>
+        </motion.div>
 
         {/* No runs state */}
         {runs.length === 0 && (
-          <div className="bg-white rounded-2xl shadow-md p-12 text-center">
+          <motion.div variants={fadeUp} className="bg-white rounded-2xl shadow-md p-12 text-center">
             <div className="w-16 h-16 bg-neutral-100 rounded-full flex items-center justify-center mx-auto mb-4">
               <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" />
@@ -153,12 +185,12 @@ export default function ProfilePage() {
             >
               Run your first diagnostic →
             </Link>
-          </div>
+          </motion.div>
         )}
 
         {/* Latest run featured card */}
         {latestRun && (
-          <div className="bg-white rounded-2xl shadow-md p-8">
+          <motion.div variants={fadeUp} className="bg-white rounded-2xl shadow-md p-8">
             <div className="flex items-center justify-between mb-5">
               <h2 className="font-sans text-base font-bold text-[#051c2c]">Latest Result</h2>
               {latestRun.completedAt && (
@@ -215,12 +247,12 @@ export default function ProfilePage() {
             >
               View Full Results
             </Link>
-          </div>
+          </motion.div>
         )}
 
         {/* Past runs */}
         {pastRuns.length > 0 && (
-          <div className="bg-white rounded-2xl shadow-md p-8">
+          <motion.div variants={fadeUp} className="bg-white rounded-2xl shadow-md p-8">
             <h2 className="font-sans text-base font-bold text-[#051c2c] mb-5">Past Diagnostics</h2>
             <div className="space-y-3">
               {pastRuns.map((run) => (
@@ -256,9 +288,9 @@ export default function ProfilePage() {
                 </Link>
               ))}
             </div>
-          </div>
+          </motion.div>
         )}
-      </div>
+      </motion.div>
     </div>
   );
 }

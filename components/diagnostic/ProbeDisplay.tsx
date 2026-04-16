@@ -13,6 +13,8 @@ interface ProbeDisplayProps {
   caseNumber: 1 | 2 | 3;
   probeNumber: number;
   totalProbes: number;
+  /** Provided by the server — true when submitting this probe will complete the session. */
+  isLastProbe: boolean;
   answer: string;
   onAnswerChange: (value: string) => void;
   selectedOptionId: string | undefined;
@@ -48,6 +50,7 @@ export default function ProbeDisplay({
   caseNumber,
   probeNumber,
   totalProbes,
+  isLastProbe,
   answer,
   onAnswerChange,
   selectedOptionId,
@@ -86,7 +89,7 @@ export default function ProbeDisplay({
 
   const hasExhibit = !!step.exhibit;
 
-  const buttonLabel = probeNumber === totalProbes && caseNumber === 3
+  const buttonLabel = isLastProbe
     ? 'Finish Diagnostic'
     : probeNumber === totalProbes
       ? 'Next Case'

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Sora, DM_Mono } from "next/font/google";
 import SessionProvider from "@/components/auth/SessionProvider";
+import MotionProvider from "@/components/MotionProvider";
 import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
 
@@ -8,12 +9,14 @@ const sora = Sora({
   variable: "--font-sora",
   subsets: ["latin"],
   weight: ["400", "500", "600", "700", "800"],
+  display: "swap",
 });
 
 const dmMono = DM_Mono({
   variable: "--font-dm-mono",
   subsets: ["latin"],
-  weight: ["300", "400", "500"],
+  weight: ["400", "500"],
+  display: "swap",
 });
 
 const BASE_URL = "https://getvizon.com";
@@ -110,7 +113,9 @@ export default function RootLayout({
         />
       </head>
       <body className={`${sora.variable} ${dmMono.variable} antialiased`}>
-        <SessionProvider>{children}</SessionProvider>
+        <SessionProvider>
+          <MotionProvider>{children}</MotionProvider>
+        </SessionProvider>
         <Analytics />
       </body>
     </html>

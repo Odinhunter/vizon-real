@@ -58,12 +58,14 @@ export async function generatePersonalizedFeedback(
   archetypeTopTraits?: string[],
   trackId = 'consulting'
 ): Promise<PersonalizedFeedbackOutput | null> {
-  // Build key observations grouped by skill
+  // Build key observations grouped by skill.
+  // Match by probe_index (echoed from the prompt) to stay order-independent.
   const keyObservations: Record<string, string[]> = {};
-  for (let i = 0; i < extractions.length; i++) {
-    const extraction = extractions[i];
+  const extractionByIndex = new Map(extractions.map(e => [e.probe_index, e]));
+  for (let i = 0; i < pendingResponses.length; i++) {
+    const extraction = extractionByIndex.get(i + 1);
     const pending = pendingResponses[i];
-    if (!pending) continue;
+    if (!extraction || !pending) continue;
     const obs = keyObservations[pending.skillId] ?? [];
     obs.push(...(extraction.key_observations ?? []));
     keyObservations[pending.skillId] = obs;

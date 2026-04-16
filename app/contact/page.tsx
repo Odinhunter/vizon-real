@@ -2,6 +2,8 @@ import Link from 'next/link';
 
 import type { Metadata } from 'next';
 
+export const revalidate = 86400; // ISR: regenerate at most once per day
+
 export const metadata: Metadata = {
   title: 'Contact',
   description: 'Get in touch with the Vizon team for questions, feedback, or support.',

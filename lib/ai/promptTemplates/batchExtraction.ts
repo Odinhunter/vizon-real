@@ -71,7 +71,7 @@ export function buildBatchExtractionPrompt(probes: PendingResponse[], trackId = 
 
       const responseBlock = formatResponseBlock(p);
 
-      return `--- PROBE ${i + 1} (${stageLabel} / ${complexityLabel}) ---
+      return `--- PROBE ${i + 1} [probe_index: ${i + 1}] (${stageLabel} / ${complexityLabel}) ---
 Skill being assessed: ${p.skillId}
 Case context: ${p.caseContext || '(not provided)'}
 ${exhibitBlock}
@@ -88,9 +88,10 @@ SESSION PROBES (${probes.length} total):
 ${probeBlocks}
 
 OUTPUT FORMAT:
-Return ONLY a valid JSON array of exactly ${probes.length} objects, one per probe, in the same order as presented.
+Return ONLY a valid JSON array of exactly ${probes.length} objects, one per probe.
 Each object must match this exact structure:
 {
+  "probe_index": N,
   "key_observations": ["observation 1", "observation 2", ...],
   "signal_strength": 0.0 to 1.0,
   "response_quality": 0.0 to 1.0,
@@ -101,7 +102,8 @@ Each object must match this exact structure:
   }
 }
 
-All numeric values must be numbers between 0 and 1 inclusive. The key_observations array must have 1–5 string entries.
+probe_index must be the integer shown in the probe block header (e.g. [probe_index: 3] → "probe_index": 3). This field is required and must match exactly.
+All other numeric values must be numbers between 0 and 1 inclusive. The key_observations array must have 1–5 string entries.
 Do not wrap the JSON in markdown code blocks. Do not include any text outside the JSON array.`;
 
   return { system, user };

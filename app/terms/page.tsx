@@ -2,6 +2,8 @@ import Link from 'next/link';
 
 import type { Metadata } from 'next';
 
+export const revalidate = 86400; // ISR: regenerate at most once per day
+
 export const metadata: Metadata = {
   title: 'Terms of Service',
   description: 'The terms and conditions that govern your use of the Vizon career diagnostic platform.',

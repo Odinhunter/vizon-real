@@ -162,12 +162,36 @@ export interface DiagnosticReport {
   caseSummaries?: CaseSummary[];
 }
 
+export interface InProgressSessionInfo {
+  sessionId: string;
+  trackId: string;
+  caseStage: 1 | 2 | 3;
+  probeNumber: number;
+  startedAt: string; // ISO string
+}
+
+export interface InProgressSessionResponse {
+  inProgressSession: InProgressSessionInfo | null;
+}
+
 export interface StartResponse {
   sessionId: string;
   trackId: string;
   step: DiagnosticStep;
   caseStage: 1 | 2 | 3;
   currentCaseId: string;
+  /** True when this is the last probe in the session. Client uses this to show the analysis loading screen on submission. */
+  isLastProbe: boolean;
+}
+
+export interface ResumeResponse {
+  sessionId: string;
+  trackId: string;
+  step: DiagnosticStep;
+  caseStage: 1 | 2 | 3;
+  currentCaseId: string;
+  probeNumber: number;
+  isLastProbe: boolean;
 }
 
 export interface AnswerResponse {
@@ -177,6 +201,8 @@ export interface AnswerResponse {
   currentCaseId: string;
   status: 'IN_PROGRESS' | 'COMPLETE';
   result?: DiagnosticReport;
+  /** True when the step returned is the last probe in the session. */
+  isLastProbe: boolean;
 }
 
 // ── API calls ──────────────────────────────────────────────────────────────────
@@ -203,6 +229,46 @@ export interface AnswerPayload {
   rawResponse: string;
   selectedOptionId?: string;
   selectedOptionIds?: string[];
+}
+
+/**
+ * Polls for personalized feedback on a completed session.
+ * Returns the enriched result once answerFeedback is populated, or null if not yet ready.
+ */
+export async function pollPersonalizedFeedback(sessionId: string): Promise<DiagnosticReport | null> {
+  const res = await fetch(`/api/diagnostic?sessionId=${encodeURIComponent(sessionId)}`);
+  if (!res.ok) return null;
+  const data = await res.json() as { personalizedFeedbackReady: boolean; result?: DiagnosticReport };
+  if (data.personalizedFeedbackReady && data.result) return data.result;
+  return null;
+}
+
+/**
+ * Checks for an in-progress session for the given track.
+ * Returns null if there is no resumable session.
+ */
+export async function getInProgressSession(trackId: string): Promise<InProgressSessionInfo | null> {
+  const res = await fetch(`/api/diagnostic?trackId=${encodeURIComponent(trackId)}`);
+  const data = await res.json();
+  if (!res.ok) return null;
+  return (data as InProgressSessionResponse).inProgressSession;
+}
+
+/**
+ * Resumes an in-progress session by sessionId.
+ * Returns the current pending step so the client can render it directly.
+ */
+export async function resumeSession(sessionId: string): Promise<ResumeResponse> {
+  const res = await fetch('/api/diagnostic', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ action: 'resume', sessionId }),
+  });
+  const data = await res.json();
+  if (!res.ok) {
+    throw new Error(data?.error ?? 'Failed to resume session');
+  }
+  return data as ResumeResponse;
 }
 
 /**

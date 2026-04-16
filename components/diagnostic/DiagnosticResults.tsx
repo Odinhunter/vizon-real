@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
+import dynamic from 'next/dynamic';
 import type {
   DiagnosticReport,
   VerdictTier,
@@ -11,27 +12,40 @@ import type {
   AnswerFeedback,
   CaseSummary,
 } from '@/lib/api/diagnosticClient';
-import {
-  RadarChart,
-  PolarGrid,
-  PolarAngleAxis,
-  Radar,
-  ResponsiveContainer,
-  Legend,
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Cell,
-  PieChart,
-  Pie,
-  AreaChart,
-  Area,
-  Tooltip,
-} from 'recharts';
+import { pollPersonalizedFeedback } from '@/lib/api/diagnosticClient';
 import { useScrollReveal } from '@/hooks/useScrollReveal';
 import ShareButton from './ShareButton';
+
+// Recharts is heavy (~150KB+) and depends on ResizeObserver, so it's split into
+// a separate chunk and loaded only on the results route. ssr: false is required.
+const ChartSkeleton = () => (
+  <div className="w-full h-full rounded-xl bg-[#f0f1f3] animate-pulse" />
+);
+
+const FirmFitDonut = dynamic(
+  () => import('./results/Charts').then((m) => ({ default: m.FirmFitDonut })),
+  { ssr: false, loading: ChartSkeleton }
+);
+
+const SkillsRadar = dynamic(
+  () => import('./results/Charts').then((m) => ({ default: m.SkillsRadar })),
+  { ssr: false, loading: ChartSkeleton }
+);
+
+const PressureAreaChart = dynamic(
+  () => import('./results/Charts').then((m) => ({ default: m.PressureAreaChart })),
+  { ssr: false, loading: ChartSkeleton }
+);
+
+const BehavioralBarChart = dynamic(
+  () => import('./results/Charts').then((m) => ({ default: m.BehavioralBarChart })),
+  { ssr: false, loading: ChartSkeleton }
+);
+
+const StageMiniBarChart = dynamic(
+  () => import('./results/Charts').then((m) => ({ default: m.StageMiniBarChart })),
+  { ssr: false, loading: ChartSkeleton }
+);
 
 // ─── Animated counter hook ────────────────────────────────────────────────────
 
@@ -220,6 +234,12 @@ export default function DiagnosticResults({
   readOnly = false,
   sessionId,
 }: DiagnosticResultsProps) {
+  const [expandedSkills, setExpandedSkills] = useState<Set<string>>(new Set());
+  // liveResult starts as the base scored result and gets hydrated with
+  // personalized feedback once phase 2 completes in the background.
+  const [liveResult, setLiveResult] = useState<DiagnosticReport>(result);
+  const feedbackReady = Array.isArray(liveResult.answerFeedback) && liveResult.answerFeedback.length > 0;
+
   const {
     trackScore,
     verdict,
@@ -236,9 +256,26 @@ export default function DiagnosticResults({
     percentile,
     answerFeedback,
     caseSummaries,
-  } = result;
+  } = liveResult;
 
-  const [expandedSkills, setExpandedSkills] = useState<Set<string>>(new Set());
+  // Poll for personalized feedback until it arrives (max ~60s, 4s interval)
+  useEffect(() => {
+    if (!sessionId || feedbackReady) return;
+    let attempts = 0;
+    const MAX_ATTEMPTS = 15;
+    const id = setInterval(async () => {
+      attempts++;
+      const enriched = await pollPersonalizedFeedback(sessionId);
+      if (enriched) {
+        setLiveResult(enriched);
+        clearInterval(id);
+      } else if (attempts >= MAX_ATTEMPTS) {
+        clearInterval(id); // give up gracefully — base result remains
+      }
+    }, 4000);
+    return () => clearInterval(id);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sessionId]);
 
   const toggleSkill = (skillId: string) => {
     setExpandedSkills((prev) => {
@@ -509,35 +546,7 @@ export default function DiagnosticResults({
               {/* Concentric donut rings */}
               <div className="flex justify-center mb-4">
                 <div className="w-48 h-48">
-                  <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
-                    <PieChart>
-                      {firmFit.map((ff, i) => {
-                        const innerR = 30 + i * 18;
-                        const outerR = innerR + 14;
-                        return (
-                          <Pie
-                            key={ff.firm}
-                            data={[
-                              { value: ff.fitPercent, fill: FIRM_COLORS[ff.firm] ?? NAVY },
-                              { value: 100 - ff.fitPercent, fill: '#e2e6ea' },
-                            ]}
-                            dataKey="value"
-                            cx="50%" cy="50%"
-                            innerRadius={innerR}
-                            outerRadius={outerR}
-                            startAngle={90}
-                            endAngle={-270}
-                            paddingAngle={0}
-                            cornerRadius={4}
-                            stroke="none"
-                          >
-                            <Cell fill={FIRM_COLORS[ff.firm] ?? NAVY} />
-                            <Cell fill="#f0f1f3" />
-                          </Pie>
-                        );
-                      })}
-                    </PieChart>
-                  </ResponsiveContainer>
+                  <FirmFitDonut firmFit={firmFit} />
                 </div>
               </div>
 
@@ -638,32 +647,7 @@ export default function DiagnosticResults({
                 SKILL PROFILE
               </p>
               <div className="flex-1 min-h-[280px]">
-                <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
-                  <RadarChart data={radarData} cx="50%" cy="50%" outerRadius="65%">
-                    <PolarGrid stroke="#e2e6ea" />
-                    <PolarAngleAxis
-                      dataKey="skill"
-                      tick={{ fontSize: 10, fontFamily: "'DM Mono', monospace", fill: '#5a6775' }}
-                    />
-                    <Radar
-                      name="Benchmark"
-                      dataKey="benchmark"
-                      stroke="var(--accent)"
-                      fill="transparent"
-                      strokeDasharray="4 4"
-                      strokeWidth={1.5}
-                    />
-                    <Radar
-                      name="Your Profile"
-                      dataKey="score"
-                      stroke="var(--blue)"
-                      fill="var(--blue)"
-                      fillOpacity={0.12}
-                      strokeWidth={2}
-                    />
-                    <Legend wrapperStyle={{ fontSize: 10, fontFamily: "'DM Mono', monospace" }} />
-                  </RadarChart>
-                </ResponsiveContainer>
+                <SkillsRadar data={radarData} />
               </div>
               <div className="border-t border-[#e2e6ea] pt-3 mt-2 flex flex-wrap gap-2">
                 <span className="font-mono text-[11px] px-2.5 py-1 rounded-full bg-[#f7f8fa] text-[#4a5568]">
@@ -702,7 +686,7 @@ export default function DiagnosticResults({
         </div>
 
         {/* ── Answer Feedback + Case Summaries ────────────────────── */}
-        {((answerFeedback && answerFeedback.length > 0) || (caseSummaries && caseSummaries.length > 0)) && (
+        {feedbackReady ? (
           <div className="reveal">
             <p className="text-[10px] font-mono text-[#5a6775] uppercase tracking-[0.2em] mb-5">
               ANSWER-LEVEL FEEDBACK
@@ -723,7 +707,31 @@ export default function DiagnosticResults({
               })}
             </div>
           </div>
-        )}
+        ) : sessionId ? (
+          <div className="reveal">
+            <div className="flex items-center gap-3 mb-5">
+              <p className="text-[10px] font-mono text-[#5a6775] uppercase tracking-[0.2em]">
+                ANSWER-LEVEL FEEDBACK
+              </p>
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-blue-50 text-[9px] font-mono tracking-[0.12em] uppercase text-[#1A56DB]">
+                <span className="w-1.5 h-1.5 rounded-full bg-[#1A56DB] animate-pulse" />
+                Personalizing…
+              </span>
+            </div>
+            <div className="flex flex-col gap-4">
+              {[1, 2, 3].map((stage) => (
+                <div key={stage} className={`${CARD} p-6`}>
+                  <div className="h-3 w-24 bg-[#e2e6ea] rounded animate-pulse mb-4" />
+                  <div className="space-y-2">
+                    <div className="h-2.5 w-full bg-[#f0f1f3] rounded animate-pulse" />
+                    <div className="h-2.5 w-4/5 bg-[#f0f1f3] rounded animate-pulse" />
+                    <div className="h-2.5 w-3/5 bg-[#f0f1f3] rounded animate-pulse" />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        ) : null}
 
         {/* ── Pressure Resilience ──────────────────────────────────────── */}
         <div ref={pressureRef} className="reveal">
@@ -749,30 +757,7 @@ export default function DiagnosticResults({
 
               <p className="text-[9px] font-mono text-[#5a6775] uppercase tracking-widest mb-3">CASE STAGE PROGRESSION</p>
               <div className="h-[140px]">
-                <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
-                  <AreaChart data={areaChartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                    <defs>
-                      <linearGradient id="areaGrad" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor={resiliencePatternColor} stopOpacity={0.3} />
-                        <stop offset="95%" stopColor={resiliencePatternColor} stopOpacity={0.02} />
-                      </linearGradient>
-                    </defs>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#e2e6ea" />
-                    <XAxis dataKey="name" tick={{ fontSize: 10, fontFamily: "'DM Mono', monospace", fill: '#5a6775' }} />
-                    <YAxis domain={[0, 100]} tick={{ fontSize: 10, fontFamily: "'DM Mono', monospace", fill: '#5a6775' }} />
-                    <Tooltip
-                      contentStyle={{ fontSize: 11, fontFamily: "'DM Mono', monospace", borderRadius: 12, border: '1px solid #e2e6ea' }}
-                    />
-                    <Area
-                      type="monotone"
-                      dataKey="score"
-                      stroke={resiliencePatternColor}
-                      strokeWidth={2.5}
-                      fill="url(#areaGrad)"
-                      dot={{ r: 5, fill: resiliencePatternColor, stroke: '#fff', strokeWidth: 2 }}
-                    />
-                  </AreaChart>
-                </ResponsiveContainer>
+                <PressureAreaChart data={areaChartData} color={resiliencePatternColor} />
               </div>
             </div>
 
@@ -822,26 +807,7 @@ export default function DiagnosticResults({
                 BEHAVIORAL SIGNALS
               </p>
               <div className="h-[220px]">
-                <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
-                  <BarChart data={behavioralBarData} layout="vertical" margin={{ top: 0, right: 10, left: 0, bottom: 0 }}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#e2e6ea" horizontal={false} />
-                    <XAxis type="number" domain={[0, 100]} tick={{ fontSize: 10, fontFamily: "'DM Mono', monospace", fill: '#5a6775' }} />
-                    <YAxis
-                      type="category"
-                      dataKey="name"
-                      width={100}
-                      tick={{ fontSize: 10, fontFamily: "var(--font-sora), 'Sora', sans-serif", fill: '#4a5568' }}
-                    />
-                    <Tooltip
-                      contentStyle={{ fontSize: 11, fontFamily: "'DM Mono', monospace", borderRadius: 12, border: '1px solid #e2e6ea' }}
-                    />
-                    <Bar dataKey="score" barSize={16} radius={[0, 8, 8, 0]}>
-                      {behavioralBarData.map((entry, i) => (
-                        <Cell key={i} fill={entry.fill} />
-                      ))}
-                    </Bar>
-                  </BarChart>
-                </ResponsiveContainer>
+                <BehavioralBarChart data={behavioralBarData} />
               </div>
               <div className="mt-4 pt-3 border-t border-[#e2e6ea]">
                 <p className="font-sans text-[11px] text-[#4a5568] leading-relaxed">
@@ -853,9 +819,17 @@ export default function DiagnosticResults({
             {/* Recommendations */}
             {recommendations.length > 0 && (
               <div className={`${CARD} p-6`}>
-                <p className="text-[10px] font-mono text-[#5a6775] uppercase tracking-[0.2em] mb-4">
-                  PRIORITY RECOMMENDATIONS
-                </p>
+                <div className="flex items-center gap-3 mb-4">
+                  <p className="text-[10px] font-mono text-[#5a6775] uppercase tracking-[0.2em]">
+                    PRIORITY RECOMMENDATIONS
+                  </p>
+                  {!feedbackReady && sessionId && (
+                    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-blue-50 text-[9px] font-mono tracking-[0.12em] uppercase text-[#1A56DB]">
+                      <span className="w-1.5 h-1.5 rounded-full bg-[#1A56DB] animate-pulse" />
+                      Personalizing…
+                    </span>
+                  )}
+                </div>
 
                 {/* Weakest skill callout */}
                 <div className="mb-5 p-4 rounded-xl bg-gradient-to-r from-red-50 to-white border border-red-100">
@@ -1045,21 +1019,7 @@ function SkillCard({ skill, expanded, onToggle }: { skill: SkillDetail; expanded
         {skill.stageScores.length > 0 && (
           <div className="flex items-end gap-3 mb-3">
             <div className="w-[100px] h-[48px]">
-              <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
-                <BarChart data={stageBarData} margin={{ top: 0, right: 0, left: 0, bottom: 0 }}>
-                  <XAxis
-                    dataKey="name"
-                    tick={{ fontSize: 8, fontFamily: "'DM Mono', monospace", fill: '#5a6775' }}
-                    axisLine={false}
-                    tickLine={false}
-                  />
-                  <Bar dataKey="score" radius={[4, 4, 0, 0]}>
-                    {stageBarData.map((entry, i) => (
-                      <Cell key={i} fill={colors.bar} fillOpacity={entry.opacity} />
-                    ))}
-                  </Bar>
-                </BarChart>
-              </ResponsiveContainer>
+              <StageMiniBarChart data={stageBarData} color={colors.bar} />
             </div>
             {skill.trajectory !== 'INSUFFICIENT_DATA' && (
               <span className={`ml-auto text-[10px] font-mono px-2 py-0.5 rounded-full ${

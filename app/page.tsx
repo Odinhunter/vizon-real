@@ -7,6 +7,8 @@ import OutputSection from '@/components/landing/OutputSection';
 import TracksSection from '@/components/landing/TracksSection';
 import Footer from '@/components/landing/Footer';
 
+export const revalidate = 3600; // ISR: regenerate at most once per hour
+
 export const metadata: Metadata = {
   title: "Vizon — AI-Powered Career Diagnostic for Consulting",
   description:

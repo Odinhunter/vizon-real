@@ -70,6 +70,8 @@ export const BehavioralSignalsSchema = z
 /**
  * Probe-level extraction output used by the scoring pipeline.
  *
+ * probe_index     — 1-based position echoed from the prompt block header, used for
+ *                   order-independent matching when the route applies scores to evidence.
  * signal_strength — how clearly the target skill signal is present (0–1)
  * response_quality — how coherent and complete the response is (0–1)
  * key_observations — chain-of-thought reasoning the model produces before scoring
@@ -77,6 +79,7 @@ export const BehavioralSignalsSchema = z
  */
 export const ProbeExtractionResultSchema = z
   .object({
+    probe_index: z.number().int().min(1),
     key_observations: z.array(z.string()).min(1).max(5),
     signal_strength: z.number().min(0).max(1).finite(),
     response_quality: z.number().min(0).max(1).finite(),

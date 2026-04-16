@@ -214,3 +214,10 @@ export const profileLimiter = createRateLimiter({
   maxRequests: 30,
   keyPrefix: 'profile',
 });
+
+/** GET /api/diagnostic (in-progress check) — User-ID-keyed, 60 per min */
+export const diagnosticCheckLimiter = createRateLimiter({
+  windowMs: 60 * 1000,
+  maxRequests: 60,
+  keyPrefix: 'diag-check',
+});
