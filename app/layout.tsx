@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Sora, DM_Mono } from "next/font/google";
 import SessionProvider from "@/components/auth/SessionProvider";
 import MotionProvider from "@/components/MotionProvider";
+import { auth } from "@/auth";
 import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
 
@@ -99,11 +100,13 @@ const jsonLd = {
   ],
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const session = await auth();
+
   return (
     <html lang="en">
       <head>
@@ -113,7 +116,7 @@ export default function RootLayout({
         />
       </head>
       <body className={`${sora.variable} ${dmMono.variable} antialiased`}>
-        <SessionProvider>
+        <SessionProvider session={session}>
           <MotionProvider>{children}</MotionProvider>
         </SessionProvider>
         <Analytics />
