@@ -70,12 +70,18 @@ export const BehavioralSignalsSchema = z
 /**
  * Probe-level extraction output used by the scoring pipeline.
  *
- * probe_index     — 1-based position echoed from the prompt block header, used for
- *                   order-independent matching when the route applies scores to evidence.
- * signal_strength — how clearly the target skill signal is present (0–1)
- * response_quality — how coherent and complete the response is (0–1)
- * key_observations — chain-of-thought reasoning the model produces before scoring
+ * probe_index       — 1-based position echoed from the prompt block header, used for
+ *                     order-independent matching when the route applies scores to evidence.
+ * signal_strength   — how clearly the target skill signal is present (0–1)
+ * response_quality  — how coherent and complete the response is (0–1)
+ * key_observations  — chain-of-thought reasoning the model produces before scoring
  * behavioral_signals — behavioral dimensions observed, aggregated separately from scores
+ *
+ * Rubric-alignment fields (all optional for backward compat with older runs):
+ * rubric_alignment  — how closely the response matches the probe's scoring guidance (0–1)
+ * matched_criteria  — specific rubric criteria the candidate satisfied (short phrases)
+ * missed_criteria   — rubric criteria the candidate failed to address
+ * extraneous_points — notable content the candidate included that the rubric doesn't credit
  */
 export const ProbeExtractionResultSchema = z
   .object({
@@ -84,6 +90,10 @@ export const ProbeExtractionResultSchema = z
     signal_strength: z.number().min(0).max(1).finite(),
     response_quality: z.number().min(0).max(1).finite(),
     behavioral_signals: BehavioralSignalsSchema,
+    rubric_alignment: z.number().min(0).max(1).finite().optional(),
+    matched_criteria: z.array(z.string()).max(8).optional(),
+    missed_criteria: z.array(z.string()).max(8).optional(),
+    extraneous_points: z.array(z.string()).max(8).optional(),
   })
   .strip();
 

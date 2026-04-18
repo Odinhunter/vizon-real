@@ -238,6 +238,7 @@ export default function DiagnosticResults({
   // liveResult starts as the base scored result and gets hydrated with
   // personalized feedback once phase 2 completes in the background.
   const [liveResult, setLiveResult] = useState<DiagnosticReport>(result);
+  const [feedbackExhausted, setFeedbackExhausted] = useState(false);
   const feedbackReady = Array.isArray(liveResult.answerFeedback) && liveResult.answerFeedback.length > 0;
 
   const {
@@ -270,7 +271,8 @@ export default function DiagnosticResults({
         setLiveResult(enriched);
         clearInterval(id);
       } else if (attempts >= MAX_ATTEMPTS) {
-        clearInterval(id); // give up gracefully — base result remains
+        clearInterval(id);
+        setFeedbackExhausted(true);
       }
     }, 4000);
     return () => clearInterval(id);
@@ -290,6 +292,7 @@ export default function DiagnosticResults({
   const profileRef = useScrollReveal(0.1);
   const matrixRef = useScrollReveal(0.1);
   const skillsRef = useScrollReveal(0.15);
+  const feedbackRef = useScrollReveal(0.15);
   const pressureRef = useScrollReveal(0.15);
   const behavioralRef = useScrollReveal(0.2);
   const ctaRef = useScrollReveal(0.2);
@@ -687,7 +690,7 @@ export default function DiagnosticResults({
 
         {/* ── Answer Feedback + Case Summaries ────────────────────── */}
         {feedbackReady ? (
-          <div className="reveal">
+          <div ref={feedbackRef} className="reveal">
             <p className="text-[10px] font-mono text-[#5a6775] uppercase tracking-[0.2em] mb-5">
               ANSWER-LEVEL FEEDBACK
             </p>
@@ -707,8 +710,8 @@ export default function DiagnosticResults({
               })}
             </div>
           </div>
-        ) : sessionId ? (
-          <div className="reveal">
+        ) : sessionId && !feedbackExhausted ? (
+          <div ref={feedbackRef} className="reveal">
             <div className="flex items-center gap-3 mb-5">
               <p className="text-[10px] font-mono text-[#5a6775] uppercase tracking-[0.2em]">
                 ANSWER-LEVEL FEEDBACK

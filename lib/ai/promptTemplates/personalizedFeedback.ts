@@ -11,10 +11,24 @@ import type { SkillDetail, Recommendation } from '@/lib/api/diagnosticClient';
 import { getTrackAnalysisConfig } from '@/engine/trackAnalysisConfig';
 import { buildFinancePersonalizedFeedbackPrompt } from './financePersonalizedFeedback';
 
+export interface RubricAlignmentEntry {
+  alignment?: number;
+  matched?: string[];
+  missed?: string[];
+  extraneous?: string[];
+}
+
 export interface PersonalizedFeedbackInput {
   skills: SkillDetail[];
   pendingResponses: PendingResponse[];
   keyObservations: Record<string, string[]>; // skillId → merged observations
+  /**
+   * Per-probe rubric alignment, keyed by 1-based probe index (matching the
+   * order of `pendingResponses`). Optional per entry — absent entries indicate
+   * the extraction model didn't emit alignment signals for that probe (or an
+   * older run pre-dating these fields).
+   */
+  rubricAlignmentByProbeIndex?: Record<number, RubricAlignmentEntry>;
   trackScore: number;
   benchmark: number;
   archetypeName?: string;
@@ -82,26 +96,46 @@ WHAT MAKES GOOD FEEDBACK (do this):
 - "Your L3 response on the pricing question was actually stronger than your L1 baseline — you seem to perform better when the data is messy, which is unusual and valuable"
 - "You consistently avoided committing to a recommendation, hedging with 'it depends' three times across the session"`;
 
+  const alignmentByProbe = input.rubricAlignmentByProbeIndex ?? {};
+
   // Build per-skill context blocks
   const skillBlocks = input.skills.map((skill) => {
-    const responses = input.pendingResponses.filter((p) => p.skillId === skill.skillId);
+    const responses = input.pendingResponses
+      .map((p, i) => ({ p, i }))
+      .filter(({ p }) => p.skillId === skill.skillId);
     const observations = input.keyObservations[skill.skillId] ?? [];
 
-    const responseSnippets = responses.map((r) => {
+    const responseSnippets = responses.map(({ p: r, i }) => {
       const stageLabel = `L${r.caseStage}`;
-      const answer = r.rawResponse?.substring(0, 500) || '(no response)';
-      return `  [${stageLabel}/${r.contextLevel}] Q: "${r.probeQuestion?.substring(0, 150)}..."
-  A: "${answer}"`;
+      const answer = r.rawResponse?.substring(0, 2000) || '(no response)';
+      return `  [${stageLabel}/${r.contextLevel}] Q: "${r.probeQuestion?.substring(0, 200)}..."
+  A: "${answer}"
+  Answer #${i + 1}`;
     }).join('\n');
 
     const stageScoreStr = skill.stageScores
       .map((ss) => `L${ss.stage}: ${ss.score}`)
       .join(' → ');
 
+    // Aggregate rubric alignment across this skill's probes
+    const skillMatched = new Set<string>();
+    const skillMissed = new Set<string>();
+    for (const { i } of responses) {
+      const entry = alignmentByProbe[i + 1];
+      entry?.matched?.forEach((c) => skillMatched.add(c));
+      entry?.missed?.forEach((c) => skillMissed.add(c));
+    }
+    const rubricSummary = (skillMatched.size > 0 || skillMissed.size > 0)
+      ? `Rubric alignment across this skill:
+  Hit: ${skillMatched.size > 0 ? Array.from(skillMatched).join('; ') : 'none'}
+  Missed: ${skillMissed.size > 0 ? Array.from(skillMissed).join('; ') : 'none'}`
+      : 'Rubric alignment: (not available)';
+
     return `SKILL: ${getSkillLabel(skill.skillId, trackId)} (${skill.skillId})
 Score: ${skill.score}/100 | Benchmark: ${skill.benchmark} | Gap: ${skill.gap > 0 ? '+' : ''}${skill.gap} | Assessment: ${skill.assessment}
 Trajectory: ${skill.trajectory} | Stage scores: ${stageScoreStr}
 AI observations: ${observations.length > 0 ? observations.join('; ') : 'none'}
+${rubricSummary}
 Candidate responses:
 ${responseSnippets}`;
   }).join('\n\n---\n\n');
@@ -109,13 +143,30 @@ ${responseSnippets}`;
   // Build ordered answer list for per-answer feedback
   const orderedAnswers = input.pendingResponses.map((r, i) => {
     const skillLabel = getSkillLabel(r.skillId, trackId);
-    const answer = r.rawResponse?.substring(0, 600) || '(no response)';
+    const answer = r.rawResponse?.substring(0, 2000) || '(no response)';
     let optionNote = '';
     if (r.selectedOptionId) optionNote = ` [Selected option: ${r.selectedOptionId}]`;
     if (r.selectedOptionIds?.length) optionNote = ` [Selected options: ${r.selectedOptionIds.join(', ')}]`;
+
+    const rubricLine = r.scoringGuidance
+      ? `Scoring guidance (the "correct answer" rubric): ${r.scoringGuidance.substring(0, 800)}`
+      : 'Scoring guidance: (not provided)';
+
+    const align = alignmentByProbe[i + 1];
+    const alignLine = align
+      ? `Rubric alignment: ${align.alignment !== undefined ? align.alignment.toFixed(2) : 'n/a'}${
+          align.matched?.length ? ` | Hit: ${align.matched.join('; ')}` : ''
+        }${
+          align.missed?.length ? ` | Missed: ${align.missed.join('; ')}` : ''
+        }${
+          align.extraneous?.length ? ` | Extraneous: ${align.extraneous.join('; ')}` : ''
+        }`
+      : '';
+
     return `Answer ${i + 1} | Skill: ${skillLabel} (${r.skillId}) | Case L${r.caseStage} | Context: ${r.contextLevel}
-Q: "${r.probeQuestion?.substring(0, 200) || '(no question)'}"${optionNote}
-A: "${answer}"`;
+Q: "${r.probeQuestion?.substring(0, 300) || '(no question)'}"${optionNote}
+${rubricLine}
+A: "${answer}"${alignLine ? `\n${alignLine}` : ''}`;
   }).join('\n\n');
 
   // Identify weakest skills for recommendations
@@ -136,7 +187,7 @@ ANSWERS IN SEQUENCE:
 ${orderedAnswers}
 
 TASK 1 — SKILL NARRATIVES:
-Write a personalized narrative for EACH skill (2-3 sentences). Reference specific things from their responses. Be honest about what they did well and what they clearly struggled with. Each narrative must contain at least one specific observation that could only apply to this candidate's actual answers.
+Write a personalized narrative for EACH skill (2-3 sentences). Reference specific things from their responses AND at least one specific rubric criterion they hit or missed (use the "Rubric alignment across this skill" block). Be honest about what they did well and what they clearly struggled with. Each narrative must contain at least one specific observation that could only apply to this candidate's actual answers.
 
 TASK 2 — PRIORITY RECOMMENDATIONS:
 Write ${weakestSkills.length} personalized recommendations for their weakest skills: ${weakestSkills.map((s) => getSkillLabel(s.skillId, trackId)).join(', ')}.
@@ -150,12 +201,15 @@ TASK 3 — ARCHETYPE FEEDBACK:
 Write a personalized 3-4 sentence paragraph that goes deeper on this candidate's archetype profile. Reference specific patterns from their responses that reveal why they fit this archetype. Call out both their defining strength and their most notable blind spot based on what you observed. This should read like a senior partner's private coaching note — direct, specific, and actionable. Do NOT repeat the archetype description — add NEW insight based on their actual performance.
 
 TASK 4 — PER-ANSWER FEEDBACK:
-For EACH of the ${input.pendingResponses.length} answers above, write 2-3 sentences of qualitative feedback that references specific phrases, choices, or omissions in that actual answer. Do not write generic coaching. Quote or closely paraphrase something specific the candidate said or failed to say. Show what was good and what was missing.
+For EACH of the ${input.pendingResponses.length} answers above, write 2-3 sentences of qualitative feedback grounded in BOTH the candidate's actual words AND the scoring guidance rubric for that probe. You MUST:
+- Reference at least one specific rubric criterion the candidate hit, missed, or got wrong (use the "Rubric alignment" and "Scoring guidance" lines). If those lines are absent, fall back to specific quotes from the answer.
+- Quote or tightly paraphrase something specific the candidate said or failed to say — do not write coaching that could apply to any answer.
+- Be honest about what was good and what was missing per the rubric.
 
 Examples of strong per-answer feedback:
-- "Your opening hypothesis named the right problem but didn't commit to a direction — you said 'could be either revenue or cost' but didn't follow it with a so-what or a prioritization."
-- "You correctly identified the capacity gap but jumped straight to 'hire more drivers' without acknowledging the 8% monthly turnover data sitting in the exhibit. That omission is exactly what a follow-up question would expose."
-- "This was your clearest response — you used the SCR structure precisely, led with the complication rather than burying it, and quantified the risk with the payback number."
+- "You named the right problem — margin decline driven by mix shift — and your quote 'sticky customers but lower-margin SKUs' hits the rubric's 'segment-level mix diagnosis' criterion. But you didn't separate price from volume, which the rubric flags explicitly as the central distinction."
+- "You picked option B when the rubric expects A, and your reasoning (\"because it signals urgency\") reveals you read the tempting distractor. The rubric's 'cost of delay outweighs optionality' wasn't engaged at all."
+- "This was your clearest response — you used the SCR structure, led with the complication, and quantified the 8-month payback the rubric asks for. The rubric's 'scenario sensitivity' bullet is the one missing piece."
 
 TASK 5 — CASE SUMMARIES:
 Write a summary for each of the 3 cases (L1, L2, L3). For each case, produce:

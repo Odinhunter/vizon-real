@@ -99,11 +99,16 @@ Each object must match this exact structure:
     "framing_quality": 0.0 to 1.0,
     "reasoning_confidence": 0.0 to 1.0,
     "communication_clarity": 0.0 to 1.0
-  }
+  },
+  "rubric_alignment": 0.0 to 1.0,
+  "matched_criteria": ["short phrase naming a rubric point they hit", ...],
+  "missed_criteria": ["short phrase naming a rubric point they failed to address", ...],
+  "extraneous_points": ["short phrase naming off-rubric content they spent effort on", ...]
 }
 
 probe_index must be the integer shown in the probe block header (e.g. [probe_index: 3] → "probe_index": 3). This field is required and must match exactly.
-All other numeric values must be numbers between 0 and 1 inclusive. The key_observations array must have 1–5 string entries.
+All numeric values must be numbers between 0 and 1 inclusive. The key_observations array must have 1–5 string entries.
+matched_criteria / missed_criteria / extraneous_points each contain 0–5 short (≤15-word) phrases grounded in the scoring guidance text — do not invent criteria that aren't in the rubric. If the probe has no rubric, return empty arrays and omit rubric_alignment.
 Do not wrap the JSON in markdown code blocks. Do not include any text outside the JSON array.`;
 
   return { system, user };
@@ -136,6 +141,19 @@ behavioral_signals — observe each independently (0.0 to 1.0):
   framing_quality: How well the candidate frames the problem or context before diving into analysis. 0.0 = no framing, dives straight in. 0.5 = basic framing present but generic. 1.0 = crisp, structured framing that sets up the analysis and shows understanding of the problem space.
   reasoning_confidence: How decisively and clearly the candidate reasons without excessive hedging. 0.0 = extremely uncertain, constant hedging, no conviction. 0.5 = some assertions but frequently qualifies or backtracks. 1.0 = decisive reasoning with appropriate conviction and clear logic chain.
   communication_clarity: How clearly and concisely the candidate communicates ideas. 0.0 = muddled, hard to follow, verbose without substance. 0.5 = understandable but could be more concise or better organized. 1.0 = crystal clear, concise, every sentence adds value.
+
+rubric_alignment (0.0 to 1.0) — Specifically how well the answer matches the probe's own scoring guidance. This is a narrower axis than signal_strength:
+  0.0–0.2: Answer addresses almost none of the rubric's listed criteria or chooses the wrong option / frames the wrong problem.
+  0.2–0.5: Answer touches one or two rubric points but leaves the central rubric requirements unaddressed or wrong.
+  0.5–0.7: Answer hits roughly half the rubric's key criteria; strong on some, silent or weak on others.
+  0.7–0.85: Answer covers most rubric criteria correctly, with only minor omissions.
+  0.85–1.0: Answer lands nearly every rubric bullet and demonstrates the specific distinctions the rubric asks for.
+
+matched_criteria — short phrases (≤15 words each) naming the specific rubric points the candidate's answer actually satisfied. Quote or tightly paraphrase the rubric language. 0–5 items.
+missed_criteria — short phrases naming rubric points the candidate failed to address or got wrong. This is the most important field for downstream feedback. 0–5 items.
+extraneous_points — short phrases naming non-trivial content the candidate spent effort on that the rubric doesn't credit (e.g. tangents, generic frameworks). 0–5 items.
+
+These three arrays MUST be grounded in the "Scoring guidance" block shown with each probe. Do not fabricate criteria the rubric doesn't contain. If no rubric is provided for a probe, return empty arrays and omit rubric_alignment.
 
 SCORING PHILOSOPHY:
 - Be a FAIR but discerning grader. You are evaluating against professional consulting standards.

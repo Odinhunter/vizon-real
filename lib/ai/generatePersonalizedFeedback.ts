@@ -15,6 +15,7 @@ import { callModel } from './modelClient';
 import {
   buildPersonalizedFeedbackPrompt,
   type PersonalizedFeedbackOutput,
+  type RubricAlignmentEntry,
 } from './promptTemplates/personalizedFeedback';
 import { z } from 'zod';
 
@@ -58,23 +59,42 @@ export async function generatePersonalizedFeedback(
   archetypeTopTraits?: string[],
   trackId = 'consulting'
 ): Promise<PersonalizedFeedbackOutput | null> {
-  // Build key observations grouped by skill.
+  // Build key observations grouped by skill, and per-probe rubric alignment.
   // Match by probe_index (echoed from the prompt) to stay order-independent.
   const keyObservations: Record<string, string[]> = {};
+  const rubricAlignmentByProbeIndex: Record<number, RubricAlignmentEntry> = {};
   const extractionByIndex = new Map(extractions.map(e => [e.probe_index, e]));
   for (let i = 0; i < pendingResponses.length; i++) {
-    const extraction = extractionByIndex.get(i + 1);
+    const probeIndex = i + 1;
+    const extraction = extractionByIndex.get(probeIndex);
     const pending = pendingResponses[i];
     if (!extraction || !pending) continue;
+
     const obs = keyObservations[pending.skillId] ?? [];
     obs.push(...(extraction.key_observations ?? []));
     keyObservations[pending.skillId] = obs;
+
+    const hasAlignment =
+      extraction.rubric_alignment !== undefined ||
+      (extraction.matched_criteria && extraction.matched_criteria.length > 0) ||
+      (extraction.missed_criteria && extraction.missed_criteria.length > 0) ||
+      (extraction.extraneous_points && extraction.extraneous_points.length > 0);
+
+    if (hasAlignment) {
+      rubricAlignmentByProbeIndex[probeIndex] = {
+        alignment: extraction.rubric_alignment,
+        matched: extraction.matched_criteria,
+        missed: extraction.missed_criteria,
+        extraneous: extraction.extraneous_points,
+      };
+    }
   }
 
   const { system, user } = buildPersonalizedFeedbackPrompt({
     skills,
     pendingResponses,
     keyObservations,
+    rubricAlignmentByProbeIndex,
     trackScore,
     benchmark,
     archetypeName,

@@ -36,6 +36,19 @@ behavioral_signals — observe each independently (0.0 to 1.0):
   reasoning_confidence: How decisively the candidate forms investment views. 0.0 = extremely uncertain, constant hedging, no conviction. 0.5 = some assertions but frequently qualifies or backtracks. 1.0 = commits to specific numbers and a defensible position with clear logic chain.
   communication_clarity: How clearly the candidate communicates financial analysis. 0.0 = muddled, hard to follow, verbose without substance. 0.5 = understandable but could be more concise or better organized. 1.0 = calculation chain is traceable, conclusions stated upfront, every sentence adds value.
 
+rubric_alignment (0.0 to 1.0) — Specifically how well the answer matches the probe's own scoring guidance. This is a narrower axis than signal_strength:
+  0.0–0.2: Answer addresses almost none of the rubric's listed criteria, picks the wrong option, or produces calculations the rubric flags as wrong.
+  0.2–0.5: Answer touches one or two rubric points (e.g. identifies the metric) but leaves the central calculations or investment judgement unaddressed or wrong.
+  0.5–0.7: Answer hits roughly half the rubric's key criteria; calculations partially correct, some required metrics present but others missing.
+  0.7–0.85: Answer covers most rubric criteria with correct numbers and appropriate metrics, with only minor omissions (e.g. unquantified risk).
+  0.85–1.0: Answer lands nearly every rubric bullet — calculations match, required metrics stated, distinctions the rubric flags (EV vs equity, gross vs operating, MoM vs IRR) handled correctly.
+
+matched_criteria — short phrases (≤15 words each) naming specific rubric points the candidate satisfied: correct calculations ("ROIC 22.5% matches rubric"), right metric chosen, right investment call. 0–5 items.
+missed_criteria — short phrases naming rubric points the candidate failed: missing calculations, wrong metric, confused concept, unquantified risk the rubric required. This is the most important field for downstream feedback. 0–5 items.
+extraneous_points — short phrases naming non-trivial content the candidate spent effort on that the rubric doesn't credit (e.g. tangents, generic frameworks, off-thesis analysis). 0–5 items.
+
+These three arrays MUST be grounded in the "Scoring guidance" block shown with each probe. Do not fabricate criteria the rubric doesn't contain. If no rubric is provided for a probe, return empty arrays and omit rubric_alignment.
+
 FINANCE-SPECIFIC CALIBRATION RULES:
 - Financial literacy is TABLE STAKES — confusing revenue/profit or EBITDA/net income → signal_strength < 0.3
 - Correct calculations are ESSENTIAL — right framework + wrong numbers caps signal_strength at 0.6
