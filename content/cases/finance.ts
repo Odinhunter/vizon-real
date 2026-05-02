@@ -186,7 +186,7 @@ export const financeCaseContent: Record<string, CaseContent> = {
     narrative:
       'You are on the investment team at a growth equity fund evaluating Cognify AI, a US-based agentic AI company that builds autonomous workflow agents for enterprises. The company generates revenue through a subscription-based model (ARR). The fund is considering acquiring a 40% stake and exiting in 5 years. Assume no dilution over the holding period.',
     situation:
-      'Cognify AI has $120M in ARR growing at 30%, with 600 enterprise customers at an average ARR of $200K. EBITDA margin is 20%. Management expects ARR growth to moderate from 30% to ~20% over time, while EBITDA margins expand from 20% to 30%. Comparable SaaS companies trade at 8×–12× ARR depending on growth. The fund would enter at 10× current ARR and targets an exit at 10× ARR after 5 years.',
+      'Cognify AI has $120M in ARR growing at 30%, with 600 enterprise customers at an average ARR of $200K. EBITDA margin is 20%. Management expects ARR growth to moderate from 30% in Year 1 down to ~14% by Year 5 (averaging ~20% blended CAGR), while EBITDA margins expand from 20% to 30%. Comparable SaaS companies trade at 8×–12× ARR depending on growth. The fund would enter at 10× current ARR and targets an exit at 10× ARR after 5 years.',
     problemStatement:
       'Should the fund invest in Cognify AI? Evaluate the entry valuation, projected returns (MoM and IRR), downside risks, and optimal deal structure for a 40% stake with a 5-year holding period.',
     dataExhibitHint:
@@ -216,7 +216,7 @@ export const financeCaseContent: Record<string, CaseContent> = {
         subtitle: 'Management projections and market context',
         columns: ['Current', 'Projected'],
         rows: [
-          { label: 'ARR growth rate', values: ['30%', '~20% (moderating)'], isHighlight: true },
+          { label: 'ARR growth rate', values: ['30% (Y1)', '~14% (Y5)'], isHighlight: true },
           { label: 'EBITDA margin', values: ['20%', '30%'], isHighlight: true },
           { isSpacer: true, label: '', values: [] },
           { label: 'Comparable SaaS multiples', values: ['8×–12× ARR', '(growth-dependent)'] },
@@ -238,7 +238,7 @@ export const financeCaseContent: Record<string, CaseContent> = {
           { label: 'ARR growth over 5 years', values: ['~2.5×'], isHighlight: true },
           { label: 'Exit multiple', values: ['10× ARR'] },
         ],
-        footnote: 'ARR grows to approximately 2.5× over 5 years, implying a ~20% blended CAGR as growth moderates from 30% to ~20%.',
+        footnote: 'ARR grows to approximately 2.5× over 5 years, implying a ~20% blended CAGR as growth moderates from 30% in Year 1 to ~14% by Year 5.',
       },
 
       // Q4: Risk & Downside — compressed scenario
@@ -263,7 +263,7 @@ export const financeCaseContent: Record<string, CaseContent> = {
         rows: [
           { label: 'Structure', values: ['Standard equity', 'Preferred + equity'] },
           { label: 'Investment amount', values: ['$480M', '$300M'] },
-          { label: 'Ownership', values: ['40%', '25%'] },
+          { label: 'Ownership', values: ['40%', '10%'] },
           { label: 'Preferred return', values: ['None', '8% compounded annually'] },
           { label: 'Above preferred', values: ['Pro-rata', 'Pro-rata'] },
         ],

@@ -23,7 +23,7 @@ export const consultingCaseContent: Record<string, CaseContent> = {
         subtitle: 'Quarterly membership data across all 20 locations',
         xKeys: ['Q1', 'Q2', 'Q3', 'Q4'],
         series: [
-          { name: 'Total Members', values: [48000, 50000, 46000, 39000], highlight: true },
+          { name: 'Total Members', values: [48000, 49000, 47500, 46200], highlight: true },
         ],
         yAxisFormat: 'number',
         footnote: 'Membership prices remained unchanged throughout this period. Two new gym chains opened multiple locations in the same cities during Q3 and Q4.',
@@ -36,9 +36,9 @@ export const consultingCaseContent: Record<string, CaseContent> = {
         subtitle: 'Monthly unit economics per gym location',
         columns: ['6 Months Ago', 'Today'],
         rows: [
-          { label: 'Members per gym', values: ['2,400', '1,950'] },
+          { label: 'Members per gym', values: ['2,400', '2,310'] },
           { label: 'Monthly membership fee', values: ['₹2,000', '₹2,000'] },
-          { label: 'Monthly operating cost', values: ['₹35L', '₹36L'], isHighlight: true },
+          { label: 'Monthly operating cost', values: ['₹35L', '₹35.6L'], isHighlight: true },
           { isSpacer: true, label: '', values: [] },
           { label: 'Total FitLife gyms', values: ['20', '20'] },
           { label: 'Avg. gym capacity', values: ['~2,500 members', '~2,500 members'] },
@@ -118,7 +118,7 @@ export const consultingCaseContent: Record<string, CaseContent> = {
         subtitle: 'Operations team evaluated four potential solutions to reduce delivery delays',
         columns: ['Capacity Impact', 'Time to Implement', 'Cost'],
         rows: [
-          { label: 'Hire more drivers', values: ['+4,000 deliveries/day', '2 months', '$6M'] },
+          { label: 'Hire more drivers', values: ['+5,800 deliveries/day', '2 months', '$9M'] },
           { label: 'Improve routing software', values: ['+2,400 deliveries/day', '3 months', '$2M'], isHighlight: true },
           { label: 'Open new fulfillment hubs', values: ['+1,200 deliveries/day', '9 months', '$12M'] },
           { label: 'Limit peak-hour orders', values: ['−10% demand', 'Immediate', 'Low'] },

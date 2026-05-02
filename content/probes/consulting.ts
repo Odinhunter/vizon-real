@@ -141,13 +141,13 @@ export const consultingProbeContent: Record<string, ProbeVariantContent> = {
     instruction:
       'Select the closest answer. Then show your full calculation in three steps: (1) monthly profit per gym 6 months ago, (2) monthly profit per gym today, (3) total monthly profit lost across all 20 gyms. Explain what appears to be the primary driver. Max 250 words.',
     options: [
-      { id: 'A', text: '~₹100L total monthly profit lost' },
-      { id: 'B', text: '~₹150L total monthly profit lost' },
-      { id: 'C', text: '~₹200L total monthly profit lost' },
-      { id: 'D', text: '~₹250L total monthly profit lost' },
+      { id: 'A', text: '~₹25L total monthly profit lost' },
+      { id: 'B', text: '~₹50L total monthly profit lost' },
+      { id: 'C', text: '~₹100L total monthly profit lost' },
+      { id: 'D', text: '~₹200L total monthly profit lost' },
     ],
     scoringGuidance:
-      'Correct answer: C. Calculation: (1) 6 months ago: Revenue = 2,400 × ₹2,000 = ₹48L. Profit = ₹48L − ₹35L = ₹13L per gym. (2) Today: Revenue = 1,950 × ₹2,000 = ₹39L. Profit = ₹39L − ₹36L = ₹3L per gym. (3) Profit drop per gym = ₹13L − ₹3L = ₹10L. Total across 20 gyms = ₹10L × 20 = ₹200L. Strong: selects C, shows all three calculation steps correctly, and identifies membership decline as the primary driver (with cost increase as secondary). Partial: selects C but misses one step. Weak: confuses revenue and profit, skips calculation steps, or selects the wrong option.',
+      'Correct answer: B. Calculation: (1) 6 months ago: Revenue = 2,400 × ₹2,000 = ₹48L. Profit = ₹48L − ₹35L = ₹13L per gym. (2) Today: Revenue = 2,310 × ₹2,000 = ₹46.2L. Profit = ₹46.2L − ₹35.6L = ₹10.6L per gym. (3) Profit drop per gym = ₹13L − ₹10.6L = ₹2.4L. Total across 20 gyms = ₹2.4L × 20 = ₹48L (≈ ₹50L), an ~18% drop on a base of ~₹260L/month. Strong: selects B, shows all three calculation steps, and identifies membership decline as the primary driver (with cost increase as secondary). Partial: selects B but misses one step. Weak: confuses revenue and profit, skips calculation steps, or selects D (an order-of-magnitude error from miscomputing the per-gym drop).',
   },
 
   analytical_thinking_medium_context: {
@@ -252,7 +252,7 @@ export const consultingProbeContent: Record<string, ProbeVariantContent> = {
       { id: 'D', text: 'Limit peak-hour orders' },
     ],
     scoringGuidance:
-      'Correct answer: B. Routing improvement increases deliveries per driver from 20 to ~23, giving new capacity of 800 × 23 = 18,400 vs. 23,000 demand. Remaining gap ≈ 4,600. Routing does not solve the entire problem but it: significantly reduces the gap, costs less ($2M vs. $6M for hiring), and improves system efficiency structurally. Strong: selects B, cites the cost-effectiveness ($2M vs. $6M+), notes that routing improves per-driver productivity across all cities, acknowledges it partially closes the gap while being the most efficient first move, and notes that targeted hiring in top 3 cities should follow as a second phase — especially given the driver turnover problem (8% monthly) that must also be addressed. Partial: selects B but does not use the exhibit numbers or mention the phased approach. Weak: selects A without considering cost-effectiveness, selects C without noting the 9-month implementation delay, or selects D without noting revenue impact.',
+      'Correct answer: B (or A with strong reasoning). Routing improvement increases deliveries per driver from 20 to ~23, giving new capacity of 800 × 23 = 18,400 vs. 23,000 demand — partial fix that closes ~2,400 of the 5,800/day gap at just $2M. A (hire 290 drivers) fully closes the 5,800/day gap at $9M and 2 months. Strong for B: cites cost-effectiveness ($2M vs. $9M), notes routing improves per-driver productivity structurally across all cities, and proposes targeted hiring in top 3 cities as a second phase to close the residual gap — especially given driver turnover (8% monthly). Strong for A: argues full coverage in 2 months justifies the $9M premium, especially because turnover means the 290-driver target keeps moving and routing alone leaves a persistent gap. Partial: selects B or A but does not use the exhibit numbers or compare cost-vs-coverage trade-offs. Weak: selects C without noting the 9-month implementation delay, or selects D without noting revenue impact.',
   },
 
   decision_recommendation_high_context: {
