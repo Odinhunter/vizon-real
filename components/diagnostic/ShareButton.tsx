@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import Toast from '@/components/ui/Toast';
 
 interface ShareButtonProps {
@@ -10,10 +10,11 @@ interface ShareButtonProps {
 
 export default function ShareButton({ sessionId, title = 'Vizon Diagnostic Results' }: ShareButtonProps) {
   const [toastVisible, setToastVisible] = useState(false);
+  const [url, setUrl] = useState(`/results/${sessionId}`);
 
-  const url = typeof window !== 'undefined'
-    ? `${window.location.origin}/results/${sessionId}`
-    : `/results/${sessionId}`;
+  useEffect(() => {
+    setUrl(`${window.location.origin}/results/${sessionId}`);
+  }, [sessionId]);
 
   const handleShare = useCallback(async () => {
     if (typeof navigator !== 'undefined' && navigator.share && /Mobi|Android/i.test(navigator.userAgent)) {

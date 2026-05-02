@@ -41,7 +41,7 @@ async function callAndValidate(
   prompt: string,
   expectedCount: number
 ): Promise<BatchExtractionResult | null> {
-  const response = await callModel({ system, prompt, temperature: 0.2 });
+  const response = await callModel({ system, prompt, temperature: 0 });
 
   try {
     // Strip markdown code fences if present

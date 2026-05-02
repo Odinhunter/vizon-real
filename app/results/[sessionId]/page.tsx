@@ -10,22 +10,27 @@ interface ResultsPageProps {
 }
 
 export async function generateMetadata({ params }: ResultsPageProps): Promise<Metadata> {
+  const session = await auth();
+  if (!session?.user?.id) {
+    return { title: 'Vizon Diagnostic Results' };
+  }
+
   const { sessionId } = await params;
 
   const run = await prisma.diagnosticRun.findUnique({
     where: { sessionId },
-    select: { resultJson: true, trackScore: true, verdict: true },
+    select: { resultJson: true, trackScore: true, verdict: true, userId: true },
   });
 
-  if (!run?.resultJson) {
-    return { title: 'Results Not Found — Vizon' };
+  if (!run?.resultJson || run.userId !== session.user.id) {
+    return { title: 'Vizon Diagnostic Results' };
   }
 
   try {
     const report = JSON.parse(run.resultJson) as DiagnosticReport;
     const archetypeName = report.archetype?.name ?? 'Diagnostic Results';
     const title = `Vizon: ${run.trackScore}/100 — ${archetypeName}`;
-    const description = `${run.verdict?.replace(/_/g, ' ')} · Strongest: ${report.metadata?.strongestSkill ?? 'N/A'}`;
+    const description = `${run.verdict?.replace(/_/g, ' ')} · Strongest: ${report.metadata?.strongestSkill?.label ?? 'N/A'}`;
 
     return {
       title,

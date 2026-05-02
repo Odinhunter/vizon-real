@@ -10,7 +10,7 @@ export const analyticsCase001: CaseMetadata = {
   trackId: 'analytics',
   title: 'Declining Day-7 Activation on a Consumer Mobile App',
   description:
-    'A consumer mobile app sees a 15-point drop in Day-7 activation rate over two months. The candidate must interpret engagement funnel data, decompose the problem, and form a directional diagnosis without a full data pull.',
+    'A consumer mobile app sees a 16-point drop in Day-7 activation rate over two months. The candidate must interpret engagement funnel data, decompose the problem, and form a directional diagnosis without a full data pull.',
   scenarioType: 'product_analytics',
   tags: ['activation', 'funnel-analysis', 'mobile', 'early-diagnostic'],
   probeSlotIds: [
