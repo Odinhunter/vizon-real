@@ -8,6 +8,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { after } from 'next/server';
+import { Prisma } from '@prisma/client';
 import { auth } from '@/auth';
 import { prisma } from '@/lib/db';
 import { applyRateLimit, diagnosticStartLimiter, diagnosticAnswerLimiter, diagnosticCheckLimiter } from '@/lib/rateLimit';
@@ -270,10 +271,9 @@ async function handleAnswer(body: {
     }
   }
 
-  // Load session state from DB
+  // Load session state from DB. version is used below as the optimistic-lock guard.
   const run = await prisma.diagnosticRun.findUnique({
     where: { sessionId },
-    include: { _count: { select: { responses: true } } },
   });
 
   if (!run || !run.sessionStateJson) {
@@ -350,38 +350,63 @@ async function handleAnswer(body: {
 
   const result = await runDiagnosticSessionStep(updatedSession, trackEntry.probes);
 
-  // Persist individual probe response to DB
-  if (lastStep.type === 'probe') {
-    const responseText = typeof rawResponse === 'string'
+  // Persist probe response + session state in a single transaction guarded by an optimistic lock.
+  // Two concurrent answer submissions for the same session would otherwise read identical state,
+  // both compute their own next state, and the second write would silently clobber the first.
+  // The WHERE { sessionId, version: run.version } update matches zero rows on the loser, throwing P2025.
+  const responseText = lastStep.type === 'probe'
+    ? (typeof rawResponse === 'string'
       ? rawResponse
-      : rawResponse != null ? JSON.stringify(rawResponse) : null;
+      : rawResponse != null ? JSON.stringify(rawResponse) : null)
+    : null;
 
-    await prisma.probeResponse.create({
-      data: {
-        diagnosticRunId: run.id,
-        probeId: lastStep.probe.probeId,
-        skillId: lastStep.probe.skillId,
-        variantId: lastStep.variant.variantId,
-        sequenceNumber: run._count.responses + 1,
-        caseId: diagSession.currentCaseId,
-        caseStage: diagSession.caseStage,
-        contextLevel: lastStep.variant.contextLevel,
-        format: probeFormat,
-        rawResponse: responseText,
-        selectedOptionId: selectedOptionId ?? null,
-        selectedOptionIds: selectedOptionIds ? JSON.stringify(selectedOptionIds) : null,
-      },
+  try {
+    await prisma.$transaction(async (tx) => {
+      if (lastStep.type === 'probe') {
+        const currentResponseCount = await tx.probeResponse.count({
+          where: { diagnosticRunId: run.id },
+        });
+
+        await tx.probeResponse.create({
+          data: {
+            diagnosticRunId: run.id,
+            probeId: lastStep.probe.probeId,
+            skillId: lastStep.probe.skillId,
+            variantId: lastStep.variant.variantId,
+            sequenceNumber: currentResponseCount + 1,
+            caseId: diagSession.currentCaseId,
+            caseStage: diagSession.caseStage,
+            contextLevel: lastStep.variant.contextLevel,
+            format: probeFormat,
+            rawResponse: responseText,
+            selectedOptionId: selectedOptionId ?? null,
+            selectedOptionIds: selectedOptionIds ? JSON.stringify(selectedOptionIds) : null,
+          },
+        });
+      }
+
+      await tx.diagnosticRun.update({
+        where: { sessionId, version: run.version },
+        data: {
+          sessionStateJson: JSON.stringify(result.session),
+          pendingStepJson: result.step.type === 'probe' ? JSON.stringify(result.step) : null,
+          version: { increment: 1 },
+        },
+      });
     });
+  } catch (err) {
+    if (err instanceof Prisma.PrismaClientKnownRequestError) {
+      // P2025: update WHERE matched no row → version moved → another writer won the race.
+      // P2002: unique(diagnosticRunId, sequenceNumber) violated → another writer claimed our slot.
+      if (err.code === 'P2025' || err.code === 'P2002') {
+        return NextResponse.json(
+          { error: 'Session was modified by another request. Please retry.' },
+          { status: 409 }
+        );
+      }
+    }
+    throw err;
   }
-
-  // Update session state + pending step in DB
-  await prisma.diagnosticRun.update({
-    where: { sessionId },
-    data: {
-      sessionStateJson: JSON.stringify(result.session),
-      pendingStepJson: result.step.type === 'probe' ? JSON.stringify(result.step) : null,
-    },
-  });
 
   // ── Phase 1: batch extraction + scoring (synchronous — required for scores) ──
   let diagnosticResult = undefined;

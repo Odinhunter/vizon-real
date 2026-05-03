@@ -83,6 +83,8 @@ model DiagnosticRun {
   trackId   String
   sessionId String @unique
   status    String @default("IN_PROGRESS")
+  // Optimistic-lock counter — every state mutation increments this; concurrent writers race on the WHERE clause.
+  version   Int    @default(0)
 
   // Full engine session state — replaces in-memory Map.
   // Serialized DiagnosticSession JSON, updated on every step.
@@ -147,4 +149,6 @@ model ProbeResponse {
   @@index([probeId])
   @@index([caseId])
   @@index([answeredAt])
+  // Concurrency guard: two answer-writes for the same run racing on the same sequenceNumber must not both succeed.
+  @@unique([diagnosticRunId, sequenceNumber])
 }
