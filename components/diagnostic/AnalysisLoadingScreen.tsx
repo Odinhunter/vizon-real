@@ -11,7 +11,11 @@ const MESSAGES = [
   'Almost there...',
 ];
 
-export default function AnalysisLoadingScreen() {
+interface AnalysisLoadingScreenProps {
+  totalProbes: number;
+}
+
+export default function AnalysisLoadingScreen({ totalProbes }: AnalysisLoadingScreenProps) {
   const [messageIndex, setMessageIndex] = useState(0);
   const [fade, setFade] = useState(true);
 
@@ -46,7 +50,7 @@ export default function AnalysisLoadingScreen() {
             {MESSAGES[messageIndex]}
           </p>
           <p className="font-mono text-xs text-neutral-500">
-            Reviewing 15 responses · 30–60 seconds
+            Reviewing {totalProbes} responses · 30–60 seconds
           </p>
         </div>
 

@@ -13,6 +13,7 @@ interface ProbeDisplayProps {
   caseNumber: 1 | 2 | 3;
   probeNumber: number;
   totalProbes: number;
+  totalCases: number;
   /** Provided by the server — true when submitting this probe will complete the session. */
   isLastProbe: boolean;
   answer: string;
@@ -41,8 +42,6 @@ const LEVEL_LABELS: Record<string, string> = {
   high: 'PRESSURE',
 };
 
-const TOTAL_CASES = 3;
-
 export default function ProbeDisplay({
   step,
   caseContent,
@@ -50,6 +49,7 @@ export default function ProbeDisplay({
   caseNumber,
   probeNumber,
   totalProbes,
+  totalCases,
   isLastProbe,
   answer,
   onAnswerChange,
@@ -82,7 +82,7 @@ export default function ProbeDisplay({
     probeContent?.instruction ?? 'Explain your reasoning clearly and in detail.';
 
   const completedProbes = (caseNumber - 1) * totalProbes + (probeNumber - 1);
-  const totalSessionProbes = TOTAL_CASES * totalProbes;
+  const totalSessionProbes = totalCases * totalProbes;
   const progressPct = Math.round((completedProbes / totalSessionProbes) * 100);
 
   const trackName = 'CONSULTING TRACK';
@@ -111,7 +111,7 @@ export default function ProbeDisplay({
             Q{probeNumber}/{totalProbes}
           </span>
           <span className="text-neutral-500 text-xs font-mono tracking-wider">
-            C{caseNumber}/3
+            C{caseNumber}/{totalCases}
           </span>
         </div>
         {/* Center: progress (desktop) */}
@@ -132,7 +132,7 @@ export default function ProbeDisplay({
         {/* Right: case stage (desktop) */}
         <div className="shrink-0 hidden md:block">
           <span className="text-neutral-500 text-xs font-mono tracking-wider uppercase">
-            CASE {caseNumber} OF 3
+            CASE {caseNumber} OF {totalCases}
           </span>
         </div>
       </nav>
@@ -383,7 +383,7 @@ export default function ProbeDisplay({
               <div className="flex items-center justify-between mb-4">
                 <span className="text-[10px] font-mono text-neutral-500 tracking-widest uppercase">Case Briefing</span>
                 <span className="px-2 py-0.5 text-[10px] font-mono border border-neutral-200 text-neutral-500 uppercase tracking-wider">
-                  Case {caseNumber} of 3
+                  Case {caseNumber} of {totalCases}
                 </span>
               </div>
               <h3 className="font-mono text-base font-semibold text-neutral-900 mb-1">{caseContent.title}</h3>

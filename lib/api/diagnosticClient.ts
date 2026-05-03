@@ -143,6 +143,11 @@ export interface DiagnosticReport {
     benchmark: number;
     strongestSkill: { label: string; score: number };
     weakestSkill: { label: string; score: number };
+    overallAssessment: SkillAssessment;
+    avgGap: number;
+    bestStage: { stage: 1 | 2 | 3; avg: number };
+    skillsImproving: number;
+    skillsDeclining: number;
   };
   quickStats: {
     skillsAboveBenchmark: number;

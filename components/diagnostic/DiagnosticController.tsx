@@ -4,6 +4,7 @@ import { useState, useCallback, useEffect } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import type { ProbeStep, DiagnosticReport, InProgressSessionInfo } from '@/lib/api/diagnosticClient';
 import { startSession, submitAnswer, getInProgressSession, resumeSession } from '@/lib/api/diagnosticClient';
+import type { TrackShape } from '@/config/registry';
 import { getCaseContent, getProbeContent, getTrackIntro } from '@/content/index';
 import { pageTransition } from '@/lib/motion/variants';
 import DiagnosticIntro from './DiagnosticIntro';
@@ -16,11 +17,12 @@ import AnalysisLoadingScreen from './AnalysisLoadingScreen';
 
 interface DiagnosticControllerProps {
   trackId: string;
+  trackShape: TrackShape;
 }
 
 type Phase = 'intro' | 'resume_prompt' | 'user_setup' | 'case_intro' | 'probe' | 'results';
 
-export default function DiagnosticController({ trackId }: DiagnosticControllerProps) {
+export default function DiagnosticController({ trackId, trackShape }: DiagnosticControllerProps) {
   const [phase, setPhase] = useState<Phase>('intro');
   const [isStarting, setIsStarting] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -287,6 +289,8 @@ export default function DiagnosticController({ trackId }: DiagnosticControllerPr
       return (
         <ResumePrompt
           session={inProgressSession}
+          totalCases={trackShape.totalCases}
+          probesPerCase={trackShape.probesPerCase}
           onContinue={handleContinue}
           onStartFresh={handleStartFresh}
           isContinuing={isContinuing}
@@ -320,7 +324,7 @@ export default function DiagnosticController({ trackId }: DiagnosticControllerPr
       }
 
       if (isSubmitting && isLastProbe) {
-        return <AnalysisLoadingScreen />;
+        return <AnalysisLoadingScreen totalProbes={trackShape.totalProbes} />;
       }
 
       const handleToggleOptionId = (id: string) => {
@@ -337,7 +341,8 @@ export default function DiagnosticController({ trackId }: DiagnosticControllerPr
           probeContent={probeContent}
           caseNumber={caseNumber}
           probeNumber={probeNumber}
-          totalProbes={5}
+          totalProbes={trackShape.probesPerCase}
+          totalCases={trackShape.totalCases}
           isLastProbe={isLastProbe}
           answer={answer}
           onAnswerChange={setAnswer}

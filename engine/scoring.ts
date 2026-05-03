@@ -24,6 +24,10 @@
 import type { ContextLevel } from '@/config/probes/types';
 import type { SkillConfig } from './selectNextProbe';
 import type { SkillProbeEntry } from './diagnosticSession';
+// SkillAssessment is defined in the API client because it's part of the wire shape.
+// The engine depends on it deliberately — the engine produces the report; the client
+// only types it. Don't "fix" this by moving SkillAssessment back into engine.
+import type { SkillAssessment } from '@/lib/api/diagnosticClient';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -238,6 +242,19 @@ export function generateDiagnosticResult(
     behavioralScores,
     coverage: { total, assessed },
   };
+}
+
+// ─── Classification ───────────────────────────────────────────────────────────
+
+/**
+ * Maps a score-vs-benchmark gap to a SkillAssessment tier.
+ * Used both for individual skills and the overall track score.
+ */
+export function classifyFromGap(gap: number): SkillAssessment {
+  if (gap >= 5) return 'ABOVE_THRESHOLD';
+  if (gap >= -4) return 'NEAR_THRESHOLD';
+  if (gap >= -10) return 'BELOW_THRESHOLD';
+  return 'CRITICAL_GAP';
 }
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────

@@ -2,6 +2,7 @@ import { notFound, redirect } from 'next/navigation';
 import { auth } from '@/auth';
 import { prisma } from '@/lib/db';
 import type { DiagnosticReport } from '@/lib/api/diagnosticClient';
+import { ensureMetadataComplete } from '@/engine/analyzeResults';
 import DiagnosticResults from '@/components/diagnostic/DiagnosticResults';
 import type { Metadata } from 'next';
 
@@ -67,7 +68,7 @@ export default async function ResultsPage({ params }: ResultsPageProps) {
 
   let report: DiagnosticReport;
   try {
-    report = JSON.parse(run.resultJson) as DiagnosticReport;
+    report = ensureMetadataComplete(JSON.parse(run.resultJson) as DiagnosticReport);
   } catch {
     notFound();
   }

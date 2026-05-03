@@ -19,6 +19,11 @@ const MOCK_RESULT: DiagnosticReport = {
     benchmark: 85,
     strongestSkill: { label: 'Structuring', score: 91 },
     weakestSkill: { label: 'Quantitative Reasoning', score: 58 },
+    overallAssessment: 'BELOW_THRESHOLD',
+    avgGap: -7,
+    bestStage: { stage: 2, avg: 80 },
+    skillsImproving: 1,
+    skillsDeclining: 0,
   },
   quickStats: {
     skillsAboveBenchmark: 1,

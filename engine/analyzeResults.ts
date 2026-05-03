@@ -27,6 +27,7 @@ import {
   aggregateSkillScores,
   calculateTrackScore,
   aggregateBehavioralSignals,
+  classifyFromGap,
   clamp,
 } from './scoring';
 import { getTrackAnalysisConfig } from './trackAnalysisConfig';
@@ -44,13 +45,6 @@ function classifyVerdict(trackScore: number): VerdictTier {
   if (trackScore >= 70) return 'BORDERLINE';
   if (trackScore >= 55) return 'BELOW_THRESHOLD';
   return 'SIGNIFICANT_GAP';
-}
-
-function classifySkillAssessment(gap: number): SkillAssessment {
-  if (gap >= 5) return 'ABOVE_THRESHOLD';
-  if (gap >= -4) return 'NEAR_THRESHOLD';
-  if (gap >= -10) return 'BELOW_THRESHOLD';
-  return 'CRITICAL_GAP';
 }
 
 function classifyTrajectory(entries: SkillProbeEntry[]): TrajectoryPattern {
@@ -208,7 +202,7 @@ export function analyzeResults(
   const skills: SkillDetail[] = skillConfigs.map((cfg) => {
     const score = skillScores[cfg.skillId] ?? 0;
     const gap = score - BENCHMARK;
-    const assessment = classifySkillAssessment(gap);
+    const assessment = classifyFromGap(gap);
     const entries = skillEvidence[cfg.skillId] ?? [];
     const trajectory = classifyTrajectory(entries);
     const stageScores = computeStageScores(entries);
@@ -257,7 +251,7 @@ export function analyzeResults(
       label: BEHAVIORAL_LABELS[key] ?? dimension,
       score,
       benchmark: BEHAVIORAL_BENCHMARK,
-      assessment: classifySkillAssessment(gap),
+      assessment: classifyFromGap(gap),
     };
   });
 
@@ -284,6 +278,8 @@ export function analyzeResults(
     (s) => (skillEvidence[s.skillId]?.length ?? 0) > 0
   ).length;
 
+  const aggregates = computeMetadataAggregates(skills, trackScore);
+
   // Advanced analytics
   const archetype = config.classifyArchetype(skills, overallTrajectory);
   const firmFit = computeFirmFit(skills, config.firmWeights);
@@ -300,6 +296,7 @@ export function analyzeResults(
       benchmark: BENCHMARK,
       strongestSkill: { label: strongest.label, score: strongest.score },
       weakestSkill: { label: weakest.label, score: weakest.score },
+      ...aggregates,
     },
     quickStats: {
       skillsAboveBenchmark,
@@ -315,5 +312,78 @@ export function analyzeResults(
     firmFit,
     pressureResilience,
     percentile,
+  };
+}
+
+// ─── Metadata aggregates ─────────────────────────────────────────────────────
+
+/**
+ * Computes the derived metadata fields surfaced on DiagnosticReport.metadata.
+ * Used both at session-completion time (in analyzeResults) and as a back-fill
+ * shim for any persisted reports written before these fields existed.
+ */
+function computeMetadataAggregates(
+  skills: SkillDetail[],
+  trackScore: number
+): {
+  overallAssessment: SkillAssessment;
+  avgGap: number;
+  bestStage: { stage: 1 | 2 | 3; avg: number };
+  skillsImproving: number;
+  skillsDeclining: number;
+} {
+  const overallAssessment = classifyFromGap(trackScore - BENCHMARK);
+  const avgGap = skills.length > 0
+    ? Math.round(skills.reduce((s, sk) => s + sk.gap, 0) / skills.length)
+    : 0;
+  const skillsImproving = skills.filter((s) => s.trajectory === 'IMPROVING').length;
+  const skillsDeclining = skills.filter((s) => s.trajectory === 'DECLINING').length;
+
+  const stageAvgs: Partial<Record<1 | 2 | 3, { sum: number; count: number }>> = {};
+  for (const s of skills) {
+    for (const ss of s.stageScores) {
+      const entry = stageAvgs[ss.stage] ?? { sum: 0, count: 0 };
+      entry.sum += ss.score;
+      entry.count += 1;
+      stageAvgs[ss.stage] = entry;
+    }
+  }
+  let bestStageNum: 1 | 2 | 3 = 1;
+  let bestAvg = 0;
+  for (const stage of [1, 2, 3] as const) {
+    const entry = stageAvgs[stage];
+    if (!entry || entry.count === 0) continue;
+    const avg = entry.sum / entry.count;
+    if (avg > bestAvg) { bestAvg = avg; bestStageNum = stage; }
+  }
+  const bestStage = { stage: bestStageNum, avg: Math.round(bestAvg) };
+
+  return { overallAssessment, avgGap, bestStage, skillsImproving, skillsDeclining };
+}
+
+/**
+ * Backfills derived metadata fields on a parsed DiagnosticReport.
+ *
+ * Old `resultJson` blobs persisted before these fields were added on the type
+ * may be missing them. Call this at every read-boundary parse site so the UI
+ * can rely on the fields without computing fallbacks itself.
+ */
+export function ensureMetadataComplete(report: DiagnosticReport): DiagnosticReport {
+  const md = report.metadata as Partial<DiagnosticReport['metadata']>;
+  if (
+    md.overallAssessment !== undefined &&
+    md.avgGap !== undefined &&
+    md.bestStage !== undefined &&
+    md.skillsImproving !== undefined &&
+    md.skillsDeclining !== undefined
+  ) {
+    return report;
+  }
+  return {
+    ...report,
+    metadata: {
+      ...report.metadata,
+      ...computeMetadataAggregates(report.skills, report.trackScore),
+    },
   };
 }

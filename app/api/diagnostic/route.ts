@@ -22,7 +22,7 @@ import { getCaseContent, getProbeContent, getProbeExhibit, serializeExhibitForAI
 import { DiagnosticStep } from '@/engine/DiagnosticFlow';
 import { applyDiagnosticStepResult } from '@/engine/applyDiagnosticStepResult';
 import { calculateProbeScore, type Difficulty } from '@/engine/scoring';
-import { analyzeResults } from '@/engine/analyzeResults';
+import { analyzeResults, ensureMetadataComplete } from '@/engine/analyzeResults';
 import { DiagnosticStatus } from '@/engine/diagnosticSession';
 import { batchExtractSignals } from '@/lib/ai/batchExtractSignals';
 import { generatePersonalizedFeedback } from '@/lib/ai/generatePersonalizedFeedback';
@@ -91,7 +91,7 @@ export async function GET(req: NextRequest) {
     }
     let result;
     try {
-      result = JSON.parse(run.resultJson);
+      result = ensureMetadataComplete(JSON.parse(run.resultJson));
     } catch {
       return NextResponse.json({ personalizedFeedbackReady: false });
     }

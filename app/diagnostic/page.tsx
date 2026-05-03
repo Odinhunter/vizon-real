@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { supportedTrackIds } from '@/config/registry';
+import { supportedTrackIds, getTrackShape } from '@/config/registry';
 import DiagnosticController from '@/components/diagnostic/DiagnosticController';
 import TrackSelection from '@/components/diagnostic/TrackSelection';
 
@@ -21,5 +21,7 @@ export default async function DiagnosticPage({ searchParams }: DiagnosticPagePro
     return <TrackSelection />;
   }
 
-  return <DiagnosticController trackId={trackId} />;
+  const trackShape = getTrackShape(trackId)!;
+
+  return <DiagnosticController trackId={trackId} trackShape={trackShape} />;
 }

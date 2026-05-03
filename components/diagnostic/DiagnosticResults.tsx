@@ -307,30 +307,7 @@ export default function DiagnosticResults({
   }));
 
   const verdictColors = VERDICT_COLORS[verdict];
-  const overallAssessment = classifyFromGap(trackScore - benchmark);
-
-  // Computed insights
-  const avgGap = skills.length > 0 ? Math.round(skills.reduce((s, sk) => s + sk.gap, 0) / skills.length) : 0;
-  const skillsImproving = skills.filter((s) => s.trajectory === 'IMPROVING').length;
-  const skillsDeclining = skills.filter((s) => s.trajectory === 'DECLINING').length;
-  const bestStage = (() => {
-    const stageAvgs: Record<number, { sum: number; count: number }> = {};
-    for (const s of skills) {
-      for (const ss of s.stageScores) {
-        const entry = stageAvgs[ss.stage] ?? { sum: 0, count: 0 };
-        entry.sum += ss.score;
-        entry.count += 1;
-        stageAvgs[ss.stage] = entry;
-      }
-    }
-    let best = 1;
-    let bestAvg = 0;
-    for (const [stage, { sum, count }] of Object.entries(stageAvgs)) {
-      const avg = sum / count;
-      if (avg > bestAvg) { bestAvg = avg; best = Number(stage); }
-    }
-    return { stage: best, avg: Math.round(bestAvg) };
-  })();
+  const { overallAssessment, avgGap, bestStage, skillsImproving, skillsDeclining } = metadata;
 
   // Pressure resilience area chart data
   const areaChartData = pressureResilience.perCaseAverage.map((pc) => ({
@@ -1062,9 +1039,3 @@ function SkillCard({ skill, expanded, onToggle }: { skill: SkillDetail; expanded
   );
 }
 
-function classifyFromGap(gap: number): SkillAssessment {
-  if (gap >= 5) return 'ABOVE_THRESHOLD';
-  if (gap >= -4) return 'NEAR_THRESHOLD';
-  if (gap >= -10) return 'BELOW_THRESHOLD';
-  return 'CRITICAL_GAP';
-}

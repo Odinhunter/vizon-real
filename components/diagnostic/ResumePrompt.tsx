@@ -6,6 +6,8 @@ import type { InProgressSessionInfo } from '@/lib/api/diagnosticClient';
 
 interface ResumePromptProps {
   session: InProgressSessionInfo;
+  totalCases: number;
+  probesPerCase: number;
   onContinue: () => void;
   onStartFresh: () => void;
   isContinuing: boolean;
@@ -28,11 +30,15 @@ const CASE_LABELS: Record<1 | 2 | 3, string> = {
 
 export default function ResumePrompt({
   session,
+  totalCases,
+  probesPerCase,
   onContinue,
   onStartFresh,
   isContinuing,
   isStartingFresh,
 }: ResumePromptProps) {
+  const totalProbes = totalCases * probesPerCase;
+  const probesAnswered = (session.caseStage - 1) * probesPerCase + session.probeNumber - 1;
   return (
     <motion.div
       variants={staggerContainer}
@@ -83,7 +89,7 @@ export default function ResumePrompt({
             </div>
             <div className="border-l-2 border-[#0e9f6e] pl-4">
               <div className="font-mono text-lg font-medium tabular-nums mb-1" style={{ color: NAVY }}>
-                Probe {session.probeNumber} of 5
+                Probe {session.probeNumber} of {probesPerCase}
               </div>
               <div className="text-[9px] font-mono text-[#5a6775] tracking-[0.15em] uppercase">
                 Current Probe
@@ -106,14 +112,14 @@ export default function ResumePrompt({
                 Overall Progress
               </span>
               <span className="text-[9px] font-mono text-[#5a6775]">
-                {((session.caseStage - 1) * 5 + session.probeNumber - 1)} / 15 probes answered
+                {probesAnswered} / {totalProbes} probes answered
               </span>
             </div>
             <div className="h-1.5 w-full bg-[#e2e6ea] rounded-full overflow-hidden">
               <div
                 className="h-full rounded-full bg-[#1A56DB] transition-all"
                 style={{
-                  width: `${(((session.caseStage - 1) * 5 + session.probeNumber - 1) / 15) * 100}%`,
+                  width: `${(probesAnswered / totalProbes) * 100}%`,
                 }}
               />
             </div>
