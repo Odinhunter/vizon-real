@@ -223,11 +223,21 @@ export async function startSession(trackId: string): Promise<StartResponse> {
     body: JSON.stringify({ action: 'start', trackId }),
   });
 
-  const data = await res.json();
-  if (!res.ok) {
-    throw new Error(data?.error ?? 'Failed to start session');
+  const text = await res.text();
+  const ct = res.headers.get('content-type') ?? '<none>';
+  if (!text) {
+    throw new Error(`[diag] empty body — status=${res.status} ct=${ct} url=${res.url}`);
   }
-  return data as StartResponse;
+  let data: { error?: string } & Record<string, unknown>;
+  try {
+    data = JSON.parse(text);
+  } catch {
+    throw new Error(`[diag] non-JSON body — status=${res.status} ct=${ct} body=${text.slice(0, 200)}`);
+  }
+  if (!res.ok) {
+    throw new Error(data?.error ?? `Failed to start session (status ${res.status})`);
+  }
+  return data as unknown as StartResponse;
 }
 
 export interface AnswerPayload {
