@@ -69,82 +69,87 @@ function isValidPendingStep(obj: unknown): obj is DiagnosticStep {
 }
 
 export async function GET(req: NextRequest) {
-  const session = await auth();
-  if (!session?.user?.id) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  }
-
-  const blocked = applyRateLimit(diagnosticCheckLimiter, session.user.id);
-  if (blocked) return blocked;
-
-  const { searchParams } = new URL(req.url);
-
-  // Feedback polling: GET /api/diagnostic?sessionId=<id>
-  const sessionId = searchParams.get('sessionId');
-  if (sessionId) {
-    const run = await prisma.diagnosticRun.findUnique({ where: { sessionId } });
-    if (!run || run.userId !== session.user.id) {
-      return NextResponse.json({ error: 'Not found' }, { status: 404 });
-    }
-    if (run.status !== 'COMPLETE' || !run.resultJson) {
-      return NextResponse.json({ personalizedFeedbackReady: false });
-    }
-    let result;
-    try {
-      result = ensureMetadataComplete(JSON.parse(run.resultJson));
-    } catch {
-      return NextResponse.json({ personalizedFeedbackReady: false });
-    }
-    const ready = Array.isArray(result?.answerFeedback) && result.answerFeedback.length > 0;
-    return NextResponse.json({ personalizedFeedbackReady: ready, result: ready ? result : undefined });
-  }
-
-  // In-progress session check: GET /api/diagnostic?trackId=<id>
-  const trackId = searchParams.get('trackId');
-  if (!trackId) {
-    return NextResponse.json({ error: 'Missing trackId or sessionId' }, { status: 400 });
-  }
-
-  const run = await prisma.diagnosticRun.findFirst({
-    where: { userId: session.user.id, trackId, status: 'IN_PROGRESS' },
-    orderBy: { startedAt: 'desc' },
-  });
-
-  if (!run || !run.sessionStateJson || !run.pendingStepJson) {
-    return NextResponse.json({ inProgressSession: null });
-  }
-
-  let diagSession: DiagnosticSession;
   try {
-    const parsed = JSON.parse(run.sessionStateJson);
-    if (!isValidSessionState(parsed)) {
+    const session = await auth();
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const blocked = applyRateLimit(diagnosticCheckLimiter, session.user.id);
+    if (blocked) return blocked;
+
+    const { searchParams } = new URL(req.url);
+
+    // Feedback polling: GET /api/diagnostic?sessionId=<id>
+    const sessionId = searchParams.get('sessionId');
+    if (sessionId) {
+      const run = await prisma.diagnosticRun.findUnique({ where: { sessionId } });
+      if (!run || run.userId !== session.user.id) {
+        return NextResponse.json({ error: 'Not found' }, { status: 404 });
+      }
+      if (run.status !== 'COMPLETE' || !run.resultJson) {
+        return NextResponse.json({ personalizedFeedbackReady: false });
+      }
+      let result;
+      try {
+        result = ensureMetadataComplete(JSON.parse(run.resultJson));
+      } catch {
+        return NextResponse.json({ personalizedFeedbackReady: false });
+      }
+      const ready = Array.isArray(result?.answerFeedback) && result.answerFeedback.length > 0;
+      return NextResponse.json({ personalizedFeedbackReady: ready, result: ready ? result : undefined });
+    }
+
+    // In-progress session check: GET /api/diagnostic?trackId=<id>
+    const trackId = searchParams.get('trackId');
+    if (!trackId) {
+      return NextResponse.json({ error: 'Missing trackId or sessionId' }, { status: 400 });
+    }
+
+    const run = await prisma.diagnosticRun.findFirst({
+      where: { userId: session.user.id, trackId, status: 'IN_PROGRESS' },
+      orderBy: { startedAt: 'desc' },
+    });
+
+    if (!run || !run.sessionStateJson || !run.pendingStepJson) {
       return NextResponse.json({ inProgressSession: null });
     }
-    diagSession = parsed;
-  } catch {
-    return NextResponse.json({ inProgressSession: null });
+
+    let diagSession: DiagnosticSession;
+    try {
+      const parsed = JSON.parse(run.sessionStateJson);
+      if (!isValidSessionState(parsed)) {
+        return NextResponse.json({ inProgressSession: null });
+      }
+      diagSession = parsed;
+    } catch {
+      return NextResponse.json({ inProgressSession: null });
+    }
+
+    const probeNumber = (diagSession.currentSlotIndex ?? 0) + 1;
+
+    return NextResponse.json({
+      inProgressSession: {
+        sessionId: run.sessionId,
+        trackId: run.trackId,
+        caseStage: diagSession.caseStage as 1 | 2 | 3,
+        probeNumber,
+        startedAt: run.startedAt.toISOString(),
+      },
+    });
+  } catch (err) {
+    console.error('[GET /api/diagnostic] uncaught:', err instanceof Error ? err.stack ?? err.message : err);
+    return NextResponse.json({ error: 'An error occurred processing your request' }, { status: 500 });
   }
-
-  const probeNumber = (diagSession.currentSlotIndex ?? 0) + 1;
-
-  return NextResponse.json({
-    inProgressSession: {
-      sessionId: run.sessionId,
-      trackId: run.trackId,
-      caseStage: diagSession.caseStage as 1 | 2 | 3,
-      probeNumber,
-      startedAt: run.startedAt.toISOString(),
-    },
-  });
 }
 
 export async function POST(req: NextRequest) {
-  const session = await auth();
-  if (!session?.user?.id) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  }
-
   try {
+    const session = await auth();
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     const body = await req.json();
     const { action } = body;
 
@@ -153,19 +158,19 @@ export async function POST(req: NextRequest) {
     if (action === 'start') {
       const blocked = applyRateLimit(diagnosticStartLimiter, limiterKey);
       if (blocked) return blocked;
-      return handleStart(body, session.user.id);
+      return await handleStart(body, session.user.id);
     }
 
     if (action === 'answer') {
       const blocked = applyRateLimit(diagnosticAnswerLimiter, limiterKey);
       if (blocked) return blocked;
-      return handleAnswer(body, session.user.id);
+      return await handleAnswer(body, session.user.id);
     }
 
     if (action === 'resume') {
       const blocked = applyRateLimit(diagnosticCheckLimiter, limiterKey);
       if (blocked) return blocked;
-      return handleResume(body, session.user.id);
+      return await handleResume(body, session.user.id);
     }
 
     return NextResponse.json(
@@ -173,7 +178,7 @@ export async function POST(req: NextRequest) {
       { status: 400 }
     );
   } catch (err) {
-    console.error('Diagnostic API error:', err instanceof Error ? err.message : 'Unknown error');
+    console.error('[POST /api/diagnostic] uncaught:', err instanceof Error ? err.stack ?? err.message : err);
     return NextResponse.json({ error: 'An error occurred processing your request' }, { status: 500 });
   }
 }
