@@ -6,7 +6,13 @@ export default function robots(): MetadataRoute.Robots {
       {
         userAgent: '*',
         allow: '/',
-        disallow: ['/api/', '/diagnostic', '/profile', '/preview-results'],
+        disallow: [
+          '/api/',
+          '/diagnostic',
+          '/profile',
+          '/preview-results',
+          '/unlisted',
+        ],
       },
     ],
     sitemap: 'https://getvizon.com/sitemap.xml',
