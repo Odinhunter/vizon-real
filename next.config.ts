@@ -31,13 +31,6 @@ const nextConfig: NextConfig = {
           },
         ],
       },
-      {
-        // An unlisted route must never be indexed.
-        source: '/unlisted/:path*',
-        headers: [
-          { key: 'X-Robots-Tag', value: 'noindex, nofollow, noarchive, noimageindex' },
-        ],
-      },
     ];
   },
   poweredByHeader: false,
